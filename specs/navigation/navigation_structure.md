@@ -1,0 +1,12 @@
+## 📂 9. navigation_structure.md
+- **Público:**
+  - `/` -> Home (Landing Page con servicios y testimonios).
+  - `/servicios` -> Detalle de acompañamiento y monitoreo.
+- **Onboarding (Postulantes):**
+  - `/onboarding/step-1` -> Evaluación técnica y psicométrica.
+  - `/onboarding/step-2` -> Carga de Hoja de Vida.
+  - `/onboarding/step-3` -> Carga de Video Presentación y Referencia.
+  - `/onboarding/step-4` -> Pantalla de confirmación y estado de revisión.
+- **Legal:**
+  - `/terminos` -> Términos y condiciones.
+  - `/privacidad` -> Política de manejo de datos personales.
