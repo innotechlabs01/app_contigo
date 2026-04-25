@@ -20,7 +20,7 @@ export function EvaluationStep() {
   const [currentPage, setCurrentPage] = useState(0);
   const [responses, setResponses] = useState<Record<number, number>>({});
   const [result, setResult] = useState<EvaluationResult | null>(null);
-  const { setEvaluation, setStep } = useOnboardingStore();
+  const { setEvaluation, setEvaluationResult, setStep } = useOnboardingStore();
   const { questionnaires, fetchQuestionnaires } = useQuestionnaireStore();
   const [evaluationQuestionnaire, setEvaluationQuestionnaire] = useState<Questionnaire | null>(null);
 
@@ -83,12 +83,9 @@ export function EvaluationStep() {
 
   const handleSubmit = () => {
     const evalResult = calculateEvaluationResult(responses);
-    setResult(evalResult);
     setEvaluation(responses);
-
-    if (evalResult.finalResult === 'ELITE_HIRE' || evalResult.finalResult === 'REVIEW') {
-      setTimeout(() => setStep('documentation', 1), 3000);
-    }
+    setEvaluationResult(evalResult.globalScore, evalResult.passed);
+    setStep('documentation', 1);
   };
 
   const isCurrentPageComplete = currentQuestions.every((q) => responses[q.id] !== undefined);

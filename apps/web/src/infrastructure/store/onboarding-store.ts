@@ -6,6 +6,7 @@ import { EvaluationAnswers, EvaluationResponse, OnboardingStep, OnboardingState 
 interface OnboardingStore extends OnboardingState {
   setStep: (step: OnboardingStep, index: number) => void;
   setEvaluation: (data: EvaluationAnswers | null) => void;
+  setEvaluationResult: (score: number, passed: boolean) => void;
   setDocument: (type: 'cv', url: string, fileName: string) => void;
   setVideos: (type: 'presentation' | 'reference', url: string, fileName: string) => void;
   setStatus: (status: OnboardingState['status']) => void;
@@ -17,6 +18,8 @@ const initialState: OnboardingState = {
   currentStep: 'evaluation',
   stepIndex: 0,
   evaluation: null,
+  evaluationScore: null,
+  evaluationPassed: null,
   documents: { cv: null },
   videos: { presentation: undefined, reference: undefined },
   status: 'in_progress',
@@ -28,6 +31,8 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
   setStep: (step, index) => set({ currentStep: step, stepIndex: index }),
 
   setEvaluation: (data) => set({ evaluation: data }),
+
+  setEvaluationResult: (score, passed) => set({ evaluationScore: score, evaluationPassed: passed }),
 
   setDocument: (type, url, fileName) =>
     set((state) => ({
@@ -41,7 +46,14 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
 
   setStatus: (status) => set({ status }),
 
-  reset: () => set(initialState),
+  reset: () => set({
+    ...initialState,
+    evaluation: null,
+    evaluationScore: null,
+    evaluationPassed: null,
+    documents: { cv: null },
+    videos: { presentation: undefined, reference: undefined },
+  }),
 
   canProceed: (stepIndex) => {
     const state = get();

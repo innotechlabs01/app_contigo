@@ -37,6 +37,8 @@ export interface OnboardingState {
   currentStep: OnboardingStep;
   stepIndex: number;
   evaluation: EvaluationAnswers | EvaluationResponse | null;
+  evaluationScore: number | null;
+  evaluationPassed: boolean | null;
   documents: {
     cv: UploadResult | null;
   };

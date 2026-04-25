@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Check, X, Eye, Clock, User, MapPin, Phone, Mail } from 'lucide-react';
+import { Check, X, Eye, Clock, User, MapPin, Phone, Mail, FileText, Video, Award } from 'lucide-react';
 
 interface Request {
   id: string;
@@ -15,6 +15,10 @@ interface Request {
   date: string;
   experience: string;
   message: string;
+  evaluationScore?: number;
+  cvFile?: string;
+  presentationVideo?: string;
+  referenceVideo?: string;
 }
 
 const MOCK_REQUESTS: Request[] = [
@@ -29,6 +33,10 @@ const MOCK_REQUESTS: Request[] = [
     date: '2026-04-20',
     experience: '2 años en cuidado de adultos mayores',
     message: 'Me gustaría trabajar con Contigo porque valoro mucho el cuidado digno para los adultos mayores.',
+    evaluationScore: 85,
+    cvFile: 'maria_gonzalez_cv.pdf',
+    presentationVideo: 'presentacion_maria.mp4',
+    referenceVideo: 'referencia_maria.mp4',
   },
   {
     id: '2',
@@ -41,6 +49,10 @@ const MOCK_REQUESTS: Request[] = [
     date: '2026-04-21',
     experience: '3 años en enfermería domiciliaria',
     message: 'Soy enfermero con experiencia en el cuidado de personas mayores con movilidad reducida.',
+    evaluationScore: 92,
+    cvFile: 'carlos_rodriguez_cv.pdf',
+    presentationVideo: 'presentacion_carlos.mp4',
+    referenceVideo: 'referencia_carlos.mp4',
   },
   {
     id: '3',
@@ -53,6 +65,10 @@ const MOCK_REQUESTS: Request[] = [
     date: '2026-04-18',
     experience: '1 año en servicios de apoyo doméstico',
     message: 'Busco una plataforma seria y profesional para ofrecer mis servicios.',
+    evaluationScore: 78,
+    cvFile: 'ana_martinez_cv.pdf',
+    presentationVideo: 'presentacion_ana.mp4',
+    referenceVideo: 'referencia_ana.mp4',
   },
   {
     id: '4',
@@ -65,6 +81,10 @@ const MOCK_REQUESTS: Request[] = [
     date: '2026-04-15',
     experience: 'Sin experiencia previa',
     message: 'Me gustaría aprender y crecer con la empresa.',
+    evaluationScore: 65,
+    cvFile: 'jose_hernandez_cv.pdf',
+    presentationVideo: 'presentacion_jose.mp4',
+    referenceVideo: '',
   },
   {
     id: '5',
@@ -77,6 +97,10 @@ const MOCK_REQUESTS: Request[] = [
     date: '2026-04-22',
     experience: '5 años en clínicas de adultos mayores',
     message: 'Cuento con certificaciones en primeros auxilios y cuidado geriátrico.',
+    evaluationScore: 88,
+    cvFile: 'laura_gomez_cv.pdf',
+    presentationVideo: 'presentacion_laura.mp4',
+    referenceVideo: 'referencia_laura.mp4',
   },
 ];
 
@@ -228,14 +252,40 @@ export default function RequestsPage() {
       {/* Detail Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedRequest(null)}>
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-xl font-bold text-slate-800">{selectedRequest.name}</h2>
               <button onClick={() => setSelectedRequest(null)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3 text-sm">
+
+            {/* Evaluation Score */}
+            {selectedRequest.evaluationScore !== undefined && (
+              <div className={`mb-4 p-4 rounded-xl ${
+                selectedRequest.evaluationScore >= 80 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+              }`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Award className="w-5 h-5" />
+                  <span className="font-semibold">Calificación de Evaluación</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-3xl font-bold ${
+                    selectedRequest.evaluationScore >= 80 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {selectedRequest.evaluationScore}%
+                  </span>
+                  <span className={`px-2 py-1 rounded-full text-sm ${
+                    selectedRequest.evaluationScore >= 80 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                    {selectedRequest.evaluationScore >= 80 ? 'Aprobado' : 'No aprobado'}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Documentation */}
+            <div className="space-y-3 text-sm mb-4">
               <p><strong>Email:</strong> {selectedRequest.email}</p>
               <p><strong>Teléfono:</strong> {selectedRequest.phone}</p>
               <p><strong>Ubicación:</strong> {selectedRequest.location}</p>
@@ -245,8 +295,37 @@ export default function RequestsPage() {
               <p><strong>Fecha:</strong> {selectedRequest.date}</p>
               <p><strong>Estado:</strong> {getStatusBadge(selectedRequest.status)}</p>
             </div>
+
+            {/* Documents */}
+            <div className="border-t pt-4 mb-4">
+              <h3 className="font-semibold mb-3">Documentos Adjuntos</h3>
+              <div className="space-y-2">
+                {selectedRequest.cvFile && (
+                  <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm">{selectedRequest.cvFile}</span>
+                    <a href="#" className="ml-auto text-primary text-sm hover:underline">Ver</a>
+                  </div>
+                )}
+                {selectedRequest.presentationVideo && (
+                  <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                    <Video className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm">{selectedRequest.presentationVideo}</span>
+                    <a href="#" className="ml-auto text-primary text-sm hover:underline">Ver</a>
+                  </div>
+                )}
+                {selectedRequest.referenceVideo && (
+                  <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                    <Video className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm">{selectedRequest.referenceVideo}</span>
+                    <a href="#" className="ml-auto text-primary text-sm hover:underline">Ver</a>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {selectedRequest.status === 'pending' && (
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-3">
                 <Button onClick={() => handleApprove(selectedRequest.id)} className="flex-1 bg-green-600 hover:bg-green-700">
                   <Check className="w-4 h-4 mr-2" /> Aprobar
                 </Button>
