@@ -2,6 +2,10 @@ export interface EvaluationAnswers {
   [questionId: string]: string | number | boolean;
 }
 
+export interface EvaluationResponse {
+  [questionId: number]: number;
+}
+
 export interface EvaluationResult {
   passed: boolean;
   score?: number;
@@ -32,7 +36,7 @@ export type OnboardingStep =
 export interface OnboardingState {
   currentStep: OnboardingStep;
   stepIndex: number;
-  evaluation: EvaluationAnswers | null;
+  evaluation: EvaluationAnswers | EvaluationResponse | null;
   documents: {
     cv: UploadResult | null;
   };

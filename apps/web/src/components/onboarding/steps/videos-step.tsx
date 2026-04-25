@@ -62,17 +62,17 @@ function VideoUpload({ type, label, description, register, errors }: VideoUpload
       ) : (
         <label
           htmlFor={`video-${type}`}
-          className="flex flex-col items-center justify-center aspect-video bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 cursor-pointer hover:border-primary transition-colors"
+          className="flex flex-col items-center justify-center aspect-video bg-slate-100 rounded-xl border-2 border-dashed border-slate-300 cursor-pointer hover:border-secondary transition-colors"
         >
           <Video className="w-10 h-10 text-slate-400 mb-2" />
           <span className="text-sm text-slate-500">Subir video</span>
           <span className="text-xs text-slate-400 mt-1">MP4, MOV • máx 1GB</span>
         </label>
       )}
-      
+
       {uploading && (
         <div className="mt-3 flex items-center gap-2">
-          <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+          <div className="animate-spin w-4 h-4 border-2 border-secondary border-t-transparent rounded-full" />
           <span className="text-sm text-slate-600">Subiendo...</span>
         </div>
       )}
@@ -93,12 +93,12 @@ export function VideosStep() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-primary">Videos de Presentación</h2>
+        <h2 className="text-2xl font-semibold text-secondary">Videos de Presentación</h2>
         <p className="text-slate-600 mt-2">Graba un video presentándote y una referencia</p>
       </div>
 
-      <div className="bg-blue-50 p-4 rounded-2xl">
-        <p className="text-sm text-primary font-medium">🎥 Requisitos:</p>
+      <div className="bg-secondary/10 p-4 rounded-2xl">
+        <p className="text-sm text-secondary font-medium">🎥 Requisitos:</p>
         <ul className="text-sm text-slate-600 mt-2 space-y-1">
           <li>• Duración mínima: 60 segundos</li>
           <li>• Formatos: MP4, MOV</li>

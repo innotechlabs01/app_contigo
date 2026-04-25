@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { EvaluationAnswers, OnboardingStep, OnboardingState } from '@/domain/onboarding/types';
+import { EvaluationAnswers, EvaluationResponse, OnboardingStep, OnboardingState } from '@/domain/onboarding/types';
 
 interface OnboardingStore extends OnboardingState {
   setStep: (step: OnboardingStep, index: number) => void;

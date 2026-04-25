@@ -13,7 +13,7 @@ export default function OnboardingPage() {
     <main className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Únete a Contigo</h1>
+          <h1 className="text-3xl font-bold text-secondary">Únete a Contigo</h1>
           <p className="text-slate-600 mt-2">Completa el proceso de registro para convertirte en Compañero</p>
         </div>
         <OnboardingContainer />

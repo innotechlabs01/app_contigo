@@ -23,9 +23,9 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
               className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300",
                 index < currentStep
-                  ? "bg-primary text-white"
+                  ? "bg-secondary text-white"
                   : index === currentStep
-                  ? "bg-primary text-white ring-4 ring-primary-200"
+                  ? "bg-secondary text-white ring-4 ring-secondary/20"
                   : "bg-slate-200 text-slate-500"
               )}
             >
@@ -40,7 +40,7 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
             <span
               className={cn(
                 "mt-2 text-sm font-medium",
-                index <= currentStep ? "text-primary" : "text-slate-400"
+                index <= currentStep ? "text-secondary" : "text-slate-400"
               )}
             >
               {step.title}
@@ -50,7 +50,7 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
             <div
               className={cn(
                 "flex-1 h-1 mx-4 rounded-full transition-all duration-300",
-                index < currentStep ? "bg-primary" : "bg-slate-200"
+                index < currentStep ? "bg-secondary" : "bg-slate-200"
               )}
             />
           )}
