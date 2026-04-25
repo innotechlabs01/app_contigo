@@ -84,7 +84,8 @@ export function EvaluationStep() {
   const handleSubmit = () => {
     const evalResult = calculateEvaluationResult(responses);
     setEvaluation(responses);
-    setEvaluationResult(evalResult.globalScore, evalResult.passed);
+    const passed = evalResult.finalResult !== 'REJECT';
+    setEvaluationResult(evalResult.globalScore, passed);
     setStep('documentation', 1);
   };
 
