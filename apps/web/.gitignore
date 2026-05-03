@@ -28,6 +28,11 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 
+# Storage data (except example)
+data/
+!data/.gitkeep
+!data/storage.json.example
+
 # Vercel
 .vercel
 

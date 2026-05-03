@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { Questionnaire } from '@/domain/onboarding/questionnaire';
+import { createStorage } from '@/infrastructure/storage/storage-factory';
 
-const questionnaires: Map<string, Questionnaire> = new Map();
+const COLLECTION = 'questionnaires';
 
 export async function GET() {
-  const all = Array.from(questionnaires.values()).sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  const storage = createStorage();
+  const all = await storage.getAll<Questionnaire>(COLLECTION);
+  const sorted = all.sort(
+    (a: Questionnaire, b: Questionnaire) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
-  return NextResponse.json(all);
+  return NextResponse.json(sorted);
 }
 
 export async function POST(request: Request) {
+  const storage = createStorage();
   const data = await request.json();
   const now = new Date().toISOString();
 
@@ -21,6 +26,6 @@ export async function POST(request: Request) {
     updatedAt: now,
   };
 
-  questionnaires.set(questionnaire.id, questionnaire);
+  await storage.set(COLLECTION, questionnaire.id, questionnaire);
   return NextResponse.json(questionnaire, { status: 201 });
 }
