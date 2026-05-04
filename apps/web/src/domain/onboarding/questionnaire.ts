@@ -5,7 +5,31 @@ export interface QuestionnaireAnswer {
   isCorrect?: boolean;
 }
 
-export type QuestionType = 'single-choice' | 'multiple-choice';
+export type QuestionType = 
+  | 'single-choice' 
+  | 'multiple-choice'
+  | 'text'
+  | 'textarea'
+  | 'dropdown'
+  | 'date'
+  | 'file-upload'
+  | 'number'
+  | 'email'
+  | 'phone'
+  | 'scale'
+  | 'yes-no';
+
+export interface QuestionConfig {
+  placeholder?: string;
+  maxLength?: number;
+  required?: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  allowedTypes?: string[];
+  maxSizeMB?: number;
+  maxFiles?: number;
+}
 
 export interface QuestionnaireQuestion {
   id: string;
@@ -16,6 +40,7 @@ export interface QuestionnaireQuestion {
   answers: QuestionnaireAnswer[];
   isActive: boolean;
   order: number;
+  config?: QuestionConfig;
 }
 
 export interface Questionnaire {
@@ -39,22 +64,73 @@ export interface QuestionnaireSummary {
   createdAt: string;
 }
 
-export function createEmptyQuestion(): QuestionnaireQuestion {
-  return {
+export function createEmptyQuestion(type: QuestionType = 'single-choice'): QuestionnaireQuestion {
+  const base = {
     id: crypto.randomUUID(),
     text: '',
     pillar: '',
     weight: 1,
-    type: 'single-choice',
-    answers: [
-      { id: crypto.randomUUID(), text: '', score: 5 },
-      { id: crypto.randomUUID(), text: '', score: 4 },
-      { id: crypto.randomUUID(), text: '', score: 3 },
-      { id: crypto.randomUUID(), text: '', score: 2 },
-    ],
+    type,
     isActive: true,
     order: 0,
   };
+
+  switch (type) {
+    case 'single-choice':
+    case 'multiple-choice':
+    case 'dropdown':
+      return {
+        ...base,
+        answers: [
+          { id: crypto.randomUUID(), text: '', score: 5 },
+          { id: crypto.randomUUID(), text: '', score: 4 },
+          { id: crypto.randomUUID(), text: '', score: 3 },
+          { id: crypto.randomUUID(), text: '', score: 2 },
+        ],
+      };
+    case 'scale':
+      return {
+        ...base,
+        answers: [
+          { id: crypto.randomUUID(), text: '1', score: 1 },
+          { id: crypto.randomUUID(), text: '2', score: 2 },
+          { id: crypto.randomUUID(), text: '3', score: 3 },
+          { id: crypto.randomUUID(), text: '4', score: 4 },
+          { id: crypto.randomUUID(), text: '5', score: 5 },
+        ],
+        config: { min: 1, max: 5, step: 1 },
+      };
+    case 'yes-no':
+      return {
+        ...base,
+        answers: [
+          { id: crypto.randomUUID(), text: 'Sí', score: 10 },
+          { id: crypto.randomUUID(), text: 'No', score: 0 },
+        ],
+      };
+    case 'text':
+    case 'textarea':
+    case 'email':
+    case 'phone':
+    case 'number':
+    case 'date':
+      return {
+        ...base,
+        answers: [],
+        config: { placeholder: '', maxLength: undefined, required: false },
+      };
+    case 'file-upload':
+      return {
+        ...base,
+        answers: [],
+        config: { allowedTypes: ['.pdf', '.doc', '.docx'], maxSizeMB: 10, maxFiles: 1 },
+      };
+    default:
+      return {
+        ...base,
+        answers: [],
+      };
+  }
 }
 
 export function createEmptyQuestionnaire(): Questionnaire {

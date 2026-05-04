@@ -7,28 +7,34 @@ import { Button } from '@/components/ui/button';
 import { documentSchema, type DocumentFormData } from '@/domain/onboarding/validations';
 import { useOnboardingStore } from '@/infrastructure/store/onboarding-store';
 import { Upload, FileText, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export function DocumentationStep() {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const { setDocument, setStep } = useOnboardingStore();
   
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<DocumentFormData>({
+  const { handleSubmit, formState: { errors }, setValue, trigger } = useForm<DocumentFormData>({
     resolver: zodResolver(documentSchema),
     mode: 'onChange',
   });
 
-  const fileWatch = watch('file');
-
-  const onSubmit = async (data: DocumentFormData) => {
+  const onSubmit = async () => {
+    if (!file) return;
     setUploading(true);
     // Simular upload - en producción usar onboardingService.uploadDocument
     setTimeout(() => {
-      setDocument('cv', URL.createObjectURL(data.file), data.file.name);
+      setDocument('cv', URL.createObjectURL(file), file.name);
       setUploading(false);
       setStep('videos', 2);
     }, 1500);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) {
+      setFile(f);
+      setValue('file', f, { shouldValidate: true });
+    }
   };
 
   return (
@@ -53,18 +59,22 @@ export function DocumentationStep() {
             accept=".pdf,.doc,.docx"
             className="hidden"
             id="cv-upload"
-            {...register('file')}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) setFile(f);
-            }}
+            onChange={handleFileChange}
           />
           <label htmlFor="cv-upload" className="cursor-pointer">
             {file ? (
               <div className="flex items-center justify-center gap-3">
                 <FileText className="w-8 h-8 text-secondary" />
                 <span className="font-medium">{file.name}</span>
-                <button type="button" onClick={(e) => { e.preventDefault(); setFile(null); }} className="ml-2">
+                <button 
+                  type="button" 
+                  onClick={(e) => { 
+                    e.preventDefault(); 
+                    setFile(null); 
+                    setValue('file', undefined as any, { shouldValidate: true });
+                  }} 
+                  className="ml-2"
+                >
                   <X className="w-5 h-5 text-red-500" />
                 </button>
               </div>

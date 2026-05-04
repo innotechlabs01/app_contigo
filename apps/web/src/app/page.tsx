@@ -12,32 +12,96 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Video Background Placeholder */}
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 via-primary/10 to-background">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1920')] bg-cover bg-center opacity-20" />
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Video Background with overlay */}
+        <div className="absolute inset-0 z-0">
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline
+            className="w-full h-full object-cover scale-105"
+          >
+            <source src="/contigo-simple.mp4" type="video/mp4" />
+          </video>
+          {/* Multi-layered overlay for depth and readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 via-secondary/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-0" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl md:text-6xl font-bold text-secondary mb-6 leading-tight">
-              Cuidado y Acompañamiento con Confianza
-            </h1>
-            <p className="text-xl md:text-2xl text-slate-600 mb-8 max-w-2xl mx-auto">
-              Conectamos adultos mayores y extranjeras con Compañeros verificados
-              para brindarle seguridad, empatía y compañía.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/onboarding">
-                <Button size="lg" className="text-lg px-10 py-7">
-                  Quiero ser Compañero
-                </Button>
-              </Link>
-              <Link href="/admin/login">
-                <Button variant="outline" size="lg" className="text-lg px-10 py-7">
-                  Iniciar sesión
-                </Button>
-              </Link>
+        <div className="relative z-20 container mx-auto px-4 lg:px-8 py-24">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            {/* Left Column - Main Message */}
+            <div className="w-full lg:w-3/5 space-y-10">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/90 text-sm font-medium animate-fade-in">
+                  <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                  Servicios de acompañamiento premium
+                </div>
+                
+                <h1 className="text-6xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight drop-shadow-2xl">
+                  Cuidado y <br />
+                  <span className="text-primary-300 relative inline-block">
+                    Acompañamiento
+                    <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full" />
+                  </span><br />
+                  con Confianza
+                </h1>
+                
+                <p className="text-xl md:text-2xl text-white/90 leading-relaxed max-w-2xl drop-shadow-md font-light">
+                  Conectamos adultos mayores y extranjeros con <strong className="font-semibold text-white">Compañeros verificados</strong> para brindar seguridad, empatía y una vida más plena.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-5">
+                <Link href="/onboarding">
+                  <Button size="lg" className="h-16 px-10 text-lg bg-primary hover:bg-primary-600 text-secondary font-semibold rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+                    Quiero ser Compañero
+                  </Button>
+                </Link>
+                <Link href="/admin/login">
+                  <Button variant="outline" size="lg" className="h-16 px-10 text-lg bg-white/10 backdrop-blur-md text-white border-white/30 hover:bg-white/20 hover:border-white/50 rounded-2xl transition-all">
+                    Iniciar sesión
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column - Floating Stats */}
+            <div className="w-full lg:w-2/5 flex justify-center lg:justify-end">
+              <div className="grid grid-cols-2 gap-4 w-full max-w-md animate-float">
+                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
+                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <p className="text-4xl font-bold text-white tracking-tighter">500+</p>
+                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Compañeros</p>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl mt-8 flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
+                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
+                    <Heart className="w-6 h-6" />
+                  </div>
+                  <p className="text-4xl font-bold text-white tracking-tighter">2000+</p>
+                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Familias</p>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl -mt-4 flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
+                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
+                    <Star className="w-6 h-6" />
+                  </div>
+                  <p className="text-4xl font-bold text-white tracking-tighter">4.9</p>
+                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Rating</p>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl mt-4 flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
+                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <p className="text-4xl font-bold text-white tracking-tighter">24/7</p>
+                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Soporte</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -208,12 +272,12 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="bg-surface rounded-2xl p-8 shadow-soft hover:shadow-lg transition-shadow">
-      <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center text-secondary mb-4">
+    <div className="group bg-white rounded-[2rem] p-10 shadow-soft hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-slate-100">
+      <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-secondary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold text-secondary mb-3">{title}</h3>
-      <p className="text-slate-600">{description}</p>
+      <h3 className="text-2xl font-bold text-secondary mb-4 leading-tight">{title}</h3>
+      <p className="text-slate-600 leading-relaxed text-lg">{description}</p>
     </div>
   );
 }
@@ -228,12 +292,12 @@ function StatCard({
   label: string;
 }) {
   return (
-    <div className="text-center">
-      <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center text-white mx-auto mb-4">
+    <div className="text-center p-6">
+      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-secondary mx-auto mb-6 shadow-xl shadow-secondary/5 border border-slate-50">
         {icon}
       </div>
-      <div className="text-3xl font-bold text-secondary mb-1">{value}</div>
-      <div className="text-slate-600">{label}</div>
+      <div className="text-4xl font-bold text-secondary mb-2 tracking-tight">{value}</div>
+      <div className="text-slate-500 font-medium uppercase tracking-widest text-xs">{label}</div>
     </div>
   );
 }
@@ -248,12 +312,18 @@ function StepCard({
   description: string;
 }) {
   return (
-    <div className="text-center">
-      <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+    <div className="relative text-center p-8 group">
+      <div className="w-20 h-20 bg-secondary rounded-[1.5rem] flex items-center justify-center text-white text-3xl font-bold mx-auto mb-8 shadow-2xl shadow-secondary/20 group-hover:rotate-6 transition-transform">
         {number}
       </div>
-      <h3 className="text-xl font-semibold text-secondary mb-3">{title}</h3>
-      <p className="text-slate-600">{description}</p>
+      <h3 className="text-2xl font-bold text-secondary mb-4">{title}</h3>
+      <p className="text-slate-600 leading-relaxed">{description}</p>
+      {/* Decorative arrow for desktop */}
+      {number !== "3" && (
+        <div className="hidden lg:block absolute top-1/4 -right-4 w-8 h-8 text-slate-200">
+          →
+        </div>
+      )}
     </div>
   );
 }

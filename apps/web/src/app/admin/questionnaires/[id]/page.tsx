@@ -4,12 +4,22 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useQuestionnaireStore } from '@/infrastructure/store/questionnaire-store';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_PILLARS, STEP_TARGETS, type QuestionType } from '@/domain/onboarding/questionnaire';
+import { DEFAULT_PILLARS, STEP_TARGETS, type QuestionType, createEmptyQuestion } from '@/domain/onboarding/questionnaire';
 import { Plus, Trash2, ArrowUp, ArrowDown, Save, Eye, X } from 'lucide-react';
 
 const QUESTION_TYPES = [
   { value: 'single-choice' as QuestionType, label: 'Selección única (Radio)' },
   { value: 'multiple-choice' as QuestionType, label: 'Múltiple (Checkbox)' },
+  { value: 'dropdown' as QuestionType, label: 'Desplegable (Dropdown)' },
+  { value: 'text' as QuestionType, label: 'Texto corto' },
+  { value: 'textarea' as QuestionType, label: 'Texto largo' },
+  { value: 'number' as QuestionType, label: 'Número' },
+  { value: 'email' as QuestionType, label: 'Correo electrónico' },
+  { value: 'phone' as QuestionType, label: 'Teléfono' },
+  { value: 'date' as QuestionType, label: 'Fecha' },
+  { value: 'scale' as QuestionType, label: 'Escala (1-5)' },
+  { value: 'yes-no' as QuestionType, label: 'Sí/No' },
+  { value: 'file-upload' as QuestionType, label: 'Subir archivo' },
 ];
 
 export default function QuestionnaireEditorPage() {
@@ -217,7 +227,15 @@ export default function QuestionnaireEditorPage() {
                   <label className="block text-xs text-slate-500 mb-1">Tipo</label>
                   <select
                     value={q.type || 'single-choice'}
-                    onChange={(e) => updateQuestion(q.id, { type: e.target.value as QuestionType })}
+                    onChange={(e) => {
+                      const newType = e.target.value as QuestionType;
+                      const newQuestion = createEmptyQuestion(newType);
+                      updateQuestion(q.id, { 
+                        type: newType, 
+                        answers: newQuestion.answers, 
+                        config: newQuestion.config 
+                      });
+                    }}
                     className="w-full h-11 px-3 rounded-xl border border-slate-200 focus:border-primary focus:outline-none"
                   >
                     {QUESTION_TYPES.map((t) => (
@@ -227,28 +245,136 @@ export default function QuestionnaireEditorPage() {
                 </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {q.answers.map((a, aIdx) => (
-                    <div key={a.id} className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={a.text}
-                        onChange={(e) => handleAnswerChange(q.id, aIdx, 'text', e.target.value)}
-                        placeholder={`Opción ${aIdx + 1}`}
-                        className="flex-1 h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
-                      />
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={a.score}
-                        onChange={(e) => handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value))}
-                        className="w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm"
-                        title="Puntaje"
-                      />
+                {(q.type === 'single-choice' || q.type === 'multiple-choice' || q.type === 'dropdown') && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {q.answers.map((a, aIdx) => (
+                      <div key={a.id} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={a.text}
+                          onChange={(e) => handleAnswerChange(q.id, aIdx, 'text', e.target.value)}
+                          placeholder={`Opción ${aIdx + 1}`}
+                          className="flex-1 h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                        />
+                        <input
+                          type="number"
+                          min="1"
+                          max="10"
+                          value={a.score}
+                          onChange={(e) => handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value))}
+                          className="w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm"
+                          title="Puntaje"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {q.type === 'scale' && (
+                  <div className="p-4 bg-slate-50 rounded-xl">
+                    <p className="text-sm text-slate-600 mb-2">Escala del {q.config?.min || 1} al {q.config?.max || 5}</p>
+                    <div className="flex gap-2">
+                      {q.answers.map((a, aIdx) => (
+                        <div key={a.id} className="flex-1 text-center p-2 bg-white rounded-lg border border-slate-200">
+                          <div className="font-semibold">{a.text}</div>
+                          <div className="text-xs text-slate-500">Score: {a.score}</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {(q.type === 'text' || q.type === 'textarea' || q.type === 'email' || q.type === 'phone' || q.type === 'number' || q.type === 'date') && (
+                  <div className="p-4 bg-slate-50 rounded-xl space-y-3">
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-xs text-slate-500 mb-1">Placeholder</label>
+                        <input
+                          type="text"
+                          value={q.config?.placeholder || ''}
+                          onChange={(e) => updateQuestion(q.id, { config: { ...q.config, placeholder: e.target.value } })}
+                          placeholder="Texto de ayuda..."
+                          className="w-full h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                        />
+                      </div>
+                      {q.type === 'text' && (
+                        <div className="w-32">
+                          <label className="block text-xs text-slate-500 mb-1">Max caracteres</label>
+                          <input
+                            type="number"
+                            value={q.config?.maxLength || ''}
+                            onChange={(e) => updateQuestion(q.id, { config: { ...q.config, maxLength: parseInt(e.target.value) } })}
+                            placeholder="Sin límite"
+                            className="w-full h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                          />
+                        </div>
+                      )}
+                      <div className="w-24">
+                        <label className="block text-xs text-slate-500 mb-1">Requerido</label>
+                        <input
+                          type="checkbox"
+                          checked={q.config?.required || false}
+                          onChange={(e) => updateQuestion(q.id, { config: { ...q.config, required: e.target.checked } })}
+                          className="w-5 h-5 mt-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {q.type === 'file-upload' && (
+                  <div className="p-4 bg-slate-50 rounded-xl space-y-3">
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-xs text-slate-500 mb-1">Tipos permitidos</label>
+                        <input
+                          type="text"
+                          value={q.config?.allowedTypes?.join(', ') || ''}
+                          onChange={(e) => updateQuestion(q.id, { config: { ...q.config, allowedTypes: e.target.value.split(',').map(s => s.trim()) } })}
+                          placeholder=".pdf, .doc, .docx"
+                          className="w-full h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                        />
+                      </div>
+                      <div className="w-32">
+                        <label className="block text-xs text-slate-500 mb-1">Tamaño máx (MB)</label>
+                        <input
+                          type="number"
+                          value={q.config?.maxSizeMB || 10}
+                          onChange={(e) => updateQuestion(q.id, { config: { ...q.config, maxSizeMB: parseInt(e.target.value) } })}
+                          className="w-full h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                        />
+                      </div>
+                      <div className="w-24">
+                        <label className="block text-xs text-slate-500 mb-1">Max archivos</label>
+                        <input
+                          type="number"
+                          value={q.config?.maxFiles || 1}
+                          onChange={(e) => updateQuestion(q.id, { config: { ...q.config, maxFiles: parseInt(e.target.value) } })}
+                          className="w-full h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {q.type === 'yes-no' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {q.answers.map((a, aIdx) => (
+                      <div key={a.id} className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium">{a.text}</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="10"
+                          value={a.score}
+                          onChange={(e) => handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value))}
+                          className="w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm ml-auto"
+                          title="Puntaje"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-1">

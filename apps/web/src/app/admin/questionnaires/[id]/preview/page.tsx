@@ -47,7 +47,7 @@ export default function QuestionnairePreviewPage() {
   const startIndex = currentPage * ITEMS_PER_PAGE;
   const currentQuestions = shuffledQuestions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleSelectAnswer = (questionId: string, answerId: string, questionType: 'single-choice' | 'multiple-choice') => {
+  const handleSelectAnswer = (questionId: string, answerId: string, questionType: QuestionType) => {
     setSelectedAnswers((prev) => {
       const current = prev[questionId] || [];
       if (questionType === 'single-choice') {

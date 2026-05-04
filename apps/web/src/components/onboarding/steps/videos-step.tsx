@@ -12,26 +12,27 @@ interface VideoUploadProps {
   type: 'presentation' | 'reference';
   label: string;
   description: string;
-  register: any;
-  errors: any;
 }
 
-function VideoUpload({ type, label, description, register, errors }: VideoUploadProps) {
+function VideoUpload({ type, label, description }: VideoUploadProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const { setVideos } = useOnboardingStore();
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+    
+    setFile(selectedFile);
     setUploading(true);
     // Simular upload
-    await new Promise(r => setTimeout(r, 2000));
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    setVideos(type, url, file.name);
-    setUploading(false);
+    setTimeout(() => {
+      const url = URL.createObjectURL(selectedFile);
+      setPreview(url);
+      setVideos(type, url, selectedFile.name);
+      setUploading(false);
+    }, 2000);
   };
 
   return (
@@ -44,8 +45,7 @@ function VideoUpload({ type, label, description, register, errors }: VideoUpload
         accept="video/mp4,video/quicktime"
         className="hidden"
         id={`video-${type}`}
-        {...register}
-        onChange={handleUpload}
+        onChange={handleFileChange}
       />
       
       {preview ? (
@@ -53,7 +53,10 @@ function VideoUpload({ type, label, description, register, errors }: VideoUpload
           <video src={preview} className="w-full h-full object-contain" controls />
           <button
             type="button"
-            onClick={() => setPreview(null)}
+            onClick={() => {
+              setPreview(null);
+              setFile(null);
+            }}
             className="absolute top-2 right-2 bg-white/90 p-1 rounded-full"
           >
             <X className="w-4 h-4" />
@@ -76,19 +79,13 @@ function VideoUpload({ type, label, description, register, errors }: VideoUpload
           <span className="text-sm text-slate-600">Subiendo...</span>
         </div>
       )}
-      {errors?.file && <p className="text-red-500 text-sm mt-2">{errors.file.message}</p>}
     </div>
   );
 }
 
 export function VideosStep() {
-  const { register, formState: { errors }, watch } = useForm<VideoFormData>({
-    resolver: zodResolver(videoSchema),
-    mode: 'onChange',
-  });
-  
   const { setStep } = useOnboardingStore();
-  const hasPresentation = watch('file');
+  const { videos } = useOnboardingStore();
 
   return (
     <div className="space-y-6">
@@ -111,8 +108,11 @@ export function VideosStep() {
           type="presentation"
           label="Video de Presentación"
           description="Preséntate y cuenta tu experiencia"
-          register={register('file')}
-          errors={errors}
+        />
+        <VideoUpload
+          type="reference"
+          label="Video de Referencia"
+          description="Video de referencia personal"
         />
       </div>
 
@@ -120,7 +120,12 @@ export function VideosStep() {
         <Button type="button" variant="outline" onClick={() => setStep('documentation', 1)}>
           Atrás
         </Button>
-        <Button type="button" onClick={() => setStep('review', 3)} disabled={!hasPresentation} className="flex-1">
+        <Button 
+          type="button" 
+          onClick={() => setStep('review', 3)} 
+          disabled={!videos.presentation || !videos.reference} 
+          className="flex-1"
+        >
           Continuar
         </Button>
       </div>
