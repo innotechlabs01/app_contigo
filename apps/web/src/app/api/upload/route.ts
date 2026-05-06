@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Upload request:', { 
-      fileName: file instanceof File ? file.name : 'not a file', 
+    console.log('Upload request:', {
+      fileName: file instanceof File ? file.name : 'not a file',
       fileType: file instanceof File ? file.type : typeof file,
       fileSize: file instanceof File ? file.size : 'N/A',
       path,
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      
+
       const allowedVideoTypes = ['video/mp4', 'video/quicktime'];
       if (!allowedVideoTypes.includes(file.type)) {
         return NextResponse.json(
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      
+
       const allowedDocTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedDocTypes.includes(file.type)) {
         return NextResponse.json(
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     const blob = await put(`${path}/${file.name}`, file, {
       access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN!,
+      token: process.env.BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN!,
     });
 
     console.log('Upload success:', blob.url);
