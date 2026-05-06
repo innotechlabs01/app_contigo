@@ -9,20 +9,24 @@ interface OnboardingStore extends OnboardingState {
   setEvaluationResult: (score: number, passed: boolean) => void;
   setDocument: (type: 'cv', url: string, fileName: string) => void;
   setVideos: (type: 'presentation' | 'reference', url: string, fileName: string) => void;
+  setPersonalInfo: (info: OnboardingState['personalInfo']) => void;
   setStatus: (status: OnboardingState['status']) => void;
+  setRequestIdNumber: (idNumber: string | null) => void;
   reset: () => void;
   canProceed: (stepIndex: number) => boolean;
 }
 
 const initialState: OnboardingState = {
-  currentStep: 'evaluation',
+  currentStep: 'personal',
   stepIndex: 0,
+  status: 'idle',
+  requestIdNumber: null,
+  personalInfo: null,
   evaluation: null,
   evaluationScore: null,
   evaluationPassed: null,
   documents: { cv: null },
   videos: { presentation: undefined, reference: undefined },
-  status: 'in_progress',
 };
 
 export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
@@ -44,7 +48,11 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
       videos: { ...state.videos, [type]: { url, fileName } },
     })),
 
+  setPersonalInfo: (info) => set({ personalInfo: info }),
+
   setStatus: (status) => set({ status }),
+
+  setRequestIdNumber: (idNumber) => set({ requestIdNumber: idNumber }),
 
   reset: () => set({
     ...initialState,

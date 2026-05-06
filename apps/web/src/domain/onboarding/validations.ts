@@ -5,23 +5,36 @@ export const EVALUATION_QUESTION_MIN_SCORE = 80;
 export const evaluationSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]));
 
 export const documentSchema = z.object({
-  file: z.instanceof(File).refine(
-    (file) => ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type),
-    { message: 'Formato no permitido. Use PDF, DOC o DOCX' }
-  ).refine(
-    (file) => file.size <= 10 * 1024 * 1024,
-    { message: 'El archivo no debe exceder 10MB' }
-  ),
+  file: z.custom<File>((val) => {
+    if (!(val instanceof File)) {
+      console.log('Validation failed: not a File instance', val);
+      return false;
+    }
+    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(val.type)) {
+      console.log('Validation failed: invalid type', val.type);
+      return false;
+    }
+    if (val.size > 10 * 1024 * 1024) {
+      console.log('Validation failed: file too large', val.size);
+      return false;
+    }
+    return true;
+  }, {
+    message: 'Archivo no válido. Usa PDF, DOC o DOCX menor a 10MB',
+  }),
 });
 
 export const videoSchema = z.object({
-  file: z.instanceof(File).refine(
-    (file) => ['video/mp4', 'video/quicktime'].includes(file.type),
-    { message: 'Formato no permitido. Use MP4 o MOV' }
-  ).refine(
-    (file) => file.size <= 1024 * 1024 * 1024,
-    { message: 'El video no debe exceder 1GB' }
-  ),
+  file: z.any()
+    .refine((val) => val instanceof File, {
+      message: 'Debe seleccionar un video válido',
+    })
+    .refine((val) => val instanceof File && ['video/mp4', 'video/quicktime'].includes(val.type), {
+      message: 'Formato no permitido. Use MP4 o MOV',
+    })
+    .refine((val) => val instanceof File && val.size <= 1024 * 1024 * 1024, {
+      message: 'El video no debe exceder 1GB',
+    }),
 });
 
 export const onboardingSchema = z.object({

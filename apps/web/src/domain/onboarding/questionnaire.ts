@@ -3,6 +3,7 @@ export interface QuestionnaireAnswer {
   text: string;
   score: number;
   isCorrect?: boolean;
+  isActive?: boolean;
 }
 
 export type QuestionType = 

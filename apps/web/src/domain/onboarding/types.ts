@@ -31,6 +31,7 @@ export type OnboardingStep =
   | 'evaluation'
   | 'documentation'
   | 'videos'
+  | 'personal'
   | 'review';
 
 export interface OnboardingState {
@@ -43,7 +44,19 @@ export interface OnboardingState {
     cv: UploadResult | null;
   };
   videos: VideoSubmission;
-  status: 'in_progress' | 'in_review' | 'approved' | 'rejected';
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    idNumber: string;
+    email: string;
+    phone: string;
+    location: string;
+    serviceType: 'Acompañamiento' | 'Cuidado' | 'Apoyo';
+    experience: string;
+    message: string;
+  } | null;
+  status: 'idle' | 'in_progress' | 'in_review' | 'approved' | 'rejected';
+  requestIdNumber: string | null;
 }
 
 export interface OnboardingProgress {

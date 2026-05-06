@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useQuestionnaireStore } from '@/infrastructure/store/questionnaire-store';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_PILLARS, STEP_TARGETS, type QuestionType, createEmptyQuestion } from '@/domain/onboarding/questionnaire';
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, Eye, X } from 'lucide-react';
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, Eye, X, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react';
 
 const QUESTION_TYPES = [
   { value: 'single-choice' as QuestionType, label: 'Selección única (Radio)' },
@@ -54,6 +54,17 @@ export default function QuestionnaireEditorPage() {
     }
   }, [id, isNew, fetchQuestionnaire, createQuestionnaire]);
 
+  // Calculate total possible score
+  const totalPossibleScore = currentQuestionnaire?.questions
+    ?.filter(q => q.isActive !== false)
+    .reduce((total, q) => {
+      const maxScore = Math.max(...q.answers.map(a => a.score));
+      return total + (q.weight || 1) * maxScore;
+    }, 0) || 0;
+
+  // Check if total exceeds passing score
+  const exceedsPassingScore = totalPossibleScore > (currentQuestionnaire?.passingScore || 0);
+
   const handleSave = async () => {
     if (!currentQuestionnaire) return;
     await saveQuestionnaire(currentQuestionnaire);
@@ -74,6 +85,29 @@ export default function QuestionnaireEditorPage() {
       if (q.id !== questionId) return q;
       const answers = [...q.answers];
       answers[answerIdx] = { ...answers[answerIdx], [field]: value };
+      return { ...q, answers };
+    });
+    setCurrentQuestionnaire({ ...currentQuestionnaire, questions });
+  };
+
+  const toggleQuestionActive = (questionId: string) => {
+    if (!currentQuestionnaire) return;
+    const questions = currentQuestionnaire.questions.map((q) => {
+      if (q.id !== questionId) return q;
+      return { ...q, isActive: q.isActive === false ? true : false };
+    });
+    setCurrentQuestionnaire({ ...currentQuestionnaire, questions });
+  };
+
+  const toggleAnswerActive = (questionId: string, answerIdx: number) => {
+    if (!currentQuestionnaire) return;
+    const questions = currentQuestionnaire.questions.map((q) => {
+      if (q.id !== questionId) return q;
+      const answers = [...q.answers];
+      answers[answerIdx] = { 
+        ...answers[answerIdx], 
+        isActive: answers[answerIdx].isActive === false ? true : false 
+      };
       return { ...q, answers };
     });
     setCurrentQuestionnaire({ ...currentQuestionnaire, questions });
@@ -154,6 +188,29 @@ export default function QuestionnaireEditorPage() {
             />
           </div>
         </div>
+
+        {/* Score Warning */}
+        <div className="mt-4 p-4 rounded-xl bg-slate-50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-slate-700">Puntaje Total Posible:</span>
+            <span className={`text-lg font-bold ${exceedsPassingScore ? 'text-red-600' : 'text-green-600'}`}>
+              {totalPossibleScore} pts
+            </span>
+          </div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-slate-700">Puntaje Mínimo Requerido:</span>
+            <span className="text-lg font-bold text-slate-800">{currentQuestionnaire.passingScore}%</span>
+          </div>
+          {exceedsPassingScore && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <p className="text-sm text-red-700">
+                ¡Advertencia! El puntaje total ({totalPossibleScore}) supera el puntaje mínimo establecido ({currentQuestionnaire.passingScore}%). 
+                Desactiva preguntas o ajusta los pesos/opciones.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex justify-between items-center mb-4">
@@ -186,7 +243,7 @@ export default function QuestionnaireEditorPage() {
                 </button>
               </div>
 
-              <div className="flex-1 space-y-4">
+              <div className={`flex-1 space-y-4 ${q.isActive === false ? 'opacity-50' : ''}`}>
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <label className="block text-xs text-slate-500 mb-1">Texto de la pregunta</label>
@@ -195,7 +252,8 @@ export default function QuestionnaireEditorPage() {
                       value={q.text}
                       onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
                       placeholder="Escribe la pregunta..."
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 focus:border-primary focus:outline-none"
+                      className={`w-full h-11 px-3 rounded-xl border focus:border-primary focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''}`}
+                      disabled={q.isActive === false}
                     />
                   </div>
                   <div className="w-32">
@@ -203,7 +261,8 @@ export default function QuestionnaireEditorPage() {
                     <select
                       value={q.pillar || ''}
                       onChange={(e) => updateQuestion(q.id, { pillar: e.target.value })}
-                      className="w-full h-11 px-3 rounded-xl border border-slate-200 focus:border-primary focus:outline-none"
+                      className={`w-full h-11 px-3 rounded-xl border focus:border-primary focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''}`}
+                      disabled={q.isActive === false}
                     >
                       <option value="">Sin pilar</option>
                       {DEFAULT_PILLARS.map((p) => (
@@ -220,7 +279,8 @@ export default function QuestionnaireEditorPage() {
                     step="0.5"
                     value={q.weight}
                     onChange={(e) => updateQuestion(q.id, { weight: parseFloat(e.target.value) })}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 focus:border-primary focus:outline-none"
+                    className={`w-full h-11 px-3 rounded-xl border focus:border-primary focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''}`}
+                    disabled={q.isActive === false}
                   />
                 </div>
                 <div className="w-48">
@@ -236,7 +296,8 @@ export default function QuestionnaireEditorPage() {
                         config: newQuestion.config 
                       });
                     }}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 focus:border-primary focus:outline-none"
+                    className={`w-full h-11 px-3 rounded-xl border focus:border-primary focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''}`}
+                    disabled={q.isActive === false}
                   >
                     {QUESTION_TYPES.map((t) => (
                       <option key={t.value} value={t.value}>{t.label}</option>
@@ -248,13 +309,21 @@ export default function QuestionnaireEditorPage() {
                 {(q.type === 'single-choice' || q.type === 'multiple-choice' || q.type === 'dropdown') && (
                   <div className="grid grid-cols-2 gap-3">
                     {q.answers.map((a, aIdx) => (
-                      <div key={a.id} className="flex items-center gap-2">
+                      <div key={a.id} className={`flex items-center gap-2 ${a.isActive === false ? 'opacity-50' : ''}`}>
+                        <button
+                          onClick={() => toggleAnswerActive(q.id, aIdx)}
+                          className={`${a.isActive === false ? 'text-red-500' : 'text-green-500'} hover:opacity-70`}
+                          title={a.isActive === false ? 'Activar opción' : 'Desactivar opción'}
+                        >
+                          {a.isActive === false ? <ToggleLeft className="w-3 h-3" /> : <ToggleRight className="w-3 h-3" />}
+                        </button>
                         <input
                           type="text"
                           value={a.text}
                           onChange={(e) => handleAnswerChange(q.id, aIdx, 'text', e.target.value)}
                           placeholder={`Opción ${aIdx + 1}`}
-                          className="flex-1 h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm"
+                          className={`flex-1 h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm ${a.isActive === false ? 'bg-slate-100' : ''}`}
+                          disabled={a.isActive === false}
                         />
                         <input
                           type="number"
@@ -262,8 +331,9 @@ export default function QuestionnaireEditorPage() {
                           max="10"
                           value={a.score}
                           onChange={(e) => handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value))}
-                          className="w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm"
+                          className={`w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm ${a.isActive === false ? 'bg-slate-100' : ''}`}
                           title="Puntaje"
+                          disabled={a.isActive === false}
                         />
                       </div>
                     ))}
@@ -360,16 +430,24 @@ export default function QuestionnaireEditorPage() {
                 {q.type === 'yes-no' && (
                   <div className="grid grid-cols-2 gap-3">
                     {q.answers.map((a, aIdx) => (
-                      <div key={a.id} className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
-                        <span className="font-medium">{a.text}</span>
+                      <div key={a.id} className={`flex items-center gap-2 p-3 bg-slate-50 rounded-lg ${a.isActive === false ? 'opacity-50' : ''}`}>
+                        <button
+                          onClick={() => toggleAnswerActive(q.id, aIdx)}
+                          className={`${a.isActive === false ? 'text-red-500' : 'text-green-500'} hover:opacity-70`}
+                          title={a.isActive === false ? 'Activar opción' : 'Desactivar opción'}
+                        >
+                          {a.isActive === false ? <ToggleLeft className="w-3 h-3" /> : <ToggleRight className="w-3 h-3" />}
+                        </button>
+                        <span className={`font-medium ${a.isActive === false ? 'line-through' : ''}`}>{a.text}</span>
                         <input
                           type="number"
                           min="0"
                           max="10"
                           value={a.score}
                           onChange={(e) => handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value))}
-                          className="w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm ml-auto"
+                          className={`w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm ${a.isActive === false ? 'bg-slate-100' : ''}`}
                           title="Puntaje"
+                          disabled={a.isActive === false}
                         />
                       </div>
                     ))}
@@ -378,6 +456,13 @@ export default function QuestionnaireEditorPage() {
               </div>
 
               <div className="flex gap-1">
+                <button
+                  onClick={() => toggleQuestionActive(q.id)}
+                  className={`p-2 ${q.isActive === false ? 'text-red-500' : 'text-green-500'} hover:opacity-70`}
+                  title={q.isActive === false ? 'Activar pregunta' : 'Desactivar pregunta'}
+                >
+                  {q.isActive === false ? <ToggleLeft className="w-4 h-4" /> : <ToggleRight className="w-4 h-4" />}
+                </button>
                 <button
                   onClick={() => duplicateQuestion(q.id)}
                   className="p-2 text-slate-400 hover:text-primary"
