@@ -6,6 +6,7 @@ import {
   QuestionnaireQuestion,
   createEmptyQuestionnaire,
   createEmptyQuestion,
+  redistributeWeights,
 } from '@/domain/onboarding/questionnaire';
 
 interface QuestionnaireStore {
@@ -25,6 +26,7 @@ interface QuestionnaireStore {
   addQuestion: () => void;
   updateQuestion: (questionId: string, updates: Partial<QuestionnaireQuestion>) => void;
   removeQuestion: (questionId: string) => void;
+  toggleQuestionActive: (questionId: string) => void;
   reorderQuestions: (fromIndex: number, toIndex: number) => void;
   duplicateQuestion: (questionId: string) => void;
 }
@@ -140,15 +142,31 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
 
   setCurrentQuestionnaire: (q) => set({ currentQuestionnaire: q }),
 
+  toggleQuestionActive: (questionId: string) => {
+    const { currentQuestionnaire } = get();
+    if (!currentQuestionnaire) return;
+    const questions = currentQuestionnaire.questions.map((q) => {
+      if (q.id !== questionId) return q;
+      return { ...q, isActive: q.isActive === false ? true : false };
+    });
+    set({
+      currentQuestionnaire: {
+        ...currentQuestionnaire,
+        questions: redistributeWeights(questions),
+      },
+    });
+  },
+
   addQuestion: () => {
     const { currentQuestionnaire } = get();
     if (!currentQuestionnaire) return;
     const newQuestion = createEmptyQuestion();
     newQuestion.order = currentQuestionnaire.questions.length;
+    const updated = [...currentQuestionnaire.questions, newQuestion];
     set({
       currentQuestionnaire: {
         ...currentQuestionnaire,
-        questions: [...currentQuestionnaire.questions, newQuestion],
+        questions: redistributeWeights(updated),
       },
     });
   },
@@ -175,7 +193,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
     set({
       currentQuestionnaire: {
         ...currentQuestionnaire,
-        questions: filtered,
+        questions: redistributeWeights(filtered),
       },
     });
   },
@@ -204,12 +222,14 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       ...question,
       id: crypto.randomUUID(),
       order: currentQuestionnaire.questions.length,
+      isActive: true,
       answers: question.answers.map((a) => ({ ...a, id: crypto.randomUUID() })),
     };
+    const updated = [...currentQuestionnaire.questions, duplicated];
     set({
       currentQuestionnaire: {
         ...currentQuestionnaire,
-        questions: [...currentQuestionnaire.questions, duplicated],
+        questions: redistributeWeights(updated),
       },
     });
   },

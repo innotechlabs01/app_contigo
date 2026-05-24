@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useQuestionnaireStore } from '@/infrastructure/store/questionnaire-store';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_PILLARS, STEP_TARGETS, type QuestionType, createEmptyQuestion } from '@/domain/onboarding/questionnaire';
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, Eye, X, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react';
+import { DEFAULT_PILLARS, STEP_TARGETS, type QuestionType, createEmptyQuestion, redistributeWeights } from '@/domain/onboarding/questionnaire';
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, Eye, X, AlertTriangle, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react';
 
 const QUESTION_TYPES = [
   { value: 'single-choice' as QuestionType, label: 'Selección única (Radio)' },
@@ -37,6 +37,7 @@ export default function QuestionnaireEditorPage() {
     addQuestion,
     updateQuestion,
     removeQuestion,
+    toggleQuestionActive,
     reorderQuestions,
     duplicateQuestion,
     isLoading,
@@ -44,6 +45,7 @@ export default function QuestionnaireEditorPage() {
   } = useQuestionnaireStore();
 
   const [mounted, setMounted] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setMounted(true);
@@ -67,6 +69,45 @@ export default function QuestionnaireEditorPage() {
 
   const handleSave = async () => {
     if (!currentQuestionnaire) return;
+
+    const errors: Record<string, string> = {};
+
+    if (!currentQuestionnaire.name.trim() || currentQuestionnaire.name.trim().length < 3) {
+      errors.name = 'El nombre debe tener al menos 3 caracteres';
+    }
+    if (currentQuestionnaire.name.length > 200) {
+      errors.name = 'El nombre no debe exceder 200 caracteres';
+    }
+    if ((currentQuestionnaire.description || '').length > 500) {
+      errors.description = 'La descripción no debe exceder 500 caracteres';
+    }
+
+    currentQuestionnaire.questions.forEach((q) => {
+      if (!q.text.trim() || q.text.trim().length < 5) {
+        errors[`q_${q.id}_text`] = 'La pregunta debe tener al menos 5 caracteres';
+      }
+      if (q.text.length > 500) {
+        errors[`q_${q.id}_text`] = 'La pregunta no debe exceder 500 caracteres';
+      }
+      if (q.answers.some(a => a.isActive !== false)) {
+        q.answers.forEach((a, aIdx) => {
+          if (a.isActive === false) return;
+          if (!a.text.trim()) {
+            errors[`q_${q.id}_a_${aIdx}_text`] = 'El texto de la respuesta no puede estar vacío';
+          }
+          if (a.text.length > 200) {
+            errors[`q_${q.id}_a_${aIdx}_text`] = 'La respuesta no debe exceder 200 caracteres';
+          }
+          if (typeof a.score !== 'number' || a.score < 0 || a.score > 10 || !Number.isFinite(a.score)) {
+            errors[`q_${q.id}_a_${aIdx}_score`] = 'El puntaje debe ser un número entre 0 y 10';
+          }
+        });
+      }
+    });
+
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     await saveQuestionnaire(currentQuestionnaire);
     router.push('/admin/questionnaires');
   };
@@ -90,14 +131,11 @@ export default function QuestionnaireEditorPage() {
     setCurrentQuestionnaire({ ...currentQuestionnaire, questions });
   };
 
-  const toggleQuestionActive = (questionId: string) => {
-    if (!currentQuestionnaire) return;
-    const questions = currentQuestionnaire.questions.map((q) => {
-      if (q.id !== questionId) return q;
-      return { ...q, isActive: q.isActive === false ? true : false };
-    });
-    setCurrentQuestionnaire({ ...currentQuestionnaire, questions });
-  };
+  // Calculate active weight sum
+  const activeWeightSum = currentQuestionnaire?.questions
+    ?.filter(q => q.isActive !== false)
+    .reduce((sum, q) => sum + (q.weight || 0), 0) || 0;
+  const weightsNot100 = activeWeightSum !== 100;
 
   const toggleAnswerActive = (questionId: string, answerIdx: number) => {
     if (!currentQuestionnaire) return;
@@ -151,9 +189,13 @@ export default function QuestionnaireEditorPage() {
             <input
               type="text"
               value={currentQuestionnaire.name}
-              onChange={(e) => handleFieldChange('name', e.target.value)}
-              className="w-full h-12 px-4 rounded-full border-2 border-slate-200 focus:border-primary focus:outline-none"
+              onChange={(e) => {
+                setValidationErrors(prev => ({ ...prev, name: '' }));
+                handleFieldChange('name', e.target.value);
+              }}
+              className={`w-full h-12 px-4 rounded-full border-2 focus:outline-none ${validationErrors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-primary'}`}
             />
+            {validationErrors.name && <p className="text-red-500 text-xs mt-1">{validationErrors.name}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Step Objetivo</label>
@@ -183,30 +225,68 @@ export default function QuestionnaireEditorPage() {
             <input
               type="text"
               value={currentQuestionnaire.description || ''}
-              onChange={(e) => handleFieldChange('description', e.target.value)}
-              className="w-full h-12 px-4 rounded-full border-2 border-slate-200 focus:border-primary focus:outline-none"
+              onChange={(e) => {
+                setValidationErrors(prev => ({ ...prev, description: '' }));
+                handleFieldChange('description', e.target.value);
+              }}
+              className={`w-full h-12 px-4 rounded-full border-2 focus:outline-none ${validationErrors.description ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-primary'}`}
             />
+            {validationErrors.description && <p className="text-red-500 text-xs mt-1">{validationErrors.description}</p>}
           </div>
         </div>
 
         {/* Score Warning */}
-        <div className="mt-4 p-4 rounded-xl bg-slate-50">
-          <div className="flex items-center justify-between mb-2">
+        <div className="mt-4 p-4 rounded-xl bg-slate-50 space-y-2">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-slate-700">Puntaje Total Posible:</span>
             <span className={`text-lg font-bold ${exceedsPassingScore ? 'text-red-600' : 'text-green-600'}`}>
               {totalPossibleScore} pts
             </span>
           </div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-slate-700">Puntaje Mínimo Requerido:</span>
             <span className="text-lg font-bold text-slate-800">{currentQuestionnaire.passingScore}%</span>
           </div>
-          {exceedsPassingScore && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-slate-700">Suma de Pesos activos:</span>
+            <div className="flex items-center gap-2">
+              <span className={`text-lg font-bold ${weightsNot100 ? 'text-red-600' : 'text-green-600'}`}>
+                {activeWeightSum}%
+              </span>
+              {weightsNot100 && (
+                <button
+                  onClick={() => {
+                    if (!currentQuestionnaire) return;
+                    setCurrentQuestionnaire({
+                      ...currentQuestionnaire,
+                      questions: redistributeWeights(currentQuestionnaire.questions),
+                    });
+                  }}
+                  className="p-1 text-primary hover:text-primary/70"
+                  title="Redistribuir pesos equitativamente"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              )}
+              {!weightsNot100 && activeWeightSum > 0 && (
+                <span className="text-xs text-green-600 font-medium">✓</span>
+              )}
+            </div>
+          </div>
+          {weightsNot100 && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
               <p className="text-sm text-red-700">
-                ¡Advertencia! El puntaje total ({totalPossibleScore}) supera el puntaje mínimo establecido ({currentQuestionnaire.passingScore}%). 
-                Desactiva preguntas o ajusta los pesos/opciones.
+                La suma de pesos debe ser 100%. Usa el botón <RefreshCw className="w-3 h-3 inline" /> para redistribuir automáticamente.
+              </p>
+            </div>
+          )}
+          {exceedsPassingScore && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+              <p className="text-sm text-amber-700">
+                El puntaje total ({totalPossibleScore}) supera el puntaje mínimo ({currentQuestionnaire.passingScore}%). 
+                Ajusta los puntajes de las respuestas.
               </p>
             </div>
           )}
@@ -250,11 +330,15 @@ export default function QuestionnaireEditorPage() {
                     <input
                       type="text"
                       value={q.text}
-                      onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
+                      onChange={(e) => {
+                        setValidationErrors(prev => ({ ...prev, [`q_${q.id}_text`]: '' }));
+                        updateQuestion(q.id, { text: e.target.value });
+                      }}
                       placeholder="Escribe la pregunta..."
-                      className={`w-full h-11 px-3 rounded-xl border focus:border-primary focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''}`}
+                      className={`w-full h-11 px-3 rounded-xl border focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''} ${validationErrors[`q_${q.id}_text`] ? 'border-red-400' : 'focus:border-primary'}`}
                       disabled={q.isActive === false}
                     />
+                    {validationErrors[`q_${q.id}_text`] && <p className="text-red-500 text-xs mt-1">{validationErrors[`q_${q.id}_text`]}</p>}
                   </div>
                   <div className="w-32">
                     <label className="block text-xs text-slate-500 mb-1">Pilar</label>
@@ -271,14 +355,14 @@ export default function QuestionnaireEditorPage() {
                     </select>
                   </div>
                 <div className="w-20">
-                  <label className="block text-xs text-slate-500 mb-1">Peso</label>
+                  <label className="block text-xs text-slate-500 mb-1">Peso %</label>
                   <input
                     type="number"
-                    min="0.5"
-                    max="3"
-                    step="0.5"
+                    min="1"
+                    max="100"
+                    step="1"
                     value={q.weight}
-                    onChange={(e) => updateQuestion(q.id, { weight: parseFloat(e.target.value) })}
+                    onChange={(e) => updateQuestion(q.id, { weight: parseInt(e.target.value) || 0 })}
                     className={`w-full h-11 px-3 rounded-xl border focus:border-primary focus:outline-none ${q.isActive === false ? 'bg-slate-100' : ''}`}
                     disabled={q.isActive === false}
                   />
@@ -320,18 +404,25 @@ export default function QuestionnaireEditorPage() {
                         <input
                           type="text"
                           value={a.text}
-                          onChange={(e) => handleAnswerChange(q.id, aIdx, 'text', e.target.value)}
+                          onChange={(e) => {
+                            setValidationErrors(prev => ({ ...prev, [`q_${q.id}_a_${aIdx}_text`]: '' }));
+                            handleAnswerChange(q.id, aIdx, 'text', e.target.value);
+                          }}
                           placeholder={`Opción ${aIdx + 1}`}
-                          className={`flex-1 h-10 px-3 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-sm ${a.isActive === false ? 'bg-slate-100' : ''}`}
+                          className={`flex-1 h-10 px-3 rounded-lg border text-sm ${a.isActive === false ? 'bg-slate-100' : ''} ${validationErrors[`q_${q.id}_a_${aIdx}_text`] ? 'border-red-400' : 'border-slate-200 focus:border-primary'} focus:outline-none`}
                           disabled={a.isActive === false}
                         />
+                        {validationErrors[`q_${q.id}_a_${aIdx}_text`] && <p className="text-red-500 text-xs col-span-full">{validationErrors[`q_${q.id}_a_${aIdx}_text`]}</p>}
                         <input
                           type="number"
                           min="1"
                           max="10"
                           value={a.score}
-                          onChange={(e) => handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value))}
-                          className={`w-14 h-10 px-2 rounded-lg border border-slate-200 focus:border-primary focus:outline-none text-center text-sm ${a.isActive === false ? 'bg-slate-100' : ''}`}
+                          onChange={(e) => {
+                            setValidationErrors(prev => ({ ...prev, [`q_${q.id}_a_${aIdx}_score`]: '' }));
+                            handleAnswerChange(q.id, aIdx, 'score', parseInt(e.target.value));
+                          }}
+                          className={`w-14 h-10 px-2 rounded-lg border text-center text-sm ${a.isActive === false ? 'bg-slate-100' : ''} ${validationErrors[`q_${q.id}_a_${aIdx}_score`] ? 'border-red-400' : 'border-slate-200 focus:border-primary'} focus:outline-none`}
                           title="Puntaje"
                           disabled={a.isActive === false}
                         />

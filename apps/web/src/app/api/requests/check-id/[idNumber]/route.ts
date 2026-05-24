@@ -1,21 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@libsql/client';
+import { tursoClient } from '@/lib/turso';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { idNumber: string } }
+  { params }: { params: Promise<{ idNumber: string }> }
 ) {
   try {
-    const { idNumber } = params;
+    const { idNumber } = await params;
 
-    const client = createClient({
-      url: process.env.TURSO_DATABASE_URL!,
-      authToken: process.env.TURSO_AUTH_TOKEN!,
-    });
+    if (!idNumber || typeof idNumber !== 'string' || idNumber.length > 15) {
+      return NextResponse.json({ exists: false });
+    }
 
-    const result = await client.execute({
+    if (!/^\d+$/.test(idNumber)) {
+      return NextResponse.json({ exists: false });
+    }
+
+    const result = await tursoClient.execute({
       sql: 'SELECT id, status FROM requests WHERE id_number = ? LIMIT 1',
       args: [idNumber],
     });
@@ -32,7 +35,7 @@ export async function GET(
   } catch (error) {
     console.error('Error checking ID:', error);
     return NextResponse.json(
-      { error: 'Error checking ID number' },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     );
   }

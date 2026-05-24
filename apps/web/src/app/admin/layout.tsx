@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard, FileText, MessageSquare, LogOut } from 'lucide-react';
@@ -13,21 +13,34 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const isLoginPage = pathname === '/admin/login';
+  const [checking, setChecking] = useState(!isLoginPage);
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
-    if (!isAuthenticated && !isLoginPage) {
-      router.push('/admin/login');
-    }
+    if (isLoginPage) return;
+
+    fetch('/api/admin/me')
+      .then((res) => {
+        if (!res.ok) {
+          router.push('/admin/login');
+        }
+      })
+      .catch(() => {
+        router.push('/admin/login');
+      })
+      .finally(() => setChecking(false));
   }, [router, isLoginPage]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_authenticated');
+  const handleLogout = async () => {
+    await fetch('/api/admin/login', { method: 'DELETE' });
     router.push('/admin/login');
   };
 
   if (isLoginPage) {
     return <>{children}</>;
+  }
+
+  if (checking) {
+    return <div className="min-h-screen flex items-center justify-center">Verificando acceso...</div>;
   }
 
   const navigation = [
@@ -45,7 +58,6 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen flex">
-      {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
         <div className="p-6 border-b border-slate-200">
           <div className="flex items-center gap-3">
@@ -90,7 +102,6 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="flex-1 bg-slate-50 overflow-auto">
         {children}
       </main>

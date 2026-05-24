@@ -27,6 +27,16 @@ const serviceTypes = [
   { value: 'Apoyo', label: 'Apoyo' },
 ];
 
+const locations = [
+  'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá',
+  'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó',
+  'Cundinamarca', 'Córdoba', 'Guainía', 'Guaviare', 'Huila', 'La Guajira',
+  'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío',
+  'Risaralda', 'San Andrés y Providencia', 'Santander', 'Sucre', 'Tolima',
+  'Valle del Cauca', 'Vaupés', 'Vichada',
+  'Bogotá D.C.',
+];
+
 export function PersonalInfoStep() {
   const { setPersonalInfo, setStep, personalInfo } = useOnboardingStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +92,12 @@ export function PersonalInfoStep() {
             <Label htmlFor="firstName">Nombre</Label>
             <Input
               id="firstName"
-              {...register('firstName', { required: 'El nombre es requerido' })}
+              {...register('firstName', {
+                required: 'El nombre es requerido',
+                minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+                maxLength: { value: 50, message: 'Máximo 50 caracteres' },
+                pattern: { value: /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/, message: 'Solo letras y espacios' },
+              })}
               placeholder="Juan"
               className="mt-1"
             />
@@ -93,7 +108,12 @@ export function PersonalInfoStep() {
             <Label htmlFor="lastName">Apellido</Label>
             <Input
               id="lastName"
-              {...register('lastName', { required: 'El apellido es requerido' })}
+              {...register('lastName', {
+                required: 'El apellido es requerido',
+                minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+                maxLength: { value: 50, message: 'Máximo 50 caracteres' },
+                pattern: { value: /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/, message: 'Solo letras y espacios' },
+              })}
               placeholder="Pérez"
               className="mt-1"
             />
@@ -105,7 +125,13 @@ export function PersonalInfoStep() {
           <Label htmlFor="idNumber">Cédula de Ciudadanía</Label>
           <Input
             id="idNumber"
-            {...register('idNumber', { required: 'La cédula es requerida' })}
+            inputMode="numeric"
+            {...register('idNumber', {
+              required: 'La cédula es requerida',
+              pattern: { value: /^\d+$/, message: 'Solo se permiten números' },
+              minLength: { value: 5, message: 'Mínimo 5 dígitos' },
+              maxLength: { value: 15, message: 'Máximo 15 dígitos' },
+            })}
             placeholder="1234567890"
             className="mt-1"
           />
@@ -123,7 +149,8 @@ export function PersonalInfoStep() {
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                   message: 'Correo inválido'
-                }
+                },
+                maxLength: { value: 254, message: 'Correo demasiado largo' },
               })}
               placeholder="juan.perez@email.com"
               className="mt-1"
@@ -135,7 +162,12 @@ export function PersonalInfoStep() {
             <Label htmlFor="phone">Teléfono</Label>
             <Input
               id="phone"
-              {...register('phone', { required: 'El teléfono es requerido' })}
+              inputMode="numeric"
+              {...register('phone', {
+                required: 'El teléfono es requerido',
+                pattern: { value: /^[\d\s+\-()]{7,20}$/, message: 'Ingresa un teléfono válido (solo números y +)' },
+                maxLength: { value: 20, message: 'Máximo 20 caracteres' },
+              })}
               placeholder="+57 300 123 4567"
               className="mt-1"
             />
@@ -144,13 +176,17 @@ export function PersonalInfoStep() {
         </div>
 
         <div>
-          <Label htmlFor="location">Ubicación</Label>
-          <Input
+          <Label htmlFor="location">Ubicación (Departamento)</Label>
+          <select
             id="location"
             {...register('location', { required: 'La ubicación es requerida' })}
-            placeholder="Bogotá, Colombia"
-            className="mt-1"
-          />
+            className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary"
+          >
+            <option value="">Seleccionar departamento...</option>
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>{loc}</option>
+            ))}
+          </select>
           {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>}
         </div>
 
@@ -171,22 +207,28 @@ export function PersonalInfoStep() {
 
         <div>
           <Label htmlFor="experience">Experiencia</Label>
-          <textarea
-            id="experience"
-            {...register('experience')}
-            placeholder="Describe tu experiencia previa..."
-            className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary min-h-[80px]"
-          />
+            <textarea
+              id="experience"
+              {...register('experience', {
+                maxLength: { value: 2000, message: 'Máximo 2000 caracteres' },
+              })}
+              placeholder="Describe tu experiencia previa..."
+              className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary min-h-[80px]"
+            />
+            {errors.experience && <p className="text-red-500 text-xs mt-1">{errors.experience.message}</p>}
         </div>
 
         <div>
           <Label htmlFor="message">Mensaje adicional</Label>
-          <textarea
-            id="message"
-            {...register('message')}
-            placeholder="Cuéntanos por qué quieres trabajar con Contigo..."
-            className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary min-h-[80px]"
-          />
+            <textarea
+              id="message"
+              {...register('message', {
+                maxLength: { value: 2000, message: 'Máximo 2000 caracteres' },
+              })}
+              placeholder="Cuéntanos por qué quieres trabajar con Contigo..."
+              className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary min-h-[80px]"
+            />
+            {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message.message}</p>}
         </div>
 
         <div className="flex gap-2 sm:gap-4">

@@ -1,10 +1,10 @@
 import { createClient } from '@libsql/client';
 
-const url = process.env.NEXT_PUBLIC_TURSO_URL || '';
-const authToken = process.env.NEXT_PUBLIC_TURSO_KEY || '';
+const url = process.env.TURSO_URL || '';
+const authToken = process.env.TURSO_KEY || '';
 
 if (!url || !authToken) {
-  console.warn('TursoDB credentials not found. Some features may not work.');
+  console.warn('TursoDB credentials not found in server env. Some features may not work.');
 }
 
 export const tursoClient = createClient({

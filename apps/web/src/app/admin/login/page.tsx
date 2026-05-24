@@ -5,21 +5,61 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 
+const EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@contigo.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const validateForm = (): boolean => {
+    if (!email.trim()) {
+      setError('El correo electrónico es requerido');
+      return false;
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+      setError('Ingresa un correo electrónico válido');
+      return false;
+    }
+    if (!password) {
+      setError('La contraseña es requerida');
+      return false;
+    }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return false;
+    }
+    return true;
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (!validateForm()) return;
+    
+    setLoading(true);
 
-    if (email === 'admin@contigo.com' && password === 'admin123') {
-      localStorage.setItem('admin_authenticated', 'true');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Credenciales incorrectas');
+        return;
+      }
+
       router.push('/admin/questionnaires');
-    } else {
-      setError('Credenciales incorrectas');
+    } catch (err) {
+      setError('Error de conexión. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,6 +86,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-12 px-4 rounded-full border-2 border-slate-200 focus:border-primary focus:outline-none"
                 placeholder="admin@contigo.com"
+                required
               />
             </div>
 
@@ -59,6 +100,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-12 px-4 rounded-full border-2 border-slate-200 focus:border-primary focus:outline-none"
                 placeholder="••••••••"
+                required
               />
             </div>
 
@@ -68,18 +110,10 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-12">
-              Iniciar Sesión
+            <Button type="submit" disabled={loading} className="w-full h-12">
+              {loading ? 'Ingresando...' : 'Iniciar Sesión'}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-slate-50 rounded-xl">
-            <p className="text-xs text-slate-500 text-center">
-              Datos de prueba:<br />
-              Email: admin@contigo.com<br />
-              Contraseña: admin123
-            </p>
-          </div>
         </div>
       </div>
     </div>

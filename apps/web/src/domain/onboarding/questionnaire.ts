@@ -134,6 +134,24 @@ export function createEmptyQuestion(type: QuestionType = 'single-choice'): Quest
   }
 }
 
+export function redistributeWeights(questions: QuestionnaireQuestion[]): QuestionnaireQuestion[] {
+  const activeQuestions = questions.filter(q => q.isActive !== false);
+  const activeCount = activeQuestions.length;
+
+  if (activeCount === 0) return questions;
+
+  const baseWeight = Math.floor(100 / activeCount);
+  const remainder = 100 - baseWeight * activeCount;
+
+  let remainingToAdd = remainder;
+  return questions.map(q => {
+    if (q.isActive === false) return { ...q, weight: 0 };
+    const extra = remainingToAdd > 0 ? 1 : 0;
+    remainingToAdd--;
+    return { ...q, weight: baseWeight + extra };
+  });
+}
+
 export function createEmptyQuestionnaire(): Questionnaire {
   return {
     id: crypto.randomUUID(),

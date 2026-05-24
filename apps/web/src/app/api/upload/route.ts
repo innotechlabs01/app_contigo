@@ -3,6 +3,19 @@ import { put } from '@vercel/blob';
 
 export const dynamic = 'force-dynamic';
 
+const ALLOWED_PATHS = ['documents/cv', 'videos/presentation', 'videos/reference'];
+
+function sanitizePath(path: string): string | null {
+  const normalized = path.replace(/\.\.\//g, '').replace(/\.\./g, '').replace(/^\/+|\/+$/g, '');
+  const isValid = ALLOWED_PATHS.some((allowed) => normalized.startsWith(allowed));
+  if (!isValid) return null;
+  return normalized;
+}
+
+function sanitizeFileName(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 200);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -16,29 +29,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Upload request:', {
-      fileName: file instanceof File ? file.name : 'not a file',
-      fileType: file instanceof File ? file.type : typeof file,
-      fileSize: file instanceof File ? file.size : 'N/A',
-      path,
-      isVideo: path?.includes('videos'),
-      isDocument: path?.includes('documents')
-    });
-
-    // Validate that file is actually a File instance
     if (!(file instanceof File)) {
       return NextResponse.json(
-        { error: 'El archivo no es válido. Asegúrate de seleccionar un archivo correcto.' },
+        { error: 'El archivo no es válido' },
         { status: 400 }
       );
     }
 
-    // Determine if it's a video or document based on path
-    const isVideo = path.includes('videos');
-    const isDocument = path.includes('documents');
+    const safePath = sanitizePath(path);
+    if (!safePath) {
+      return NextResponse.json(
+        { error: 'Ruta no permitida' },
+        { status: 400 }
+      );
+    }
+
+    const safeName = sanitizeFileName(file.name);
+
+    const isVideo = safePath.includes('videos');
+    const isDocument = safePath.includes('documents');
 
     if (isVideo) {
-      // Video validation: max 1GB, MP4/MOV
       if (file.size > 1024 * 1024 * 1024) {
         return NextResponse.json(
           { error: 'El video excede el tamaño máximo de 1GB' },
@@ -49,12 +60,11 @@ export async function POST(request: NextRequest) {
       const allowedVideoTypes = ['video/mp4', 'video/quicktime'];
       if (!allowedVideoTypes.includes(file.type)) {
         return NextResponse.json(
-          { error: `Formato de video no permitido: ${file.type}. Usa MP4 o MOV.` },
+          { error: `Formato de video no permitido. Usa MP4 o MOV.` },
           { status: 400 }
         );
       }
     } else if (isDocument) {
-      // Document validation: max 10MB, PDF/DOC/DOCX
       if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json(
           { error: 'El archivo excede el tamaño máximo de 10MB' },
@@ -65,24 +75,21 @@ export async function POST(request: NextRequest) {
       const allowedDocTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedDocTypes.includes(file.type)) {
         return NextResponse.json(
-          { error: `Formato no permitido: ${file.type}. Usa PDF, DOC o DOCX.` },
+          { error: 'Formato no permitido. Usa PDF, DOC o DOCX.' },
           { status: 400 }
         );
       }
     }
 
-    const blob = await put(`${path}/${file.name}`, file, {
+    const blob = await put(`${safePath}/${safeName}`, file, {
       access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN!,
     });
 
-    console.log('Upload success:', blob.url);
-
     return NextResponse.json({ url: blob.url });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: error.message || 'Error al subir archivo' },
+      { error: 'Error al subir archivo' },
       { status: 500 }
     );
   }

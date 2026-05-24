@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/infrastructure/store/onboarding-store';
-import { CheckCircle2, FileText, Video, Clock, Award } from 'lucide-react';
+import { FileText, Video, Clock } from 'lucide-react';
 
 export function ReviewStep() {
-  const { evaluation, documents, videos, evaluationScore, personalInfo, setStatus, setRequestIdNumber } = useOnboardingStore();
+  const { evaluation, documents, videos, personalInfo, setStatus, setRequestIdNumber } = useOnboardingStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -17,18 +17,6 @@ export function ReviewStep() {
     setSubmitError(null);
 
     try {
-      // Calculate evaluation score if not already calculated
-      let finalScore = evaluationScore;
-      if (finalScore === null && evaluation) {
-        // Import and calculate
-        const { calculateEvaluationResult } = await import('@/domain/onboarding/evaluation-questions');
-        const result = calculateEvaluationResult(evaluation as Record<number, number>);
-        finalScore = result.globalScore;
-      }
-
-      console.log('Submitting with score:', finalScore);
-
-      // Create FormData to send to API
       const formData = new FormData();
       formData.append('first_name', personalInfo.firstName);
       formData.append('last_name', personalInfo.lastName);
@@ -37,8 +25,7 @@ export function ReviewStep() {
       formData.append('phone', personalInfo.phone);
       formData.append('location', personalInfo.location);
       formData.append('service_type', personalInfo.serviceType);
-      formData.append('evaluation', JSON.stringify(evaluation));
-      formData.append('evaluation_score', (finalScore || 0).toString());
+      if (evaluation) formData.append('evaluation', JSON.stringify(evaluation));
       formData.append('experience', personalInfo.experience || '');
       formData.append('message', personalInfo.message || '');
 
@@ -80,8 +67,6 @@ export function ReviewStep() {
       setIsSubmitting(false);
     }
   };
-
-  const passed = evaluationScore !== null && evaluationScore >= 80;
 
   return (
     <div className="space-y-4 sm:space-y-6">

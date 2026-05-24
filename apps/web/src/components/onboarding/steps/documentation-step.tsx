@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ export function DocumentationStep() {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { setDocument, setStep, personalInfo } = useOnboardingStore();
   
   const { handleSubmit, formState: { errors }, setValue } = useForm<DocumentFormData>({
@@ -122,6 +123,7 @@ export function DocumentationStep() {
             accept=".pdf,.doc,.docx"
             className="hidden"
             id="cv-upload"
+            ref={fileInputRef}
             onChange={handleFileChange}
           />
           <label htmlFor="cv-upload" className="cursor-pointer">
@@ -135,6 +137,7 @@ export function DocumentationStep() {
                     e.preventDefault(); 
                     setFile(null); 
                     setValue('file', undefined as any, { shouldValidate: true });
+                    if (fileInputRef.current) fileInputRef.current.value = '';
                   }} 
                   className="ml-1 sm:ml-2"
                 >

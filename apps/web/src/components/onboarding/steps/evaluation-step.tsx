@@ -29,6 +29,20 @@ export function EvaluationStep() {
     }
   }, [evaluation]);
 
+  useEffect(() => {
+    fetchQuestionnaires();
+  }, [fetchQuestionnaires]);
+
+  useEffect(() => {
+    if (questionnaires.length === 0) return;
+    const found = questionnaires.find(
+      (q) => q.stepTarget === 'evaluation' && q.isPublished
+    );
+    if (found) {
+      setEvaluationQuestionnaire(found);
+    }
+  }, [questionnaires]);
+
   const dynamicQuestions = useMemo(() => {
     if (!evaluationQuestionnaire) return null;
     return evaluationQuestionnaire.questions
@@ -39,11 +53,14 @@ export function EvaluationStep() {
         text: q.text,
         pillar: q.pillar || 'General',
         pillarWeight: q.weight || 1,
-        answers: q.answers.map((a) => ({
-          text: a.text,
-          score: a.score,
-        })),
-      }));
+        answers: q.answers
+          .filter((a) => a.isActive !== false)
+          .map((a) => ({
+            text: a.text,
+            score: a.score,
+          })),
+      }))
+      .filter((q) => q.answers.length > 0);
   }, [evaluationQuestionnaire]);
 
   const questions = dynamicQuestions || evaluationQuestions;
