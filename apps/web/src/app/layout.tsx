@@ -31,6 +31,7 @@ export default function RootLayout({
     <html lang="es">
       <head>
         <meta name="theme-color" content="#00668A" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
       <body className="min-h-screen bg-background antialiased">
         {children}

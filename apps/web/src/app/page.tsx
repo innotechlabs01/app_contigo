@@ -1,260 +1,390 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Heart, Shield, MapPin, Clock, Star, Users } from "lucide-react";
+'use client';
 
-export const metadata = {
-  title: "Contigo - Acompañamiento y Cuidado",
-  description:
-    "Plataforma de salud y acompañamiento para adultos mayores y extranjeros. Servicios verificados y monitoreo en tiempo real.",
-};
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Reveal } from '@/components/ui/reveal';
+import {
+  Heart, Shield, MapPin, Star, Users,
+  ArrowRight, Quote, Sparkles,
+  Target, Sun, ArrowUpRight, Play, Phone, Mail,
+} from 'lucide-react';
+
+function useCountUp(end: number, duration = 2000) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const counted = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !counted.current) {
+          counted.current = true;
+          const start = performance.now();
+          const step = (now: number) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * end));
+            if (progress < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  return { count, ref };
+}
 
 export default function HomePage() {
+  const companions = useCountUp(500);
+  const families = useCountUp(2000);
+  const rating = useCountUp(49);
+  const cities = useCountUp(32);
+
+  const features = [
+    {
+      icon: Shield,
+      title: 'Verificación rigurosa',
+      desc: 'Todos los Compañeros pasan por un proceso exhaustivo de verificación de antecedentes, entrevistas y pruebas psicológicas.',
+      color: 'from-[#00668A] to-[#00668A]/80',
+    },
+    {
+      icon: MapPin,
+      title: 'Monitoreo en vivo',
+      desc: 'Comparte ubicación con familiares y recibe seguimiento 24/7 con respuesta inmediata ante cualquier eventualidad.',
+      color: 'from-[#87CEEB] to-[#87CEEB]/60',
+    },
+    {
+      icon: Heart,
+      title: 'Acompañamiento a medida',
+      desc: 'Servicios personalizados: médico, emocional, social o acompañamiento diario. Tú eliges lo que necesitas.',
+      color: 'from-[#E07A5F] to-[#E07A5F]/70',
+    },
+  ];
+
+  const steps = [
+    {
+      number: '01',
+      icon: Target,
+      title: 'Evalúa',
+      desc: 'Responde un breve cuestionario sobre tus necesidades y preferencias de acompañamiento.',
+    },
+    {
+      number: '02',
+      icon: Users,
+      title: 'Conecta',
+      desc: 'Explora perfiles verificados y elige al Compañero que mejor se adapte a tu estilo de vida.',
+    },
+    {
+      number: '03',
+      icon: Sun,
+      title: 'Disfruta',
+      desc: 'Coordina sesiones y comienza a recibir acompañamiento seguro, cálido y confiable.',
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Video Background with overlay */}
-        <div className="absolute inset-0 z-0">
-          <video 
-            autoPlay 
-            muted 
-            loop 
-            playsInline
-            className="w-full h-full object-cover scale-105"
-          >
-            <source src="/contigo-simple.mp4" type="video/mp4" />
-          </video>
-          {/* Multi-layered overlay for depth and readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-secondary/80 via-secondary/40 to-transparent z-10" />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-0" />
+    <main className="min-h-screen bg-[#F9F6F0] overflow-hidden">
+      {/* === NAV === */}
+      <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <span className="text-2xl font-bold text-white tracking-tight">contigo</span>
+          <div className="flex items-center gap-8">
+            <Link href="/admin/login" className="text-sm text-white/80 hover:text-white transition-colors">
+              Acceder
+            </Link>
+            <Link href="/onboarding">
+              <Button className="h-10 px-5 text-sm bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20 rounded-xl">
+                Comenzar
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* === HERO === */}
+      <section className="relative min-h-screen flex items-center bg-[#00668A] overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#87CEEB]/20 rounded-full animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-[#87CEEB]/10 rounded-full animate-blob-delayed" />
+          <div className="absolute top-1/3 left-1/2 w-[300px] h-[300px] bg-white/5 rounded-full animate-float" />
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
         </div>
 
-        <div className="relative z-20 container mx-auto px-4 lg:px-8 py-24">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            {/* Left Column - Main Message */}
-            <div className="w-full lg:w-3/5 space-y-10">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white/90 text-sm font-medium animate-fade-in">
-                  <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
-                  Servicios de acompañamiento premium
-                </div>
-                
-                <h1 className="text-6xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight drop-shadow-2xl">
-                  Cuidado y <br />
-                  <span className="text-primary-300 relative inline-block">
-                    Acompañamiento
-                    <span className="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full" />
-                  </span><br />
-                  con Confianza
-                </h1>
-                
-                <p className="text-xl md:text-2xl text-white/90 leading-relaxed max-w-2xl drop-shadow-md font-light">
-                  Conectamos adultos mayores y extranjeros con <strong className="font-semibold text-white">Compañeros verificados</strong> para brindar seguridad, empatía y una vida más plena.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-5">
-                <Link href="/onboarding">
-                  <Button size="lg" className="h-16 px-10 text-lg bg-primary hover:bg-primary-600 text-secondary font-semibold rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                    Quiero ser Compañero
-                  </Button>
-                </Link>
-                <Link href="/admin/login">
-                  <Button variant="outline" size="lg" className="h-16 px-10 text-lg bg-white/10 backdrop-blur-md text-white border-white/30 hover:bg-white/20 hover:border-white/50 rounded-2xl transition-all">
-                    Iniciar sesión
-                  </Button>
-                </Link>
-              </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-24">
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/10 text-white/80 text-sm mb-8 animate-fade-up">
+              <Sparkles className="w-3.5 h-3.5 text-[#87CEEB]" />
+              Plataforma de acompañamiento y cuidado
             </div>
 
-            {/* Right Column - Floating Stats */}
-            <div className="w-full lg:w-2/5 flex justify-center lg:justify-end">
-              <div className="grid grid-cols-2 gap-4 w-full max-w-md animate-float">
-                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
-                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <p className="text-4xl font-bold text-white tracking-tighter">500+</p>
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Compañeros</p>
-                </div>
-                
-                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl mt-8 flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
-                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
-                    <Heart className="w-6 h-6" />
-                  </div>
-                  <p className="text-4xl font-bold text-white tracking-tighter">2000+</p>
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Familias</p>
-                </div>
+            <h1 className="text-6xl sm:text-7xl md:text-8xl font-bold text-white leading-[0.95] tracking-tight mb-8 animate-fade-up" style={{ animationDelay: '0.1s' }}>
+              Cuidado que{' '}
+              <span className="text-[#87CEEB] underline decoration-[#87CEEB]/30 decoration-4 underline-offset-8">
+                trasciende
+              </span>
+              <br />
+              la distancia
+            </h1>
 
-                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl -mt-4 flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
-                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
-                    <Star className="w-6 h-6" />
-                  </div>
-                  <p className="text-4xl font-bold text-white tracking-tighter">4.9</p>
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Rating</p>
-                </div>
+            <p className="text-xl sm:text-2xl text-white/80 max-w-2xl leading-relaxed mb-12 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+              Conectamos adultos mayores y extranjeros con{' '}
+              <span className="text-white font-semibold">Compañeros verificados</span> para
+              brindar seguridad, empatía y una vida más plena.
+            </p>
 
-                <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20 shadow-2xl mt-4 flex flex-col items-center justify-center space-y-2 hover:bg-white/15 transition-colors">
-                  <div className="bg-primary/20 p-3 rounded-2xl text-primary-300">
-                    <Clock className="w-6 h-6" />
-                  </div>
-                  <p className="text-4xl font-bold text-white tracking-tighter">24/7</p>
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Soporte</p>
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+              <Link href="/onboarding">
+                <Button className="h-14 px-8 text-base bg-white text-[#00668A] hover:bg-white/90 rounded-2xl font-semibold shadow-2xl shadow-black/10 transition-all hover:scale-105 active:scale-95">
+                  Quiero ser Compañero
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link href="#how-it-works">
+                <Button variant="outline" className="h-14 px-8 text-base bg-transparent text-white border-white/30 hover:bg-white/10 rounded-2xl">
+                  Cómo funciona
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#F9F6F0] to-transparent" />
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-surface">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-secondary text-center mb-4">
-            ¿Por qué elegir Contigo?
-          </h2>
-          <p className="text-slate-600 text-center mb-12 max-w-2xl mx-auto">
-            Nuestra plataforma garantiza acompañantes verificados y servicios
-            personalizados para cada necesidad.
+      {/* === TRUST BAR === */}
+      <section className="py-16 bg-[#F9F6F0]">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-center text-sm text-slate-400 uppercase tracking-[0.2em] font-medium mb-10">
+            Confianza de miles de familias colombianas
           </p>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<Shield className="w-8 h-8" />}
-              title="Compañeros Verificados"
-              description="Todos nuestros accompagnantes pasan por un riguroso proceso de verificación incluyendo antecedentes y entrevistas."
-            />
-            <FeatureCard
-              icon={<MapPin className="w-8 h-8" />}
-              title="Monitoreo en Tiempo Real"
-              description="Comparte tu ubicación con contactos de emergencia y recibe seguimiento personalizado las 24 horas."
-            />
-            <FeatureCard
-              icon={<Heart className="w-8 h-8" />}
-              title="Acompañamiento Personalizado"
-              description="Servicios adaptados a tus necesidades específicas: médico, emocional, social o acompañamiento diario."
-            />
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center opacity-60">
+            {['Confianza', 'Seguridad', 'Empatía', 'Profesionalismo', 'Calidez'].map((word) => (
+              <span key={word} className="text-lg md:text-xl font-light text-[#00668A] tracking-wide">
+                {word}
+              </span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-primary/10">
-        <div className="container mx-auto px-4">
+      {/* === FEATURES === */}
+      <section id="features" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal>
+            <div className="max-w-2xl mb-20">
+              <span className="text-sm text-[#87CEEB] font-semibold uppercase tracking-[0.15em]">Servicios</span>
+              <h2 className="text-4xl sm:text-5xl font-bold text-[#00668A] mt-4 leading-tight">
+                Todo lo que necesitas para un cuidado excepcional
+              </h2>
+            </div>
+          </Reveal>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {features.map((feature, i) => (
+              <Reveal key={feature.title} delay={i * 100}>
+                <div className="group relative bg-[#F9F6F0] rounded-[2.5rem] p-10 hover:shadow-2xl hover:shadow-[#00668A]/5 transition-all duration-500 hover:-translate-y-1">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}>
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#00668A] mb-4">{feature.title}</h3>
+                  <p className="text-slate-500 leading-relaxed">{feature.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* === STATS === */}
+      <section className="py-24 bg-[#00668A] relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#87CEEB]/10 rounded-full animate-blob" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full animate-blob-delayed" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6">
+          <Reveal>
+            <div className="text-center mb-16">
+              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">Números que hablan</h2>
+              <p className="text-white/60 text-lg max-w-xl mx-auto">El impacto de nuestra comunidad crece día a día</p>
+            </div>
+          </Reveal>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <StatCard
-              icon={<Users className="w-8 h-8" />}
-              value="500+"
-              label="Compañeros"
-            />
-            <StatCard
-              icon={<Heart className="w-8 h-8" />}
-              value="2000+"
-              label="Familias"
-            />
-            <StatCard
-              icon={<Star className="w-8 h-8" />}
-              value="4.9"
-              label="Calificación"
-            />
-            <StatCard
-              icon={<Clock className="w-8 h-8" />}
-              value="24/7"
-              label="Soporte"
-            />
+            <StatItem count={companions.count} elementRef={companions.ref} suffix="+" label="Compañeros" icon={Users} />
+            <StatItem count={families.count} elementRef={families.ref} suffix="+" label="Familias" icon={Heart} />
+            <StatItem count={rating.count / 10} elementRef={rating.ref} suffix="" label="Calificación" icon={Star} decimals={1} />
+            <StatItem count={cities.count} elementRef={cities.ref} suffix="" label="Departamentos" icon={MapPin} />
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-surface">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-secondary text-center mb-4">
-            Cómo Funciona
-          </h2>
-          <p className="text-slate-600 text-center mb-12 max-w-2xl mx-auto">
-            Tres simples pasos para encontrar tu compañero ideal
-          </p>
+      {/* === HOW IT WORKS === */}
+      <section id="how-it-works" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal>
+            <div className="text-center mb-20">
+              <span className="text-sm text-[#87CEEB] font-semibold uppercase tracking-[0.15em]">Proceso</span>
+              <h2 className="text-4xl sm:text-5xl font-bold text-[#00668A] mt-4">Tres pasos para empezar</h2>
+            </div>
+          </Reveal>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <StepCard
-              number="1"
-              title="Evalúa tus necesidades"
-              description="Responde un breve cuestionario sobre el tipo de acompañamiento que buscas."
-            />
-            <StepCard
-              number="2"
-              title="Conecta con Compañeros"
-              description="Explora perfiles de acompañantes verificados y elige el que mejor se adapte."
-            />
-            <StepCard
-              number="3"
-              title="Comienza el acompañamiento"
-              description="Coordina sesiones y disfruta de compañía segura y confiable."
-            />
+          <div className="grid md:grid-cols-3 gap-12 relative">
+            <div className="hidden md:block absolute top-16 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-transparent via-[#87CEEB]/50 to-transparent" />
+
+            {steps.map((step, i) => (
+              <Reveal key={step.number} delay={i * 150}>
+                <div className="text-center group">
+                  <div className="relative inline-flex mb-8">
+                    <div className="w-20 h-20 bg-[#F9F6F0] rounded-[1.5rem] flex items-center justify-center mx-auto group-hover:bg-[#00668A] transition-colors duration-500">
+                      <step.icon className="w-8 h-8 text-[#00668A] group-hover:text-white transition-colors duration-500" />
+                    </div>
+                    <span className="absolute -top-3 -right-3 w-10 h-10 bg-[#87CEEB] rounded-full flex items-center justify-center text-sm font-bold text-[#00668A] shadow-lg">
+                      {step.number}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#00668A] mb-4">{step.title}</h3>
+                  <p className="text-slate-500 leading-relaxed max-w-sm mx-auto">{step.desc}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-secondary">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            ¿Listo para comenzar?
-          </h2>
-          <p className="text-white/80 text-xl mb-8 max-w-2xl mx-auto">
-            Únete a nuestra comunidad de Compañeros y ayuda a hacer la diferencia
-            en la vida de otros.
-          </p>
-          <Link href="/onboarding">
-            <Button
-              size="lg"
-              variant="default"
-              className="bg-white text-secondary hover:bg-white/90 text-lg px-10 py-7"
-            >
-              Registrarme como Compañero
-            </Button>
-          </Link>
+      {/* === TESTIMONIAL === */}
+      <section className="py-24 bg-[#F9F6F0]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-4xl mx-auto">
+            <Reveal>
+              <div className="relative bg-white rounded-[3rem] p-12 md:p-16 shadow-soft">
+                <div className="mb-8">
+                  <Quote className="w-12 h-12 text-[#87CEEB]/30" />
+                </div>
+                <blockquote className="text-2xl md:text-3xl text-[#00668A] leading-relaxed font-medium mb-10">
+                  &ldquo;Desde que mi mamá tiene un Compañero de Contigo, su calidad de vida
+                  mejoró notablemente. Saber que alguien verificado la acompaña me da una
+                  tranquilidad invaluable.&rdquo;
+                </blockquote>
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#87CEEB] to-[#00668A] rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    M
+                  </div>
+                  <div>
+                    <div className="font-semibold text-[#00668A]">María García</div>
+                    <div className="text-sm text-slate-400">Hija de beneficiaria, Bogotá</div>
+                  </div>
+                  <div className="ml-auto flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-[#87CEEB] text-[#87CEEB]" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 bg-slate-900 text-white">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">Contigo</h3>
-              <p className="text-white/70">
-                Plataforma de acompañamiento y cuidado para adultos mayores y
-                extranjeros.
+      {/* === CTA === */}
+      <section className="py-32 bg-[#00668A] relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-[#87CEEB]/10 rounded-full animate-blob" />
+          <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-white/5 rounded-full animate-blob-delayed" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <Reveal>
+            <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-tight mb-8">
+              ¿Listo para
+              <br />
+              <span className="text-[#87CEEB]">marcar la diferencia?</span>
+            </h2>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-12">
+              Únete a nuestra comunidad de Compañeros y transforma la vida de quienes
+              más lo necesitan.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/onboarding">
+                <Button className="h-16 px-10 text-lg bg-white text-[#00668A] hover:bg-white/90 rounded-2xl font-semibold shadow-2xl shadow-black/10 transition-all hover:scale-105 active:scale-95">
+                  Comienza ahora
+                  <ArrowUpRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <Link href="#features">
+                <Button variant="outline" className="h-16 px-10 text-lg bg-transparent text-white border-white/30 hover:bg-white/10 rounded-2xl">
+                  <Play className="w-5 h-5 mr-2" />
+                  Ver video
+                </Button>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#F9F6F0] to-transparent" />
+      </section>
+
+      {/* === FOOTER === */}
+      <footer className="bg-[#F9F6F0] pt-24 pb-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-12 mb-16">
+            <div className="md:col-span-1">
+              <span className="text-2xl font-bold text-[#00668A] tracking-tight">contigo</span>
+              <p className="text-slate-400 mt-4 leading-relaxed text-sm">
+                Plataforma de acompañamiento y cuidado para adultos mayores y extranjeros en Colombia.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Servicios</h4>
-              <ul className="space-y-2 text-white/70">
-                <li>Acompañamiento médico</li>
-                <li>Acompañamiento emocional</li>
-                <li>Compañía social</li>
+              <h4 className="font-semibold text-[#00668A] mb-6">Servicios</h4>
+              <ul className="space-y-3">
+                {['Acompañamiento médico', 'Acompañamiento emocional', 'Compañía social', 'Cuidado diario'].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="text-sm text-slate-400 hover:text-[#00668A] transition-colors">{item}</a>
+                  </li>
+                ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Compañero</h4>
-              <ul className="space-y-2 text-white/70">
-                <li>Ser Compañero</li>
-                <li>Verificación</li>
-                <li>Recursos</li>
+              <h4 className="font-semibold text-[#00668A] mb-6">Compañero</h4>
+              <ul className="space-y-3">
+                {['Ser Compañero', 'Proceso de verificación', 'Recursos', 'Preguntas frecuentes'].map((item) => (
+                  <li key={item}>
+                    <a href="#" className="text-sm text-slate-400 hover:text-[#00668A] transition-colors">{item}</a>
+                  </li>
+                ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Contacto</h4>
-              <ul className="space-y-2 text-white/70">
-                <li>info@contigo.com</li>
-                <li>+1 234 567 890</li>
+              <h4 className="font-semibold text-[#00668A] mb-6">Contacto</h4>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2 text-sm text-slate-400">
+                  <Mail className="w-4 h-4" /> hola@contigo.app
+                </li>
+                <li className="flex items-center gap-2 text-sm text-slate-400">
+                  <Phone className="w-4 h-4" /> +57 1 234 5678
+                </li>
+                <li className="flex items-center gap-2 text-sm text-slate-400">
+                  <MapPin className="w-4 h-4" /> Bogotá, Colombia
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-white/20 pt-8 text-center text-white/50">
-            <p>&copy; 2025 Contigo. Todos los derechos reservados.</p>
+          <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-slate-400">
+              &copy; 2025 Contigo. Todos los derechos reservados.
+            </p>
+            <div className="flex gap-6 text-sm text-slate-400">
+              <a href="#" className="hover:text-[#00668A] transition-colors">Términos</a>
+              <a href="#" className="hover:text-[#00668A] transition-colors">Privacidad</a>
+            </div>
           </div>
         </div>
       </footer>
@@ -262,68 +392,32 @@ export default function HomePage() {
   );
 }
 
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="group bg-white rounded-[2rem] p-10 shadow-soft hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-slate-100">
-      <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-secondary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-        {icon}
-      </div>
-      <h3 className="text-2xl font-bold text-secondary mb-4 leading-tight">{title}</h3>
-      <p className="text-slate-600 leading-relaxed text-lg">{description}</p>
-    </div>
-  );
-}
-
-function StatCard({
-  icon,
-  value,
+function StatItem({
+  count,
+  elementRef,
+  suffix,
   label,
+  icon: Icon,
+  decimals = 0,
 }: {
-  icon: React.ReactNode;
-  value: string;
+  count: number;
+  elementRef: React.RefObject<HTMLDivElement | null>;
+  suffix: string;
   label: string;
+  icon: React.ElementType;
+  decimals?: number;
 }) {
   return (
-    <div className="text-center p-6">
-      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-secondary mx-auto mb-6 shadow-xl shadow-secondary/5 border border-slate-50">
-        {icon}
+    <div ref={elementRef as React.RefObject<HTMLDivElement>} className="text-center">
+      <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-5">
+        <Icon className="w-7 h-7 text-[#87CEEB]" />
       </div>
-      <div className="text-4xl font-bold text-secondary mb-2 tracking-tight">{value}</div>
-      <div className="text-slate-500 font-medium uppercase tracking-widest text-xs">{label}</div>
-    </div>
-  );
-}
-
-function StepCard({
-  number,
-  title,
-  description,
-}: {
-  number: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="relative text-center p-8 group">
-      <div className="w-20 h-20 bg-secondary rounded-[1.5rem] flex items-center justify-center text-white text-3xl font-bold mx-auto mb-8 shadow-2xl shadow-secondary/20 group-hover:rotate-6 transition-transform">
-        {number}
+      <div className="text-4xl sm:text-5xl font-bold text-white mb-2 tracking-tight">
+        {count.toFixed(decimals)}{suffix}
       </div>
-      <h3 className="text-2xl font-bold text-secondary mb-4">{title}</h3>
-      <p className="text-slate-600 leading-relaxed">{description}</p>
-      {/* Decorative arrow for desktop */}
-      {number !== "3" && (
-        <div className="hidden lg:block absolute top-1/4 -right-4 w-8 h-8 text-slate-200">
-          →
-        </div>
-      )}
+      <div className="text-white/50 text-sm uppercase tracking-widest font-medium">
+        {label}
+      </div>
     </div>
   );
 }

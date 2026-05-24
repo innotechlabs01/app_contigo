@@ -1,0 +1,16 @@
+{
+  "name": "Contigo - Acompañamiento y Cuidado",
+  "short_name": "Contigo",
+  "description": "Plataforma de salud y acompañamiento para adultos mayores y extranjeros",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9F6F0",
+  "theme_color": "#00668A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
