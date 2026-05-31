@@ -25,6 +25,7 @@ export function OnboardingContainer() {
   const { stepIndex, status, reset, requestIdNumber, setStatus } = useOnboardingStore();
   const router = useRouter();
   const [showExitModal, setShowExitModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Polling for status updates when in review
@@ -37,6 +38,9 @@ export function OnboardingContainer() {
             const data = await res.json();
             if (data.status === 'approved' || data.status === 'rejected') {
               setStatus(data.status);
+              if (data.status === 'rejected' && data.rejection_reason) {
+                setRejectionReason(data.rejection_reason);
+              }
               // Stop polling
               if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
@@ -122,7 +126,9 @@ export function OnboardingContainer() {
             <XCircle className="w-10 h-10 text-red-600" />
           </div>
           <h2 className="text-2xl font-semibold text-slate-800">No apto</h2>
-          <p className="text-slate-600 mt-2">En este momento no cumples con la totalidad del perfil requerido para participar en la APP</p>
+          <p className="text-slate-600 mt-2">
+            {rejectionReason || 'En este momento no cumples con la totalidad del perfil requerido para participar en la APP'}
+          </p>
         </div>
       </div>
     );
