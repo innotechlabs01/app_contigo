@@ -14,9 +14,6 @@ export default function OnboardingPage() {
   return (
     <main className="min-h-screen bg-background py-4 sm:py-8">
       <div className="container mx-auto px-3 sm:px-4">
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-secondary">Únete a Contigo</h1>
-        </div>
         <OnboardingContainer />
       </div>
     </main>

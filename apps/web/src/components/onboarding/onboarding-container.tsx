@@ -130,6 +130,10 @@ export function OnboardingContainer() {
 
   return (
     <div className="max-w-2xl mx-auto py-4 sm:py-8 px-3 sm:px-4 relative">
+      <div className="text-center mb-4 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-secondary">Únete a Contigo</h1>
+        <p className="text-sm sm:text-base text-slate-600 mt-2">Completa el proceso de registro para convertirte en Compañero</p>
+      </div>
       <div className="absolute top-0 right-2 sm:right-4 z-10">
         <Button
           variant="ghost"
