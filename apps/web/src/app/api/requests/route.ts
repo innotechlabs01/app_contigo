@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 import { put } from '@vercel/blob';
 import { isAuthenticated, unauthorized } from '@/lib/auth';
 import { sanitizeText, sanitizeName, sanitizeEmail, sanitizePhone, sanitizeIdNumber, sanitizeFileName } from '@/lib/sanitize';
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     const sanitizedMessage = sanitizeText(message, 2000);
 
     // Check duplicate using sanitized idNumber to prevent directory traversal via idNumber
-    const existingCheck = await tursoClient.execute({
+    const existingCheck = await getTursoClient().execute({
       sql: 'SELECT id FROM requests WHERE id_number = ? LIMIT 1',
       args: [sanitizedIdNumber],
     });
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
       referenceVideoName = referenceFile.name;
     }
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: `INSERT INTO requests (
         first_name, last_name, id_number, email, phone, location, service_type,
         evaluation, evaluation_score, evaluation_passed,
@@ -245,7 +245,7 @@ export async function GET(request: NextRequest) {
 
     query += ' ORDER BY application_date DESC';
 
-    const result = await tursoClient.execute({
+    const result = await getTursoClient().execute({
       sql: query,
       args,
     });

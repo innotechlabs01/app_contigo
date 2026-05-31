@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 
 export async function GET(
   request: NextRequest,
@@ -22,7 +22,7 @@ export async function GET(
       );
     }
 
-    const result = await tursoClient.execute({
+    const result = await getTursoClient().execute({
       sql: 'SELECT status, rejection_reason FROM requests WHERE id_number = ? LIMIT 1',
       args: [idNumber]
     });

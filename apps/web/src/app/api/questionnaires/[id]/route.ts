@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 import { isAuthenticated, unauthorized } from '@/lib/auth';
 import { sanitizeText, sanitizeName } from '@/lib/sanitize';
 import type { Questionnaire } from '@/domain/onboarding/questionnaire';
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const result = await tursoClient.execute({
+    const result = await getTursoClient().execute({
       sql: 'SELECT * FROM questionnaires WHERE id = ?',
       args: [id],
     });
@@ -58,7 +58,7 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
 
-    const existing = await tursoClient.execute({
+    const existing = await getTursoClient().execute({
       sql: 'SELECT * FROM questionnaires WHERE id = ?',
       args: [id],
     });
@@ -136,7 +136,7 @@ export async function PUT(
 
     const now = new Date().toISOString();
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: `UPDATE questionnaires SET
         name = ?, description = ?, step_target = ?, passing_score = ?,
         is_published = ?, questions = ?, updated_at = ?
@@ -181,7 +181,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const existing = await tursoClient.execute({
+    const existing = await getTursoClient().execute({
       sql: 'SELECT id FROM questionnaires WHERE id = ?',
       args: [id],
     });
@@ -190,7 +190,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
     }
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: 'DELETE FROM questionnaires WHERE id = ?',
       args: [id],
     });

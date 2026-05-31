@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ exists: false });
     }
 
-    const result = await tursoClient.execute({
+    const result = await getTursoClient().execute({
       sql: 'SELECT id, status FROM requests WHERE id_number = ? LIMIT 1',
       args: [idNumber],
     });

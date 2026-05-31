@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 import { isAuthenticated, unauthorized } from '@/lib/auth';
 import { sanitizeText, sanitizeName } from '@/lib/sanitize';
 import type { Questionnaire } from '@/domain/onboarding/questionnaire';
 
 export async function GET() {
   try {
-    const result = await tursoClient.execute({
+    const result = await getTursoClient().execute({
       sql: 'SELECT * FROM questionnaires ORDER BY created_at DESC',
       args: []
     });
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
       updatedAt: now,
     };
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: `INSERT INTO questionnaires (id, name, description, step_target, passing_score, is_published, questions, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [

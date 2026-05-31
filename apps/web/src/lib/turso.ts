@@ -1,13 +1,17 @@
 import { createClient } from '@libsql/client';
 
-const url = process.env.TURSO_URL || '';
-const authToken = process.env.TURSO_KEY || '';
+let client: ReturnType<typeof createClient> | null = null;
 
-if (!url || !authToken) {
-  console.warn('TursoDB credentials not found in server env. Some features may not work.');
+export function getTursoClient() {
+  if (client) return client;
+
+  const url = process.env.TURSO_URL;
+  const authToken = process.env.TURSO_KEY;
+
+  if (!url || !authToken) {
+    throw new Error('TURSO_URL and TURSO_KEY environment variables are required');
+  }
+
+  client = createClient({ url, authToken });
+  return client;
 }
-
-export const tursoClient = createClient({
-  url,
-  authToken,
-});

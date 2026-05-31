@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 import { isAuthenticated, unauthorized } from '@/lib/auth';
 import type { Questionnaire } from '@/domain/onboarding/questionnaire';
 
@@ -13,7 +13,7 @@ export async function POST(
   try {
     const { id } = await params;
 
-    const existing = await tursoClient.execute({
+    const existing = await getTursoClient().execute({
       sql: 'SELECT * FROM questionnaires WHERE id = ?',
       args: [id],
     });
@@ -24,7 +24,7 @@ export async function POST(
 
     const now = new Date().toISOString();
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: 'UPDATE questionnaires SET is_published = 1, updated_at = ? WHERE id = ?',
       args: [now, id],
     });

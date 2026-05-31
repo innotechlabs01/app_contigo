@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tursoClient } from '@/lib/turso';
+import { getTursoClient } from '@/lib/turso';
 import { isAuthenticated, unauthorized } from '@/lib/auth';
 
 export async function PATCH(
@@ -28,7 +28,7 @@ export async function PATCH(
       );
     }
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: `UPDATE requests SET status = ?, rejection_reason = ?, review_date = ?, updated_at = ? WHERE id = ?`,
       args: [
         status,
@@ -59,7 +59,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    await tursoClient.execute({
+    await getTursoClient().execute({
       sql: 'DELETE FROM requests WHERE id = ?',
       args: [id]
     });
