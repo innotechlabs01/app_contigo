@@ -23,7 +23,7 @@ export async function GET(
     }
 
     const result = await tursoClient.execute({
-      sql: 'SELECT status FROM requests WHERE id_number = ? LIMIT 1',
+      sql: 'SELECT status, rejection_reason FROM requests WHERE id_number = ? LIMIT 1',
       args: [idNumber]
     });
 
@@ -35,8 +35,12 @@ export async function GET(
     }
 
     const status = result.rows[0][0];
+    const rejectionReason = result.rows[0][1];
 
-    return NextResponse.json({ status });
+    return NextResponse.json({
+      status,
+      rejection_reason: rejectionReason || null
+    });
   } catch (error) {
     console.error('API error:', error);
     return NextResponse.json(
