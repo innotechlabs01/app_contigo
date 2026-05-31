@@ -57,6 +57,8 @@ export default function RequestsPage() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectError, setRejectError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRequests();
@@ -98,12 +100,19 @@ export default function RequestsPage() {
 
   const handleConfirmReject = async () => {
     if (!rejectingId || !rejectReason.trim()) return;
+    setIsRejecting(true);
+    setRejectError(null);
     try {
-      await fetch(`/api/requests/${rejectingId}`, {
+      const res = await fetch(`/api/requests/${rejectingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'rejected', rejection_reason: rejectReason.trim() })
       });
+      if (!res.ok) {
+        const data = await res.json();
+        setRejectError(data.error || 'Error al rechazar la solicitud');
+        return;
+      }
       fetchRequests();
       setSelectedRequest(null);
       setShowRejectModal(false);
@@ -111,6 +120,9 @@ export default function RequestsPage() {
       setRejectReason('');
     } catch (error) {
       console.error('Error rejecting:', error);
+      setRejectError('Error de conexión');
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -486,6 +498,7 @@ export default function RequestsPage() {
           setShowRejectModal(false);
           setRejectingId(null);
           setRejectReason('');
+          setRejectError(null);
         }
       }}>
         <DialogContent className="max-w-md">
@@ -504,6 +517,9 @@ export default function RequestsPage() {
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-400 focus:outline-none text-sm resize-none"
             />
           </div>
+          {rejectError && (
+            <p className="text-sm text-red-600">{rejectError}</p>
+          )}
           <DialogFooter>
             <Button
               variant="outline"
@@ -511,6 +527,7 @@ export default function RequestsPage() {
                 setShowRejectModal(false);
                 setRejectingId(null);
                 setRejectReason('');
+                setRejectError(null);
               }}
             >
               Cancelar
@@ -518,9 +535,9 @@ export default function RequestsPage() {
             <Button
               variant="destructive"
               onClick={handleConfirmReject}
-              disabled={!rejectReason.trim()}
+              disabled={!rejectReason.trim() || isRejecting}
             >
-              Confirmar rechazo
+              {isRejecting ? 'Rechazando...' : 'Confirmar rechazo'}
             </Button>
           </DialogFooter>
         </DialogContent>
