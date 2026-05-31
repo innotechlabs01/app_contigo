@@ -7,6 +7,14 @@ import {
   FileText, Video, Award, Search, XCircle, CheckCircle2,
   Users, AlertTriangle, ArrowUpRight, Calendar, ChevronRight
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 interface Request {
   id: string;
@@ -28,6 +36,7 @@ interface Request {
   reference_video_name?: string;
   experience?: string;
   message?: string;
+  rejection_reason?: string;
 }
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -45,6 +54,9 @@ export default function RequestsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRequests();
@@ -78,15 +90,25 @@ export default function RequestsPage() {
     }
   };
 
-  const handleReject = async (id: string) => {
+  const handleReject = (id: string) => {
+    setRejectingId(id);
+    setRejectReason('');
+    setShowRejectModal(true);
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectingId || !rejectReason.trim()) return;
     try {
-      await fetch(`/api/requests/${id}`, {
+      await fetch(`/api/requests/${rejectingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'rejected' })
+        body: JSON.stringify({ status: 'rejected', rejection_reason: rejectReason.trim() })
       });
       fetchRequests();
       setSelectedRequest(null);
+      setShowRejectModal(false);
+      setRejectingId(null);
+      setRejectReason('');
     } catch (error) {
       console.error('Error rejecting:', error);
     }
@@ -457,6 +479,52 @@ export default function RequestsPage() {
           </div>
         </div>
       )}
+
+      {/* Rejection Reason Modal */}
+      <Dialog open={showRejectModal} onOpenChange={(open) => {
+        if (!open) {
+          setShowRejectModal(false);
+          setRejectingId(null);
+          setRejectReason('');
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Motivo de rechazo</DialogTitle>
+            <DialogDescription>
+              Describe el motivo por el cual se rechaza esta solicitud. Este motivo será visible para el usuario.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Describe el motivo del rechazo..."
+              rows={4}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-red-400 focus:outline-none text-sm resize-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRejectModal(false);
+                setRejectingId(null);
+                setRejectReason('');
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmReject}
+              disabled={!rejectReason.trim()}
+            >
+              Confirmar rechazo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
