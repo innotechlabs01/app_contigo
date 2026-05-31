@@ -12,6 +12,7 @@ export function DocumentationStep() {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [inputKey, setInputKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { setDocument, setStep, personalInfo } = useOnboardingStore();
   
@@ -118,7 +119,8 @@ export function DocumentationStep() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
         <div className="border-2 border-dashed border-slate-300 rounded-xl sm:rounded-2xl p-4 sm:p-8 text-center hover:border-secondary transition-colors">
-          <input
+            <input
+            key={inputKey}
             type="file"
             accept=".pdf,.doc,.docx"
             className="hidden"
@@ -134,10 +136,11 @@ export function DocumentationStep() {
                 <button 
                   type="button" 
                   onClick={(e) => { 
-                    e.preventDefault(); 
+                    e.preventDefault();
+                    e.stopPropagation();
                     setFile(null); 
                     setValue('file', undefined as any, { shouldValidate: true });
-                    if (fileInputRef.current) fileInputRef.current.value = '';
+                    setInputKey(k => k + 1);
                   }} 
                   className="ml-1 sm:ml-2"
                 >
