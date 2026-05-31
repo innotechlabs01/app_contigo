@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS requests (
   email TEXT NOT NULL,
   phone TEXT NOT NULL,
   location TEXT NOT NULL,
-  service_type TEXT NOT NULL CHECK (service_type IN ('Acompañamiento', 'Cuidado', 'Apoyo')),
+  service_type TEXT NOT NULL DEFAULT '[]',
   
   -- Evaluation data
   evaluation TEXT, -- JSON string

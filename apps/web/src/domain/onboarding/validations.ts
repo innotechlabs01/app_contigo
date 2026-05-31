@@ -46,9 +46,58 @@ export const onboardingSchema = z.object({
   }),
 });
 
+export const personalInfoSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, 'El nombre es requerido')
+    .min(2, 'Mínimo 2 caracteres')
+    .max(50, 'Máximo 50 caracteres')
+    .regex(/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/, 'Solo letras y espacios'),
+  lastName: z
+    .string()
+    .min(1, 'El apellido es requerido')
+    .min(2, 'Mínimo 2 caracteres')
+    .max(50, 'Máximo 50 caracteres')
+    .regex(/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/, 'Solo letras y espacios'),
+  idNumber: z
+    .string()
+    .min(1, 'La cédula es requerida')
+    .min(5, 'Mínimo 5 dígitos')
+    .max(15, 'Máximo 15 dígitos')
+    .regex(/^\d+$/, 'Solo se permiten números')
+    .transform((val) => val.replace(/\D/g, '')),
+  email: z
+    .string()
+    .min(1, 'El correo es requerido')
+    .email('Correo inválido (ej: usuario@dominio.com)')
+    .max(254, 'Correo demasiado largo'),
+  phone: z
+    .string()
+    .min(1, 'El teléfono es requerido')
+    .max(20, 'Máximo 20 caracteres')
+    .regex(/^[\d\s+\-()]{7,20}$/, 'Ingresa un teléfono válido (solo números y +)'),
+  location: z
+    .string()
+    .min(1, 'La ubicación es requerida'),
+  serviceType: z
+    .array(z.enum(['Acompañamiento', 'Cuidado', 'Apoyo']))
+    .min(1, 'Selecciona al menos un servicio'),
+  experience: z
+    .string()
+    .max(2000, 'Máximo 2000 caracteres')
+    .optional()
+    .default(''),
+  message: z
+    .string()
+    .max(2000, 'Máximo 2000 caracteres')
+    .optional()
+    .default(''),
+});
+
 export type EvaluationFormData = z.infer<typeof evaluationSchema>;
 export type DocumentFormData = z.infer<typeof documentSchema>;
 export type VideoFormData = z.infer<typeof videoSchema>;
+export type PersonalInfoFormData = z.infer<typeof personalInfoSchema>;
 export type OnboardingFormData = z.infer<typeof onboardingSchema>;
 
 export function validateStepCompletion(step: string, data: unknown): boolean {

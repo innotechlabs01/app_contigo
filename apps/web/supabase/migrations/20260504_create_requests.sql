@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS requests (
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(50) NOT NULL,
   location VARCHAR(200) NOT NULL,
-  service_type VARCHAR(50) NOT NULL CHECK (service_type IN ('Acompañamiento', 'Cuidado', 'Apoyo')),
+  service_type JSONB NOT NULL DEFAULT '[]'::jsonb,
   
   -- Evaluation data
   evaluation JSONB,

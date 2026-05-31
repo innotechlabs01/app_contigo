@@ -329,11 +329,12 @@ export default function RequestsPage() {
                     { icon: Mail, label: 'Email', value: selectedRequest.email, href: `mailto:${selectedRequest.email}` },
                     { icon: Phone, label: 'Teléfono', value: selectedRequest.phone, href: `tel:${selectedRequest.phone}` },
                     { icon: MapPin, label: 'Ubicación', value: selectedRequest.location },
-                    { icon: User, label: 'Servicio', value: selectedRequest.service_type },
+                    { icon: User, label: 'Servicio', value: (() => { try { return JSON.parse(selectedRequest.service_type); } catch { return [selectedRequest.service_type]; } })() },
                     { icon: User, label: 'Cédula', value: selectedRequest.id_number },
                     { icon: Calendar, label: 'Fecha', value: selectedRequest.application_date },
                   ].map((item, i) => {
                     const ItemIcon = item.icon;
+                    const isServiceArray = item.label === 'Servicio' && Array.isArray(item.value);
                     return (
                       <div key={i} className="flex items-center gap-3 px-4 py-3">
                         <div className="p-1.5 rounded-lg bg-slate-50">
@@ -341,12 +342,20 @@ export default function RequestsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[10px] text-slate-400 uppercase tracking-wider">{item.label}</p>
-                          {item.href ? (
+                          {isServiceArray ? (
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {(item.value as string[]).map((s) => (
+                                <span key={s} className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#00668A]/10 text-[#00668A]">
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          ) : item.href ? (
                             <a href={item.href} className="text-sm text-slate-700 hover:text-[#00668A] truncate block font-medium">
                               {item.value}
                             </a>
                           ) : (
-                            <p className="text-sm text-slate-700 truncate font-medium">{item.value}</p>
+                            <p className="text-sm text-slate-700 truncate font-medium">{String(item.value)}</p>
                           )}
                         </div>
                       </div>

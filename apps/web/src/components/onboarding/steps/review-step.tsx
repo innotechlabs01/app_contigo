@@ -24,7 +24,7 @@ export function ReviewStep() {
       formData.append('email', personalInfo.email);
       formData.append('phone', personalInfo.phone);
       formData.append('location', personalInfo.location);
-      formData.append('service_type', personalInfo.serviceType);
+      formData.append('service_type', JSON.stringify(personalInfo.serviceType));
       if (evaluation) formData.append('evaluation', JSON.stringify(evaluation));
       formData.append('experience', personalInfo.experience || '');
       formData.append('message', personalInfo.message || '');
@@ -86,7 +86,7 @@ export function ReviewStep() {
               <p><strong>Email:</strong> {personalInfo.email}</p>
               <p><strong>Teléfono:</strong> {personalInfo.phone}</p>
               <p><strong>Ubicación:</strong> {personalInfo.location}</p>
-              <p><strong>Servicio:</strong> {personalInfo.serviceType}</p>
+              <p><strong>Servicio(s):</strong> {Array.isArray(personalInfo.serviceType) ? personalInfo.serviceType.join(', ') : personalInfo.serviceType}</p>
             </div>
           </div>
         )}

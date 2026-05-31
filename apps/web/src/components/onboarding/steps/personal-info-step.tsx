@@ -8,24 +8,13 @@ import { useOnboardingStore } from '@/infrastructure/store/onboarding-store';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowRight, AlertTriangle } from 'lucide-react';
-
-interface PersonalInfoFormData {
-  firstName: string;
-  lastName: string;
-  idNumber: string;
-  email: string;
-  phone: string;
-  location: string;
-  serviceType: 'Acompañamiento' | 'Cuidado' | 'Apoyo';
-  experience: string;
-  message: string;
-}
+import { personalInfoSchema, PersonalInfoFormData } from '@/domain/onboarding/validations';
 
 const serviceTypes = [
   { value: 'Acompañamiento', label: 'Acompañamiento' },
   { value: 'Cuidado', label: 'Cuidado' },
   { value: 'Apoyo', label: 'Apoyo' },
-];
+] as const;
 
 const locations = [
   'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá',
@@ -43,12 +32,45 @@ export function PersonalInfoStep() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [duplicateStatus, setDuplicateStatus] = useState<string>('');
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<PersonalInfoFormData>({
-    defaultValues: personalInfo || undefined,
+  const defaultValues: PersonalInfoFormData = {
+    firstName: personalInfo?.firstName ?? '',
+    lastName: personalInfo?.lastName ?? '',
+    idNumber: personalInfo?.idNumber ?? '',
+    email: personalInfo?.email ?? '',
+    phone: personalInfo?.phone ?? '',
+    location: personalInfo?.location ?? '',
+    serviceType: (personalInfo?.serviceType ?? []) as PersonalInfoFormData['serviceType'],
+    experience: personalInfo?.experience ?? '',
+    message: personalInfo?.message ?? '',
+  };
+
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<PersonalInfoFormData>({
+    defaultValues,
+    resolver: zodResolver(personalInfoSchema),
     mode: 'onChange',
   });
 
   const idNumber = watch('idNumber');
+  const selectedServices = watch('serviceType');
+
+  const stripNonDigits = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleaned = e.target.value.replace(/\D/g, '');
+    e.target.value = cleaned;
+  };
+
+  const stripNonPhoneChars = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleaned = e.target.value.replace(/[^\d\s+\-()]/g, '');
+    e.target.value = cleaned;
+  };
+
+  const toggleService = (service: PersonalInfoFormData['serviceType'][number]) => {
+    const current = selectedServices || [];
+    if (current.includes(service)) {
+      setValue('serviceType', current.filter((s) => s !== service), { shouldValidate: true });
+    } else {
+      setValue('serviceType', [...current, service], { shouldValidate: true });
+    }
+  };
 
   const checkDuplicateId = async (idNumber: string) => {
     try {
@@ -92,12 +114,7 @@ export function PersonalInfoStep() {
             <Label htmlFor="firstName">Nombre</Label>
             <Input
               id="firstName"
-              {...register('firstName', {
-                required: 'El nombre es requerido',
-                minLength: { value: 2, message: 'Mínimo 2 caracteres' },
-                maxLength: { value: 50, message: 'Máximo 50 caracteres' },
-                pattern: { value: /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/, message: 'Solo letras y espacios' },
-              })}
+              {...register('firstName')}
               placeholder="Juan"
               className="mt-1"
             />
@@ -108,12 +125,7 @@ export function PersonalInfoStep() {
             <Label htmlFor="lastName">Apellido</Label>
             <Input
               id="lastName"
-              {...register('lastName', {
-                required: 'El apellido es requerido',
-                minLength: { value: 2, message: 'Mínimo 2 caracteres' },
-                maxLength: { value: 50, message: 'Máximo 50 caracteres' },
-                pattern: { value: /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/, message: 'Solo letras y espacios' },
-              })}
+              {...register('lastName')}
               placeholder="Pérez"
               className="mt-1"
             />
@@ -124,17 +136,12 @@ export function PersonalInfoStep() {
         <div>
           <Label htmlFor="idNumber">Cédula de Ciudadanía</Label>
           <Input
-            id="idNumber"
-            inputMode="numeric"
-            {...register('idNumber', {
-              required: 'La cédula es requerida',
-              pattern: { value: /^\d+$/, message: 'Solo se permiten números' },
-              minLength: { value: 5, message: 'Mínimo 5 dígitos' },
-              maxLength: { value: 15, message: 'Máximo 15 dígitos' },
-            })}
-            placeholder="1234567890"
-            className="mt-1"
-          />
+              id="idNumber"
+              inputMode="numeric"
+              {...register('idNumber', { onChange: stripNonDigits })}
+              placeholder="1234567890"
+              className="mt-1"
+            />
           {errors.idNumber && <p className="text-red-500 text-xs mt-1">{errors.idNumber.message}</p>}
         </div>
 
@@ -144,14 +151,7 @@ export function PersonalInfoStep() {
             <Input
               id="email"
               type="email"
-              {...register('email', { 
-                required: 'El correo es requerido',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Correo inválido'
-                },
-                maxLength: { value: 254, message: 'Correo demasiado largo' },
-              })}
+              {...register('email')}
               placeholder="juan.perez@email.com"
               className="mt-1"
             />
@@ -163,11 +163,7 @@ export function PersonalInfoStep() {
             <Input
               id="phone"
               inputMode="numeric"
-              {...register('phone', {
-                required: 'El teléfono es requerido',
-                pattern: { value: /^[\d\s+\-()]{7,20}$/, message: 'Ingresa un teléfono válido (solo números y +)' },
-                maxLength: { value: 20, message: 'Máximo 20 caracteres' },
-              })}
+              {...register('phone', { onChange: stripNonPhoneChars })}
               placeholder="+57 300 123 4567"
               className="mt-1"
             />
@@ -179,7 +175,7 @@ export function PersonalInfoStep() {
           <Label htmlFor="location">Ubicación (Departamento)</Label>
           <select
             id="location"
-            {...register('location', { required: 'La ubicación es requerida' })}
+            {...register('location')}
             className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary"
           >
             <option value="">Seleccionar departamento...</option>
@@ -191,17 +187,29 @@ export function PersonalInfoStep() {
         </div>
 
         <div>
-          <Label htmlFor="serviceType">Tipo de Servicio</Label>
-          <select
-            id="serviceType"
-            {...register('serviceType', { required: 'Selecciona un servicio' })}
-            className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary"
-          >
-            <option value="">Seleccionar...</option>
+          <Label>Tipo de Servicio</Label>
+          <p className="text-xs text-slate-500 mt-1 mb-2">Puedes seleccionar más de uno</p>
+          <div className="space-y-2">
             {serviceTypes.map((type) => (
-              <option key={type.value} value={type.value}>{type.label}</option>
+              <label
+                key={type.value}
+                className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                  (selectedServices || []).includes(type.value)
+                    ? 'border-secondary bg-secondary/5 ring-1 ring-secondary'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  value={type.value}
+                  checked={(selectedServices || []).includes(type.value as typeof serviceTypes[number]['value'])}
+                  onChange={() => toggleService(type.value as typeof serviceTypes[number]['value'])}
+                  className="w-4 h-4 text-secondary border-slate-300 rounded focus:ring-secondary"
+                />
+                <span className="text-sm font-medium text-slate-700">{type.label}</span>
+              </label>
             ))}
-          </select>
+          </div>
           {errors.serviceType && <p className="text-red-500 text-xs mt-1">{errors.serviceType.message}</p>}
         </div>
 
@@ -209,9 +217,7 @@ export function PersonalInfoStep() {
           <Label htmlFor="experience">Experiencia</Label>
             <textarea
               id="experience"
-              {...register('experience', {
-                maxLength: { value: 2000, message: 'Máximo 2000 caracteres' },
-              })}
+              {...register('experience')}
               placeholder="Describe tu experiencia previa..."
               className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary min-h-[80px]"
             />
@@ -222,9 +228,7 @@ export function PersonalInfoStep() {
           <Label htmlFor="message">Mensaje adicional</Label>
             <textarea
               id="message"
-              {...register('message', {
-                maxLength: { value: 2000, message: 'Máximo 2000 caracteres' },
-              })}
+              {...register('message')}
               placeholder="Cuéntanos por qué quieres trabajar con Contigo..."
               className="w-full mt-1 px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary min-h-[80px]"
             />

@@ -51,7 +51,7 @@ export interface OnboardingState {
     email: string;
     phone: string;
     location: string;
-    serviceType: 'Acompañamiento' | 'Cuidado' | 'Apoyo';
+    serviceType: string[];
     experience: string;
     message: string;
   } | null;

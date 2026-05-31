@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const experience = (formData.get('experience') as string) || '';
     const message = (formData.get('message') as string) || '';
 
-    const serviceTypes = ['Acompañamiento', 'Cuidado', 'Apoyo'];
+    const serviceTypes = ['Acompañamiento', 'Cuidado', 'Apoyo'] as const;
     const locations = [
       'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá',
       'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó',
@@ -77,8 +77,23 @@ export async function POST(request: NextRequest) {
     const locationErr = validateField(location, { required: true, allowedValues: locations as readonly string[], message: 'Ubicación inválida' });
     if (locationErr) errors.push({ field: 'location', message: locationErr });
 
-    const serviceErr = validateField(serviceType, { required: true, allowedValues: serviceTypes as readonly string[], message: 'Tipo de servicio inválido' });
-    if (serviceErr) errors.push({ field: 'service_type', message: serviceErr });
+    let parsedServiceTypes: string[] = [];
+    try {
+      parsedServiceTypes = JSON.parse(serviceType);
+      if (!Array.isArray(parsedServiceTypes) || parsedServiceTypes.length === 0) {
+        errors.push({ field: 'service_type', message: 'Selecciona al menos un servicio' });
+      } else {
+        const valid = serviceTypes;
+        for (const st of parsedServiceTypes) {
+          if (!valid.includes(st as any)) {
+            errors.push({ field: 'service_type', message: `Tipo de servicio inválido: ${st}` });
+            break;
+          }
+        }
+      }
+    } catch {
+      errors.push({ field: 'service_type', message: 'Formato de servicio inválido' });
+    }
 
     const expErr = validateField(experience, { maxLength: 2000, message: 'Experiencia demasiado larga' });
     if (expErr) errors.push({ field: 'experience', message: expErr });
@@ -193,7 +208,7 @@ export async function POST(request: NextRequest) {
         experience, message, status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_review')`,
       args: [
-        sanitizedFirstName, sanitizedLastName, sanitizedIdNumber, sanitizedEmail, sanitizedPhone, location, serviceType,
+        sanitizedFirstName, sanitizedLastName, sanitizedIdNumber, sanitizedEmail, sanitizedPhone, location, JSON.stringify(parsedServiceTypes),
         evaluationRaw, evaluationScore, evaluationPassed ? 1 : 0,
         cvUrl, cvFileName,
         presentationVideoUrl, presentationVideoName,
