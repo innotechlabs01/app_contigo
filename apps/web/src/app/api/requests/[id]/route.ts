@@ -12,7 +12,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status } = body;
+    const { status, rejection_reason } = body;
 
     if (!status || !['pending', 'in_review', 'approved', 'rejected'].includes(status)) {
       return NextResponse.json(
@@ -21,9 +21,22 @@ export async function PATCH(
       );
     }
 
+    if (status === 'rejected' && (!rejection_reason || typeof rejection_reason !== 'string' || rejection_reason.trim().length === 0)) {
+      return NextResponse.json(
+        { error: 'El motivo de rechazo es requerido' },
+        { status: 400 }
+      );
+    }
+
     await tursoClient.execute({
-      sql: `UPDATE requests SET status = ?, review_date = ?, updated_at = ? WHERE id = ?`,
-      args: [status, status !== 'pending' ? new Date().toISOString() : null, new Date().toISOString(), id]
+      sql: `UPDATE requests SET status = ?, rejection_reason = ?, review_date = ?, updated_at = ? WHERE id = ?`,
+      args: [
+        status,
+        status === 'rejected' ? rejection_reason.trim() : null,
+        status !== 'pending' ? new Date().toISOString() : null,
+        new Date().toISOString(),
+        id
+      ]
     });
 
     return NextResponse.json({ success: true });
