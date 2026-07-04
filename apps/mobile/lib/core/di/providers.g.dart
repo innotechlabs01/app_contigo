@@ -97,13 +97,11 @@ const sharedPreferencesProvider = SharedPreferencesProvider._();
 final class SharedPreferencesProvider
     extends
         $FunctionalProvider<
-          AsyncValue<SharedPreferences>,
           SharedPreferences,
-          FutureOr<SharedPreferences>
+          SharedPreferences,
+          SharedPreferences
         >
-    with
-        $FutureModifier<SharedPreferences>,
-        $FutureProvider<SharedPreferences> {
+    with $Provider<SharedPreferences> {
   const SharedPreferencesProvider._()
     : super(
         from: null,
@@ -120,17 +118,25 @@ final class SharedPreferencesProvider
 
   @$internal
   @override
-  $FutureProviderElement<SharedPreferences> $createElement(
+  $ProviderElement<SharedPreferences> $createElement(
     $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  ) => $ProviderElement(pointer);
 
   @override
-  FutureOr<SharedPreferences> create(Ref ref) {
+  SharedPreferences create(Ref ref) {
     return sharedPreferences(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SharedPreferences value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SharedPreferences>(value),
+    );
   }
 }
 
-String _$sharedPreferencesHash() => r'106b441400813a2b4bba3261097e11e5688efb98';
+String _$sharedPreferencesHash() => r'ab4e423b02be2feb0025396591910dec8d661f1c';
 
 @ProviderFor(preferencesService)
 const preferencesServiceProvider = PreferencesServiceProvider._();
@@ -178,7 +184,7 @@ final class PreferencesServiceProvider
 }
 
 String _$preferencesServiceHash() =>
-    r'3baf1c17b265bf5d58ab1a56d924e55e135a5010';
+    r'938b384b0d6abe8d8da1aa29f04bc9cd9f8c1b3d';
 
 @ProviderFor(secureStorageService)
 const secureStorageServiceProvider = SecureStorageServiceProvider._();

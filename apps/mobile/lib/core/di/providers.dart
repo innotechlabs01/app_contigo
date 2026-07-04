@@ -21,12 +21,13 @@ AuthInterceptor authInterceptor(Ref ref) {
 Dio dio(Ref ref) => createDioClient();
 
 @riverpod
-Future<SharedPreferences> sharedPreferences(Ref ref) =>
-    SharedPreferences.getInstance();
+SharedPreferences sharedPreferences(Ref ref) => throw UnimplementedError('Override in main.dart');
 
 @riverpod
-PreferencesService preferencesService(Ref ref) =>
-    PreferencesService(ref.watch(sharedPreferencesProvider).requireValue);
+PreferencesService preferencesService(Ref ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return PreferencesService(prefs);
+}
 
 @riverpod
 SecureStorageService secureStorageService(Ref ref) =>

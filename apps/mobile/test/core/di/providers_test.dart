@@ -15,8 +15,10 @@ void main() {
 
     test('preferencesServiceProvider creates service', () async {
       SharedPreferences.setMockInitialValues({});
-      final container = ProviderContainer();
-      await container.read(sharedPreferencesProvider.future);
+      final prefs = await SharedPreferences.getInstance();
+      final container = ProviderContainer(
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      );
       expect(container.read(preferencesServiceProvider), isNotNull);
       container.dispose();
     });

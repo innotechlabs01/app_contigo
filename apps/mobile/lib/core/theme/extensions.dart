@@ -1,7 +1,7 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+// google_fonts replaced with system fontFamily strings for offline support
 
 class ContigoColors extends ThemeExtension<ContigoColors> {
   final Color primary;
@@ -177,59 +177,21 @@ class ContigoTypography extends ThemeExtension<ContigoTypography> {
   });
 
   factory ContigoTypography.regular() => ContigoTypography(
-    displayLarge: GoogleFonts.lexend(
-      fontSize: 57, fontWeight: FontWeight.w400, height: 1.12,
-    ),
-    displayMedium: GoogleFonts.lexend(
-      fontSize: 45, fontWeight: FontWeight.w400, height: 1.16,
-    ),
-    displaySmall: GoogleFonts.lexend(
-      fontSize: 36, fontWeight: FontWeight.w400, height: 1.22,
-    ),
-    headlineLarge: GoogleFonts.lexend(
-      fontSize: 32, fontWeight: FontWeight.w600, height: 1.25,
-    ),
-    headlineMedium: GoogleFonts.lexend(
-      fontSize: 28, fontWeight: FontWeight.w600, height: 1.29,
-    ),
-    headlineSmall: GoogleFonts.lexend(
-      fontSize: 24, fontWeight: FontWeight.w600, height: 1.33,
-    ),
-    titleLarge: GoogleFonts.lexend(
-      fontSize: 22, fontWeight: FontWeight.w500, height: 1.27,
-    ),
-    titleMedium: GoogleFonts.plusJakartaSans(
-      fontSize: 16, fontWeight: FontWeight.w500, height: 1.50,
-      letterSpacing: 0.15,
-    ),
-    titleSmall: GoogleFonts.plusJakartaSans(
-      fontSize: 14, fontWeight: FontWeight.w500, height: 1.43,
-      letterSpacing: 0.1,
-    ),
-    bodyLarge: GoogleFonts.lexend(
-      fontSize: 16, fontWeight: FontWeight.w400, height: 1.50,
-      letterSpacing: 0.5,
-    ),
-    bodyMedium: GoogleFonts.lexend(
-      fontSize: 14, fontWeight: FontWeight.w400, height: 1.43,
-      letterSpacing: 0.25,
-    ),
-    bodySmall: GoogleFonts.lexend(
-      fontSize: 12, fontWeight: FontWeight.w400, height: 1.33,
-      letterSpacing: 0.4,
-    ),
-    labelLarge: GoogleFonts.plusJakartaSans(
-      fontSize: 14, fontWeight: FontWeight.w600, height: 1.43,
-      letterSpacing: 0.1,
-    ),
-    labelMedium: GoogleFonts.plusJakartaSans(
-      fontSize: 12, fontWeight: FontWeight.w500, height: 1.33,
-      letterSpacing: 0.5,
-    ),
-    labelSmall: GoogleFonts.plusJakartaSans(
-      fontSize: 11, fontWeight: FontWeight.w500, height: 1.45,
-      letterSpacing: 0.5,
-    ),
+    displayLarge: const TextStyle(fontSize: 57, fontWeight: FontWeight.w400, height: 1.12, fontFamily: 'Lexend'),
+    displayMedium: const TextStyle(fontSize: 45, fontWeight: FontWeight.w400, height: 1.16, fontFamily: 'Lexend'),
+    displaySmall: const TextStyle(fontSize: 36, fontWeight: FontWeight.w400, height: 1.22, fontFamily: 'Lexend'),
+    headlineLarge: const TextStyle(fontSize: 32, fontWeight: FontWeight.w600, height: 1.25, fontFamily: 'Lexend'),
+    headlineMedium: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, height: 1.29, fontFamily: 'Lexend'),
+    headlineSmall: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, height: 1.33, fontFamily: 'Lexend'),
+    titleLarge: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, height: 1.27, fontFamily: 'Lexend'),
+    titleMedium: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, height: 1.50, letterSpacing: 0.15, fontFamily: 'PlusJakartaSans'),
+    titleSmall: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, height: 1.43, letterSpacing: 0.1, fontFamily: 'PlusJakartaSans'),
+    bodyLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, height: 1.50, letterSpacing: 0.5, fontFamily: 'Lexend'),
+    bodyMedium: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.43, letterSpacing: 0.25, fontFamily: 'Lexend'),
+    bodySmall: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.33, letterSpacing: 0.4, fontFamily: 'Lexend'),
+    labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.43, letterSpacing: 0.1, fontFamily: 'PlusJakartaSans'),
+    labelMedium: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, height: 1.33, letterSpacing: 0.5, fontFamily: 'PlusJakartaSans'),
+    labelSmall: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, height: 1.45, letterSpacing: 0.5, fontFamily: 'PlusJakartaSans'),
   );
 
   @override
