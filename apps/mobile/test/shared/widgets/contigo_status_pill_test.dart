@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:contigo_mobile/features/client/domain/entities/request_status.dart';
 import 'package:contigo_mobile/shared/widgets/contigo_status_pill.dart';
 
 void main() {

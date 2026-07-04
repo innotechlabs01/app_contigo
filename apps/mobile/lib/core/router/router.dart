@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/auth/presentation/view_models/auth_view_model.dart';
 import '../../features/client/presentation/screens/my_requests_screen.dart';
 import '../../features/client/presentation/screens/request_form_screen.dart';
 import '../../features/client/presentation/screens/services_screen.dart';
@@ -22,13 +23,24 @@ part 'router.g.dart';
 @riverpod
 GoRouter router(Ref ref) {
   final authGuard = ref.watch(authGuardProvider);
+  final introCompleted = ref.watch(introGuardProvider);
+  ref.watch(authStateProvider);
 
   return GoRouter(
     initialLocation: AppRoutes.landing,
     redirect: (context, state) {
+      final location = state.matchedLocation;
+
+      final authState = ref.read(authStateProvider);
+      if (authState.isLoading) return null;
+
+      if (!introCompleted && location != AppRoutes.intro) {
+        return AppRoutes.intro;
+      }
+
       final isAuth = authGuard;
-      final isOnAuthRoute = state.matchedLocation == AppRoutes.landing ||
-          state.matchedLocation == AppRoutes.intro;
+      final isOnAuthRoute =
+          location == AppRoutes.landing || location == AppRoutes.intro;
 
       if (!isAuth && !isOnAuthRoute) {
         return AppRoutes.landing;

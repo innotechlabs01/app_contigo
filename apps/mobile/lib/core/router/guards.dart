@@ -10,3 +10,11 @@ class AuthGuard extends _$AuthGuard {
   void authenticate() => state = true;
   void unauthenticate() => state = false;
 }
+
+@riverpod
+class IntroGuard extends _$IntroGuard {
+  @override
+  bool build() => false;
+
+  void complete() => state = true;
+}

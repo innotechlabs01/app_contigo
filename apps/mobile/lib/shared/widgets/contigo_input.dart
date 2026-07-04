@@ -10,6 +10,9 @@ class ContigoInput extends StatelessWidget {
   final IconData? prefixIcon;
   final IconData? suffixIcon;
   final String? Function(String?)? validator;
+  final String? initialValue;
+  final ValueChanged<String>? onChanged;
+  final int maxLines;
 
   const ContigoInput({
     super.key,
@@ -21,6 +24,9 @@ class ContigoInput extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.validator,
+    this.initialValue,
+    this.onChanged,
+    this.maxLines = 1,
   });
 
   @override
@@ -45,9 +51,12 @@ class ContigoInput extends StatelessWidget {
         ],
         TextFormField(
           controller: controller,
+          initialValue: controller != null ? null : initialValue,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          maxLines: maxLines,
           validator: validator,
+          onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hintText,
             prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,

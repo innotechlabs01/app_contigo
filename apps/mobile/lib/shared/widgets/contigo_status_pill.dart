@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-enum RequestStatus { pending, approved, rejected, inReview }
+import '../../features/client/domain/entities/request_status.dart';
 
 class ContigoStatusPill extends StatelessWidget {
   final RequestStatus status;
