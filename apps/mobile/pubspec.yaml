@@ -1,0 +1,55 @@
+name: contigo_mobile
+description: "Contigo mobile app"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # State Management
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
+  # Navigation
+  go_router: ^15.0.0
+  # Networking
+  dio: ^5.4.0
+  # Serialization
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+  # Storage
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.2.0
+  shared_preferences: ^2.3.0
+  # Auth
+  clerk_auth: ^0.0.16-beta
+  # UI
+  google_fonts: ^6.2.0
+  cached_network_image: ^3.3.0
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.0
+  # Utils
+  intl: ^0.20.0
+  path_provider: ^2.1.0
+  connectivity_plus: ^6.0.0
+  image_picker: ^1.0.0
+  url_launcher: ^6.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.0
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0
+  riverpod_generator: ^3.0.0
+  mocktail: ^1.0.0
+  coverage: ^1.8.0
+  golden_toolkit: ^0.15.0
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
