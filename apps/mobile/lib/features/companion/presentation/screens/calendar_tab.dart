@@ -6,8 +6,13 @@ class CalendarTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Calendar')),
-      body: const Center(child: Text('Calendar')),
+      appBar: AppBar(title: const Text('Calendario')),
+      body: Center(
+        child: Text(
+          'Calendario de sesiones',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
     );
   }
 }
