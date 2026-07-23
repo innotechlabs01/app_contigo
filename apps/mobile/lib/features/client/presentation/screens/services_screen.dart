@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/extensions.dart';
 import '../../../../shared/widgets/contigo_button.dart';
+import '../widgets/meeting_point_search_widget.dart';
+import '../../domain/entities/meeting_point.dart';
 
 class _CategoryData {
   final IconData icon;
@@ -32,6 +34,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   String? _date;
   String? _time;
   String? _location;
+  MeetingPoint? _selectedMeetingPoint;
 
   void _onCategorySelected(int index) {
     setState(() => _selectedCategory = index);
@@ -80,7 +83,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 
   void _submitRequest() {
-    final location = _location ?? '';
+    final location = _selectedMeetingPoint?.address ?? _location ?? '';
     final category = _selectedCategory >= 0 ? _categories[_selectedCategory].title : '';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -338,39 +341,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
           ],
         ),
         SizedBox(height: spacing.md),
-        TextFormField(
-          onChanged: (v) => _location = v,
-          style: typography.bodyMedium.copyWith(color: colors.onSurface),
-          cursorColor: colors.primary,
-          decoration: InputDecoration(
-            hintText: 'Ej. Cafeteria del Parque Central',
-            hintStyle: typography.bodyMedium.copyWith(
-              color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
-            filled: true,
-            fillColor: colors.surfaceContainer,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: spacing.md,
-              vertical: spacing.md,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(radius.lg),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(radius.lg),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(radius.lg),
-              borderSide: BorderSide(color: colors.primary, width: 2),
-            ),
-            prefixIcon: Icon(
-              Icons.location_on,
-              color: colors.onSurfaceVariant,
-              size: 20,
-            ),
-          ),
+        MeetingPointSearchWidget(
+          onMeetingPointSelected: (point) {
+            setState(() => _selectedMeetingPoint = point);
+          },
         ),
       ],
     );
