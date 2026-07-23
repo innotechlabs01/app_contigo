@@ -8,4 +8,7 @@ class SearchMeetingPointsUseCase {
 
   Future<List<MeetingPoint>> call(String query) =>
       _repository.searchPlaces(query);
+
+  Future<MeetingPoint> getDetails(String placeId, String address) =>
+      _repository.getMeetingPointDetails(placeId, address);
 }

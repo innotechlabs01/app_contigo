@@ -3,14 +3,12 @@ import '../models/google_place_prediction.dart';
 
 class MeetingPointMapper {
   static MeetingPoint fromPrediction(
-    GooglePlacePrediction prediction, {
-    required double latitude,
-    required double longitude,
-  }) {
+    GooglePlacePrediction prediction,
+  ) {
     return MeetingPoint(
       address: prediction.description,
-      latitude: latitude,
-      longitude: longitude,
+      latitude: 0,
+      longitude: 0,
       placeId: prediction.placeId,
     );
   }

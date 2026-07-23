@@ -11,22 +11,24 @@ class PlacesRepositoryImpl implements PlacesRepository {
   @override
   Future<List<MeetingPoint>> searchPlaces(String query) async {
     final predictions = await _datasource.getAutocompleteSuggestions(query);
+    return predictions
+        .map(
+          (p) => MeetingPointMapper.fromPrediction(p),
+        )
+        .toList();
+  }
 
-    final meetingPoints = <MeetingPoint>[];
-    for (final prediction in predictions) {
-      try {
-        final details = await _datasource.getPlaceDetails(prediction.placeId);
-        meetingPoints.add(
-          MeetingPointMapper.fromPrediction(
-            prediction,
-            latitude: details.latitude,
-            longitude: details.longitude,
-          ),
-        );
-      } catch (_) {
-        // Skip predictions where details fetch fails
-      }
-    }
-    return meetingPoints;
+  @override
+  Future<MeetingPoint> getMeetingPointDetails(
+    String placeId,
+    String address,
+  ) async {
+    final details = await _datasource.getPlaceDetails(placeId);
+    return MeetingPoint(
+      address: address,
+      latitude: details.latitude,
+      longitude: details.longitude,
+      placeId: placeId,
+    );
   }
 }
