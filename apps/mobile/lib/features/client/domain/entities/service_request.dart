@@ -1,3 +1,4 @@
+import 'meeting_point.dart';
 import 'request_status.dart';
 
 class ServiceRequest {
@@ -7,6 +8,7 @@ class ServiceRequest {
   final String idNumber;
   final String? phone;
   final String? address;
+  final MeetingPoint? meetingPoint;
   final DateTime? preferredDate;
   final String? notes;
   final List<String> documentUrls;
@@ -20,6 +22,7 @@ class ServiceRequest {
     required this.idNumber,
     this.phone,
     this.address,
+    this.meetingPoint,
     this.preferredDate,
     this.notes,
     this.documentUrls = const [],
