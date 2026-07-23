@@ -9,7 +9,7 @@ void main() {
         const ProviderScope(child: ContigoApp()),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Contigo'), findsWidgets);
+      expect(find.textContaining('App Contigo'), findsWidgets);
     });
   });
 }

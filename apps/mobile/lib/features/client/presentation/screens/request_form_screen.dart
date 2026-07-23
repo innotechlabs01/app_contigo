@@ -45,7 +45,7 @@ class RequestFormScreen extends ConsumerWidget {
                     onPressed: () {
                       ref.read(requestSubmissionProvider.notifier).reset();
                       ref.read(requestFormStepProvider.notifier).goTo(0);
-                      context.go(AppRoutes.clientRequests);
+                      context.go(AppRoutes.requests);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00668A),
@@ -69,7 +69,7 @@ class RequestFormScreen extends ConsumerWidget {
         title: const Text('Nueva Solicitud'),
         actions: [
           TextButton(
-            onPressed: () => context.go(AppRoutes.clientServices),
+            onPressed: () => context.go(AppRoutes.services),
             child: const Text('Cancelar'),
           ),
         ],

@@ -1,15 +1,16 @@
 abstract class AppRoutes {
+  static const splash = '/splash';
   static const landing = '/';
   static const intro = '/intro';
-  static const clientServices = '/client/services';
-  static const clientRequest = '/client/request';
-  static const clientRequests = '/client/requests';
-  static const companion = '/companion';
+  static const login = '/login';
+  static const home = '/home';
+  static const services = '/services';
+  static const requests = '/requests';
+  static const profile = '/profile';
+  static const profileDetails = '/profile/details';
+  static const profileNotifications = '/profile/notifications';
   static const companionHome = '/companion/home';
   static const companionRequests = '/companion/requests';
   static const companionCalendar = '/companion/calendar';
   static const companionEarnings = '/companion/earnings';
-  static const settings = '/settings';
-  static const settingsProfile = '/settings/profile';
-  static const settingsNotifications = '/settings/notifications';
 }

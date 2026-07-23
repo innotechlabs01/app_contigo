@@ -42,9 +42,11 @@ class ContigoInput extends StatelessWidget {
         if (label.isNotEmpty) ...[
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
+              color: colors.onSurfaceVariant,
+              fontFamily: 'Lexend',
             ),
           ),
           SizedBox(height: spacing.sm),
@@ -57,36 +59,33 @@ class ContigoInput extends StatelessWidget {
           maxLines: maxLines,
           validator: validator,
           onChanged: onChanged,
+          style: TextStyle(color: colors.onSurface, fontFamily: 'Lexend'),
           decoration: InputDecoration(
             hintText: hintText,
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-            suffixIcon: suffixIcon != null ? Icon(suffixIcon) : null,
+            hintStyle: TextStyle(color: colors.onSurfaceVariant, fontFamily: 'Lexend'),
+            prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: colors.onSurfaceVariant) : null,
+            suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: colors.onSurfaceVariant) : null,
             filled: true,
-            fillColor: colors.surfaceContainerHighest,
+            fillColor: colors.surfaceContainer,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide.none,
+              borderSide: BorderSide(color: colors.outlineVariant, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(radius.md),
+              borderSide: BorderSide(color: colors.outlineVariant, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide(
-                color: colors.primary,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: colors.primaryContainer, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 1,
-              ),
+              borderSide: BorderSide(color: colors.error, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: colors.error, width: 2),
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: spacing.lg,

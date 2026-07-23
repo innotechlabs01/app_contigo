@@ -54,4 +54,27 @@ class ClerkAuthDatasource {
     await _storage.delete(_userNameKey);
     await _storage.delete(_userRoleKey);
   }
+
+  Future<User> signInWithEmail(String email, String password) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    final inferredRole = normalizedEmail.contains('companion')
+        ? UserRole.companion
+        : UserRole.client;
+    final user = User(
+      id: 'demo-${normalizedEmail.hashCode.abs()}',
+      email: normalizedEmail,
+      name: normalizedEmail.split('@').first.replaceAll('.', ' '),
+      role: inferredRole,
+    );
+
+    await saveSession(
+      token: 'demo_session_${DateTime.now().millisecondsSinceEpoch}',
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    );
+
+    return user;
+  }
 }

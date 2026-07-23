@@ -62,7 +62,7 @@ final class AuthStateProvider
         argument: null,
         retry: null,
         name: r'authStateProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -81,4 +81,94 @@ final class AuthStateProvider
   }
 }
 
-String _$authStateHash() => r'f91ef90d8cbacab10770c436643c36611fac22ad';
+String _$authStateHash() => r'48050d1c87f0cf760aacde624083a5a1d9165736';
+
+@ProviderFor(LoginViewModel)
+const loginViewModelProvider = LoginViewModelProvider._();
+
+final class LoginViewModelProvider
+    extends $AsyncNotifierProvider<LoginViewModel, void> {
+  const LoginViewModelProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'loginViewModelProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$loginViewModelHash();
+
+  @$internal
+  @override
+  LoginViewModel create() => LoginViewModel();
+}
+
+String _$loginViewModelHash() => r'605571e03df78efa833aef487692d4cda0088981';
+
+abstract class _$LoginViewModel extends $AsyncNotifier<void> {
+  FutureOr<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    build();
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, null);
+  }
+}
+
+@ProviderFor(SignOutViewModel)
+const signOutViewModelProvider = SignOutViewModelProvider._();
+
+final class SignOutViewModelProvider
+    extends $AsyncNotifierProvider<SignOutViewModel, void> {
+  const SignOutViewModelProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'signOutViewModelProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$signOutViewModelHash();
+
+  @$internal
+  @override
+  SignOutViewModel create() => SignOutViewModel();
+}
+
+String _$signOutViewModelHash() => r'054704c78f8fb1fb594b853e961278376243f8f8';
+
+abstract class _$SignOutViewModel extends $AsyncNotifier<void> {
+  FutureOr<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    build();
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, null);
+  }
+}

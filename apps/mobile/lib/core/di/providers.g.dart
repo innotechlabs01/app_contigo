@@ -232,7 +232,7 @@ final class SecureStorageServiceProvider
 }
 
 String _$secureStorageServiceHash() =>
-    r'7d868ef20b6da61be21fa1ff5183a074483b3d82';
+    r'464d195bb7795379137f71775ab2fb28d3954e02';
 
 @ProviderFor(connectivityService)
 const connectivityServiceProvider = ConnectivityServiceProvider._();

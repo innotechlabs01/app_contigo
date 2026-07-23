@@ -7,8 +7,8 @@ abstract class AppGradients {
     end: Alignment(1.0, 1.0),
   );
 
-  static LinearGradient get primaryDark => LinearGradient(
-    colors: [Color(0xFF8ECAFF), Color(0xFF004D6E)],
+  static LinearGradient get primaryDark => const LinearGradient(
+    colors: [Color(0xFFB4E8FF), Color(0xFF87CEEB)],
     begin: Alignment(-1.0, -1.0),
     end: Alignment(1.0, 1.0),
   );

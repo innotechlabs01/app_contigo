@@ -9,6 +9,46 @@ part of 'intro_view_model.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(introStatus)
+const introStatusProvider = IntroStatusProvider._();
+
+final class IntroStatusProvider extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  const IntroStatusProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'introStatusProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$introStatusHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return introStatus(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$introStatusHash() => r'13f2832b4a56ce1a9fef08cb66bd3c1a9ee31af5';
+
 @ProviderFor(IntroViewModel)
 const introViewModelProvider = IntroViewModelProvider._();
 
@@ -41,7 +81,7 @@ final class IntroViewModelProvider
   }
 }
 
-String _$introViewModelHash() => r'4ec7ff4333e776376a5b0927c58665435e8c21e5';
+String _$introViewModelHash() => r'da01bbb49e4adb651274fb0f451eebe53c892179';
 
 abstract class _$IntroViewModel extends $Notifier<int> {
   int build();

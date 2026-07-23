@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -31,7 +30,7 @@ PreferencesService preferencesService(Ref ref) {
 
 @riverpod
 SecureStorageService secureStorageService(Ref ref) =>
-    SecureStorageService(const FlutterSecureStorage());
+    SecureStorageService();
 
 @riverpod
 ConnectivityService connectivityService(Ref ref) =>

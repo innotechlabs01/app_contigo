@@ -19,7 +19,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> signInWithEmail(String email, String password) async {
-    throw UnimplementedError('Email sign-in not implemented yet');
-  }
+  Future<User?> signInWithEmail(String email, String password) =>
+      _datasource.signInWithEmail(email, password);
 }

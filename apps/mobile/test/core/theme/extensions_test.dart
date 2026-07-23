@@ -13,7 +13,7 @@ void main() {
 
     test('dark constructor has correct primary', () {
       final colors = ContigoColors.dark();
-      expect(colors.primary.toARGB32(), 0xFF8ECAFF);
+      expect(colors.primary.toARGB32(), 0xFFB4E8FF);
     });
 
     test('copyWith preserves unchanged values', () {
@@ -43,7 +43,7 @@ void main() {
       );
       final colors = theme.extension<ContigoColors>();
       expect(colors, isNotNull);
-      expect(colors!.primary.toARGB32(), 0xFF8ECAFF);
+      expect(colors!.primary.toARGB32(), 0xFFB4E8FF);
     });
   });
 }

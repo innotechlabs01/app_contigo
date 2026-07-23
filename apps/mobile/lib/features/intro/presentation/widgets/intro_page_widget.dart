@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/extensions.dart';
 import '../../domain/entities/intro_page_data.dart';
 
 class IntroPageWidget extends StatelessWidget {
@@ -15,8 +16,12 @@ class IntroPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.contigoColors;
+    final spacing = context.contigoSpacing;
+    final typography = context.contigoTypography;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: EdgeInsets.symmetric(horizontal: spacing.xl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -25,29 +30,23 @@ class IntroPageWidget extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF00668A).withValues(alpha: 0.1),
+              color: colors.primaryContainer.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(60),
             ),
-            child: Icon(
-              pageData.icon,
-              size: 60,
-              color: const Color(0xFF00668A),
-            ),
+            child: Icon(pageData.icon, size: 60, color: colors.primary),
           ),
-          const SizedBox(height: 48),
+          SizedBox(height: spacing.xxl),
           Text(
             pageData.title,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: typography.headlineSmall.copyWith(color: colors.onSurface),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.md),
           Text(
             pageData.subtitle,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+            style: typography.bodyLarge.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const Spacer(flex: 3),

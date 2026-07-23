@@ -5,6 +5,14 @@ import '../../../../core/router/guards.dart';
 
 part 'intro_view_model.g.dart';
 
+const introCompletedPreferenceKey = 'intro_completed';
+
+@riverpod
+bool introStatus(Ref ref) {
+  final prefs = ref.watch(preferencesServiceProvider);
+  return prefs.getBool(introCompletedPreferenceKey);
+}
+
 @riverpod
 class IntroViewModel extends _$IntroViewModel {
   @override
@@ -22,13 +30,15 @@ class IntroViewModel extends _$IntroViewModel {
 
   Future<void> completeIntro() async {
     final prefs = ref.read(preferencesServiceProvider);
-    await prefs.setBool('intro_completed', true);
+    await prefs.setBool(introCompletedPreferenceKey, true);
     ref.read(introGuardProvider.notifier).complete();
+    ref.invalidate(introStatusProvider);
   }
 
   Future<void> skipIntro() async {
     final prefs = ref.read(preferencesServiceProvider);
-    await prefs.setBool('intro_completed', true);
+    await prefs.setBool(introCompletedPreferenceKey, true);
     ref.read(introGuardProvider.notifier).complete();
+    ref.invalidate(introStatusProvider);
   }
 }

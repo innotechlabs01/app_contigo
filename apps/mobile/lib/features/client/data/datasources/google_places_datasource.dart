@@ -12,20 +12,24 @@ class GooglePlacesDatasource {
   ) async {
     if (query.trim().isEmpty) return [];
 
-    final response = await _dio.get(
-      '${ApiEndpoints.googlePlacesBaseUrl}${ApiEndpoints.placesAutocompletePath}',
-      queryParameters: {
-        'input': query,
-        'key': ApiEndpoints.googlePlacesApiKey,
-        'language': 'es',
-        'components': 'country:co',
-      },
-    );
+    try {
+      final response = await _dio.get(
+        '${ApiEndpoints.googlePlacesBaseUrl}${ApiEndpoints.placesAutocompletePath}',
+        queryParameters: {
+          'input': query,
+          'key': ApiEndpoints.googlePlacesApiKey,
+          'language': ApiEndpoints.placesLanguage,
+          'components': ApiEndpoints.placesCountry,
+        },
+      );
 
-    final predictions = response.data['predictions'] as List<dynamic>? ?? [];
-    return predictions
-        .map((p) => GooglePlacePrediction.fromJson(p as Map<String, dynamic>))
-        .toList();
+      final predictions = response.data['predictions'] as List<dynamic>? ?? [];
+      return predictions
+          .map((p) => GooglePlacePrediction.fromJson(p as Map<String, dynamic>))
+          .toList();
+    } on DioException {
+      return [];
+    }
   }
 
   Future<({double latitude, double longitude})> getPlaceDetails(
@@ -37,9 +41,14 @@ class GooglePlacesDatasource {
         'place_id': placeId,
         'key': ApiEndpoints.googlePlacesApiKey,
         'fields': 'geometry',
-        'language': 'es',
+        'language': ApiEndpoints.placesLanguage,
       },
     );
+
+    final status = response.data['status'] as String?;
+    if (status != 'OK') {
+      throw Exception('Google Places details failed: $status');
+    }
 
     final location =
         response.data['result']['geometry']['location'] as Map<String, dynamic>;

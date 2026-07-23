@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CalendarTab extends StatelessWidget {
+import '../../../../core/theme/extensions.dart';
+import '../../../../shared/widgets/contigo_empty_state.dart';
+
+class CalendarTab extends ConsumerWidget {
   const CalendarTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.contigoColors;
+
     return Scaffold(
+      backgroundColor: colors.surface,
       appBar: AppBar(title: const Text('Calendario')),
-      body: Center(
-        child: Text(
-          'Calendario de sesiones',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+      body: const ContigoEmptyState(
+        icon: Icons.calendar_month_outlined,
+        title: 'Tu agenda está vacía',
+        subtitle:
+            'Tus acompañamientos y citas programadas aparecerán aquí en un calendario.',
       ),
     );
   }

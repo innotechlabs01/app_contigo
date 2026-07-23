@@ -16,10 +16,11 @@ Future<bool?> showContigoDialog({
     ContigoDialogType.success => Icons.check_circle_outline,
   };
 
+  final scheme = Theme.of(context).colorScheme;
   final iconColor = switch (type) {
     ContigoDialogType.confirmation => null,
-    ContigoDialogType.error => Colors.red,
-    ContigoDialogType.success => Colors.green,
+    ContigoDialogType.error => scheme.error,
+    ContigoDialogType.success => scheme.primary,
   };
 
   final actions = switch (type) {

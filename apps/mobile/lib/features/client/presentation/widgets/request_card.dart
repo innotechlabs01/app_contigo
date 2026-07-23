@@ -19,7 +19,7 @@ class RequestCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Material(
-      color: const Color(0xFFF3F3F3),
+      color: theme.colorScheme.surfaceContainerLow,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,

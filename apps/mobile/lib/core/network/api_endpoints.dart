@@ -8,6 +8,9 @@ abstract class ApiEndpoints {
   static const String sessions = '/companion/sessions';
   static const String profile = '/profile';
 
+  static const String placesLanguage = 'es';
+  static const String placesCountry = 'country:co';
+
   static const String googlePlacesBaseUrl = 'https://maps.googleapis.com/maps/api/place';
   static const String placesAutocompletePath = '/autocomplete/json';
   static const String placeDetailsPath = '/details/json';

@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:contigo_mobile/features/companion/presentation/screens/companion_shell.dart';
+import 'package:contigo_mobile/core/theme/extensions.dart';
+import 'package:contigo_mobile/core/theme/light_theme.dart';
 
 void main() {
-  testWidgets('companion shell shows bottom navigation', (tester) async {
+  testWidgets('companion shell shows navigation tabs', (tester) async {
     final router = GoRouter(
       initialLocation: '/companion/home',
       routes: [
@@ -25,15 +27,16 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp.router(
+          theme: createLightTheme(),
           routerConfig: router,
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.byType(BottomNavigationBar), findsOneWidget);
-    expect(find.text('Inicio'), findsOneWidget);
-    expect(find.text('Solicitudes'), findsOneWidget);
-    expect(find.text('Calendario'), findsOneWidget);
-    expect(find.text('Ganancias'), findsOneWidget);
+    expect(find.byIcon(Icons.home), findsOneWidget);
+    expect(find.byIcon(Icons.assignment), findsOneWidget);
+    expect(find.byIcon(Icons.calendar_today), findsOneWidget);
+    expect(find.byIcon(Icons.payments), findsOneWidget);
   });
 }

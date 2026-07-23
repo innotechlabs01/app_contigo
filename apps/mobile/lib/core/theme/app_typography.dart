@@ -1,53 +1,51 @@
 import 'package:flutter/material.dart';
 
 abstract class AppTypography {
-  static const _displayFont = 'Lexend';
-  static const _bodyFont = 'Lexend';
-  static const _labelFont = 'PlusJakartaSans';
+  static const _fontFamily = 'Lexend';
 
-  static TextStyle get displayLarge => TextStyle(
-    fontSize: 57, fontWeight: FontWeight.w400, height: 1.12, fontFamily: _displayFont,
+  static TextStyle get displayLarge => const TextStyle(
+    fontSize: 48, fontWeight: FontWeight.w600, height: 56 / 48, letterSpacing: -0.02 * 48, fontFamily: _fontFamily,
   );
-  static TextStyle get displayMedium => TextStyle(
-    fontSize: 45, fontWeight: FontWeight.w400, height: 1.16, fontFamily: _displayFont,
+  static TextStyle get displayMedium => const TextStyle(
+    fontSize: 40, fontWeight: FontWeight.w500, height: 48 / 40, fontFamily: _fontFamily,
   );
-  static TextStyle get displaySmall => TextStyle(
-    fontSize: 36, fontWeight: FontWeight.w400, height: 1.22, fontFamily: _displayFont,
+  static TextStyle get displaySmall => const TextStyle(
+    fontSize: 36, fontWeight: FontWeight.w400, height: 44 / 36, fontFamily: _fontFamily,
   );
-  static TextStyle get headlineLarge => TextStyle(
-    fontSize: 32, fontWeight: FontWeight.w600, height: 1.25, fontFamily: _displayFont,
+  static TextStyle get headlineLarge => const TextStyle(
+    fontSize: 32, fontWeight: FontWeight.w500, height: 40 / 32, letterSpacing: -0.01 * 32, fontFamily: _fontFamily,
   );
-  static TextStyle get headlineMedium => TextStyle(
-    fontSize: 28, fontWeight: FontWeight.w600, height: 1.29, fontFamily: _displayFont,
+  static TextStyle get headlineMedium => const TextStyle(
+    fontSize: 28, fontWeight: FontWeight.w500, height: 36 / 28, fontFamily: _fontFamily,
   );
-  static TextStyle get headlineSmall => TextStyle(
-    fontSize: 24, fontWeight: FontWeight.w600, height: 1.33, fontFamily: _displayFont,
+  static TextStyle get headlineSmall => const TextStyle(
+    fontSize: 24, fontWeight: FontWeight.w500, height: 32 / 24, fontFamily: _fontFamily,
   );
-  static TextStyle get titleLarge => TextStyle(
-    fontSize: 22, fontWeight: FontWeight.w500, height: 1.27, fontFamily: _displayFont,
+  static TextStyle get titleLarge => const TextStyle(
+    fontSize: 22, fontWeight: FontWeight.w500, height: 28 / 22, fontFamily: _fontFamily,
   );
-  static TextStyle get titleMedium => TextStyle(
-    fontSize: 16, fontWeight: FontWeight.w500, height: 1.50, letterSpacing: 0.15, fontFamily: _labelFont,
+  static TextStyle get titleMedium => const TextStyle(
+    fontSize: 20, fontWeight: FontWeight.w500, height: 28 / 20, fontFamily: _fontFamily,
   );
-  static TextStyle get titleSmall => TextStyle(
-    fontSize: 14, fontWeight: FontWeight.w500, height: 1.43, letterSpacing: 0.1, fontFamily: _labelFont,
+  static TextStyle get titleSmall => const TextStyle(
+    fontSize: 14, fontWeight: FontWeight.w500, height: 20 / 14, fontFamily: _fontFamily,
   );
-  static TextStyle get bodyLarge => TextStyle(
-    fontSize: 16, fontWeight: FontWeight.w400, height: 1.50, letterSpacing: 0.5, fontFamily: _bodyFont,
+  static TextStyle get bodyLarge => const TextStyle(
+    fontSize: 18, fontWeight: FontWeight.w300, height: 28 / 18, fontFamily: _fontFamily,
   );
-  static TextStyle get bodyMedium => TextStyle(
-    fontSize: 14, fontWeight: FontWeight.w400, height: 1.43, letterSpacing: 0.25, fontFamily: _bodyFont,
+  static TextStyle get bodyMedium => const TextStyle(
+    fontSize: 16, fontWeight: FontWeight.w300, height: 24 / 16, fontFamily: _fontFamily,
   );
-  static TextStyle get bodySmall => TextStyle(
-    fontSize: 12, fontWeight: FontWeight.w400, height: 1.33, letterSpacing: 0.4, fontFamily: _bodyFont,
+  static TextStyle get bodySmall => const TextStyle(
+    fontSize: 14, fontWeight: FontWeight.w300, height: 20 / 14, fontFamily: _fontFamily,
   );
-  static TextStyle get labelLarge => TextStyle(
-    fontSize: 14, fontWeight: FontWeight.w600, height: 1.43, letterSpacing: 0.1, fontFamily: _labelFont,
+  static TextStyle get labelLarge => const TextStyle(
+    fontSize: 14, fontWeight: FontWeight.w600, height: 20 / 14, letterSpacing: 0.01 * 14, fontFamily: _fontFamily,
   );
-  static TextStyle get labelMedium => TextStyle(
-    fontSize: 12, fontWeight: FontWeight.w500, height: 1.33, letterSpacing: 0.5, fontFamily: _labelFont,
+  static TextStyle get labelMedium => const TextStyle(
+    fontSize: 14, fontWeight: FontWeight.w500, height: 20 / 14, letterSpacing: 0.01 * 14, fontFamily: _fontFamily,
   );
-  static TextStyle get labelSmall => TextStyle(
-    fontSize: 11, fontWeight: FontWeight.w500, height: 1.45, letterSpacing: 0.5, fontFamily: _labelFont,
+  static TextStyle get labelSmall => const TextStyle(
+    fontSize: 12, fontWeight: FontWeight.w500, height: 16 / 12, letterSpacing: 0.01 * 12, fontFamily: _fontFamily,
   );
 }

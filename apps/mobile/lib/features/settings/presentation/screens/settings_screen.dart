@@ -1,74 +1,134 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/theme/extensions.dart';
+import '../../../../core/theme/theme_mode.dart';
+import '../../../../shared/widgets/contigo_button.dart';
 import '../widgets/settings_tile.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.contigoColors;
+    final themeMode = ref.watch(themeModeControllerProvider);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Configuración')),
+      backgroundColor: colors.surface,
+      appBar: AppBar(
+        title: const Text(
+          'Configuración',
+          style: TextStyle(
+            fontFamily: 'Lexend',
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
-          const SizedBox(height: 8),
+          Text(
+            'Apariencia',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<ThemeMode>(
+            selected: {themeMode},
+            onSelectionChanged: (selected) =>
+                ref.read(themeModeControllerProvider.notifier).setMode(selected.first),
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.system,
+                icon: Icon(Icons.brightness_auto_outlined),
+                label: Text('Sistema'),
+              ),
+              ButtonSegment(
+                value: ThemeMode.light,
+                icon: Icon(Icons.light_mode_outlined),
+                label: Text('Claro'),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                icon: Icon(Icons.dark_mode_outlined),
+                label: Text('Oscuro'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
           SettingsTile(
             icon: Icons.person,
             title: 'Perfil',
-            subtitle: 'Edita tu información personal',
-            onTap: () => context.go(AppRoutes.settingsProfile),
+            onTap: () => context.push(AppRoutes.profileDetails),
           ),
-          const Divider(),
+          const SizedBox(height: 12),
           SettingsTile(
             icon: Icons.notifications,
             title: 'Notificaciones',
-            subtitle: 'Administra tus preferencias',
-            onTap: () => context.go(AppRoutes.settingsNotifications),
+            onTap: () => context.push(AppRoutes.profileNotifications),
           ),
-          const Divider(),
+          const SizedBox(height: 12),
           SettingsTile(
-            icon: Icons.info_outline,
-            title: 'Acerca de Contigo',
-            subtitle: 'Versión 1.0.0',
+            icon: Icons.info,
+            title: 'Acerca de',
             onTap: () {},
           ),
-          const Divider(),
           const SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              width: double.infinity, height: 56,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Cerrar sesión'),
-                      content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                          },
-                          child: const Text('Confirmar', style: TextStyle(color: Colors.red)),
-                        ),
-                      ],
+          ContigoButton(
+            variant: ContigoButtonVariant.secondary,
+            label: 'Cerrar sesión',
+            icon: Icons.logout,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text(
+                    'Cerrar sesión',
+                    style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontWeight: FontWeight.w500,
                     ),
-                  );
-                },
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(56)),
+                  ),
+                  content: const Text(
+                    '¿Estás seguro de que deseas cerrar sesión?',
+                    style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          fontFamily: 'Lexend',
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        context.go(AppRoutes.landing);
+                      },
+                      child: Text(
+                        'Confirmar',
+                        style: TextStyle(
+                          fontFamily: 'Lexend',
+                          color: colors.error,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
+              );
+            },
+            height: 56,
           ),
         ],
       ),

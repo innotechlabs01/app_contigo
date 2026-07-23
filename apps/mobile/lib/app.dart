@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/theme/light_theme.dart';
 import 'core/theme/dark_theme.dart';
+import 'core/theme/theme_mode.dart';
 import 'core/router/router.dart';
 import 'l10n/app_localizations.dart';
 
@@ -13,13 +14,14 @@ class ContigoApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeControllerProvider);
 
     return MaterialApp.router(
       title: 'Contigo',
       debugShowCheckedModeBanner: false,
       theme: createLightTheme(),
       darkTheme: createDarkTheme(),
-      themeMode: ThemeMode.light,
+      themeMode: themeMode,
       routerConfig: router,
       localizationsDelegates: const [
         AppLocalizations.delegate,
