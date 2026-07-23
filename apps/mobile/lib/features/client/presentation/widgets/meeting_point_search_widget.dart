@@ -2,13 +2,24 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../core/network/dio_client.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/theme/extensions.dart';
 import '../../data/datasources/google_places_datasource.dart';
 import '../../data/repositories/places_repository_impl.dart';
 import '../../domain/entities/meeting_point.dart';
 import '../../domain/use_cases/search_meeting_points_use_case.dart';
+
+part 'meeting_point_search_widget.g.dart';
+
+@riverpod
+SearchMeetingPointsUseCase searchMeetingPointsUseCase(Ref ref) {
+  final dio = ref.watch(dioProvider);
+  final datasource = GooglePlacesDatasource(dio);
+  final repository = PlacesRepositoryImpl(datasource);
+  return SearchMeetingPointsUseCase(repository);
+}
 
 class MeetingPointSearchWidget extends ConsumerStatefulWidget {
   final ValueChanged<MeetingPoint?> onMeetingPointSelected;
@@ -29,8 +40,6 @@ class _MeetingPointSearchWidgetState
   final _focusNode = FocusNode();
   final _layerLink = LayerLink();
 
-  late final SearchMeetingPointsUseCase _useCase;
-
   List<MeetingPoint> _suggestions = [];
   OverlayEntry? _overlayEntry;
   bool _isLoading = false;
@@ -38,30 +47,12 @@ class _MeetingPointSearchWidgetState
   Timer? _debounce;
 
   @override
-  void initState() {
-    super.initState();
-    final dio = createDioClient();
-    final datasource = GooglePlacesDatasource(dio);
-    final repository = PlacesRepositoryImpl(datasource);
-    _useCase = SearchMeetingPointsUseCase(repository);
-
-    _focusNode.addListener(_onFocusChanged);
-  }
-
-  @override
   void dispose() {
     _debounce?.cancel();
     _controller.dispose();
-    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     _removeOverlay();
     super.dispose();
-  }
-
-  void _onFocusChanged() {
-    if (!_focusNode.hasFocus) {
-      Future.delayed(const Duration(milliseconds: 150), _removeOverlay);
-    }
   }
 
   void _onChanged(String query) {
@@ -79,7 +70,7 @@ class _MeetingPointSearchWidgetState
 
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       try {
-        final results = await _useCase(query);
+        final results = await ref.read(searchMeetingPointsUseCaseProvider)(query);
         if (mounted) {
           setState(() {
             _suggestions = results;
@@ -87,7 +78,8 @@ class _MeetingPointSearchWidgetState
           });
           _showOverlay();
         }
-      } catch (_) {
+      } catch (e) {
+        debugPrint('MeetingPoint search error: $e');
         if (mounted) {
           setState(() {
             _suggestions = [];
@@ -107,7 +99,7 @@ class _MeetingPointSearchWidgetState
     setState(() => _isLoading = true);
 
     try {
-      final details = await _useCase.getDetails(
+      final details = await ref.read(searchMeetingPointsUseCaseProvider).getDetails(
         suggestion.placeId ?? '',
         suggestion.address,
       );
@@ -119,7 +111,8 @@ class _MeetingPointSearchWidgetState
         });
         widget.onMeetingPointSelected(details);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('MeetingPoint details error: $e');
       if (mounted) {
         setState(() {
           _hasSelection = false;
