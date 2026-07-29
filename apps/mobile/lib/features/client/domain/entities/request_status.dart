@@ -1,1 +1,1 @@
-enum RequestStatus { pending, approved, rejected, inReview }
+enum RequestStatus { pending, accepted, rejected, cancelled, completed }
