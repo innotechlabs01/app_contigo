@@ -15,10 +15,16 @@ import (
 	healthhandler "github.com/contigo/backend/internal/health/interfaces/http/handler"
 	healthroute "github.com/contigo/backend/internal/health/interfaces/http/route"
 	fibermw "github.com/contigo/backend/interfaces/middleware"
+	"github.com/contigo/backend/internal/requests/application/usecase"
+	"github.com/contigo/backend/internal/requests/data/repository"
+	"github.com/contigo/backend/internal/requests/domain/entity"
+	"github.com/contigo/backend/internal/requests/interfaces/http/handler"
+	"github.com/contigo/backend/internal/requests/interfaces/http/route"
 	"github.com/contigo/backend/pkg/logger"
 	"github.com/contigo/backend/pkg/response"
 	"github.com/contigo/backend/pkg/validator"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
@@ -108,6 +114,12 @@ func main() {
 			"message": "Swagger documentation - coming soon",
 		})
 	})
+
+	// Initialize request service
+	reqRepo := requestrepo.NewRequestRepository(pool)
+	reqUC := usecase.NewRequestUseCase(reqRepo, nil)
+	reqHandler := handler.NewRequestHandler(reqUC)
+	requestroute.Register(v1, reqHandler)
 
 	// Graceful shutdown
 	quit := make(chan os.Signal, 1)

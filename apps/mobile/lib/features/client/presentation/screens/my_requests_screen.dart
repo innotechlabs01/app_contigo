@@ -4,51 +4,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/extensions.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/ws/ws_event.dart';
+import '../../../../core/ws/ws_provider.dart';
 import '../../../../shared/widgets/contigo_button.dart';
 import '../../../../shared/widgets/contigo_card.dart';
 import '../../../../shared/widgets/contigo_empty_state.dart';
 import '../../../../shared/widgets/contigo_status_pill.dart';
 import '../../domain/entities/request_status.dart';
-
-class _MockRequest {
-  final String title;
-  final String description;
-  final RequestStatus status;
-  final String date;
-  final IconData icon;
-
-  const _MockRequest({
-    required this.title,
-    required this.description,
-    required this.status,
-    required this.date,
-    required this.icon,
-  });
-}
-
-const _mockRequests = [
-  _MockRequest(
-    title: 'Cita Médica',
-    description: 'Dr. Ramírez - Cardiología',
-    status: RequestStatus.pending,
-    date: '12 Ene 2025',
-    icon: Icons.medical_services,
-  ),
-  _MockRequest(
-    title: 'Recados Personales',
-    description: 'Supermercado La Colmena',
-    status: RequestStatus.approved,
-    date: '10 Ene 2025',
-    icon: Icons.shopping_bag,
-  ),
-  _MockRequest(
-    title: 'Medicamentos',
-    description: 'Farmacia San José',
-    status: RequestStatus.inReview,
-    date: '8 Ene 2025',
-    icon: Icons.medication,
-  ),
-];
+import '../../domain/entities/service_request.dart';
+import '../view_models/client_requests_view_model.dart';
 
 class MyRequestsScreen extends ConsumerWidget {
   const MyRequestsScreen({super.key});
@@ -56,8 +20,7 @@ class MyRequestsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.contigoColors;
-    final radius = context.contigoRadius;
-    final requests = _mockRequests;
+    final requestsAsync = ref.watch(clientRequestsListProvider);
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -65,43 +28,41 @@ class MyRequestsScreen extends ConsumerWidget {
         backgroundColor: colors.surface,
         title: const Text('Mis Solicitudes'),
       ),
-      body: requests.isEmpty
-          ? _buildEmptyState(context, colors)
-          : _buildRequestsList(context, colors, radius, requests),
+      body: requestsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => ContigoEmptyState(
+          icon: Icons.error_outline,
+          title: 'Error al cargar',
+          subtitle: e.toString(),
+        ),
+        data: (requests) => requests.isEmpty
+            ? ContigoEmptyState(
+                icon: Icons.assignment_outlined,
+                title: 'No tienes solicitudes aún',
+                subtitle: 'Tus solicitudes de servicio aparecerán aquí.',
+                actionLabel: 'Solicitar un servicio',
+                onAction: () => context.go(AppRoutes.services),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: requests.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) =>
+                    _RequestCard(request: requests[index]),
+              ),
+      ),
     );
   }
+}
 
-  Widget _buildEmptyState(BuildContext context, ContigoColors colors) {
-    return ContigoEmptyState(
-      icon: Icons.assignment_outlined,
-      title: 'No tienes solicitudes aún',
-      subtitle: 'Tus solicitudes de servicio aparecerán aquí.',
-      actionLabel: 'Solicitar un servicio',
-      onAction: () => context.go(AppRoutes.services),
-    );
-  }
+class _RequestCard extends StatelessWidget {
+  final ServiceRequest request;
 
-  Widget _buildRequestsList(
-    BuildContext context,
-    ContigoColors colors,
-    ContigoRadius radius,
-    List<_MockRequest> requests,
-  ) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: requests.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) =>
-          _buildRequestCard(context, colors, radius, requests[index]),
-    );
-  }
+  const _RequestCard({required this.request});
 
-  Widget _buildRequestCard(
-    BuildContext context,
-    ContigoColors colors,
-    ContigoRadius radius,
-    _MockRequest request,
-  ) {
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.contigoColors;
     return ContigoCard(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -109,11 +70,11 @@ class MyRequestsScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Icon(request.icon, color: colors.primary, size: 20),
+              Icon(Icons.assignment, color: colors.primary, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  request.title,
+                  request.serviceType,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: colors.onSurface,
                       ),
@@ -124,7 +85,7 @@ class MyRequestsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            request.description,
+            request.fullName,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -134,14 +95,10 @@ class MyRequestsScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Icon(
-                Icons.calendar_today,
-                size: 14,
-                color: colors.onSurfaceVariant,
-              ),
+              Icon(Icons.calendar_today, size: 14, color: colors.onSurfaceVariant),
               const SizedBox(width: 8),
               Text(
-                request.date,
+                request.preferredDate ?? '',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
