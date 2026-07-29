@@ -8,14 +8,32 @@ class RequestRepositoryImpl implements RequestRepository {
   RequestRepositoryImpl(this._datasource);
 
   @override
-  Future<ServiceRequest> createRequest(ServiceRequest request) =>
-      _datasource.createRequest(request);
+  Future<ServiceRequest> createRequest(ServiceRequest request) async {
+    return await _datasource.createRequest(request);
+  }
 
   @override
-  Future<List<ServiceRequest>> getMyRequests() =>
-      _datasource.getMyRequests();
+  Future<List<ServiceRequest>> getMyRequests() async {
+    return await _datasource.getMyRequests();
+  }
 
   @override
-  Future<bool> checkId(String idNumber) =>
-      _datasource.checkId(idNumber);
+  Future<List<ServiceRequest>> getCompanionRequests() async {
+    return await _datasource.getCompanionRequests();
+  }
+
+  @override
+  Future<ServiceRequest> acceptRequest(String requestId) async {
+    return await _datasource.acceptRequest(requestId);
+  }
+
+  @override
+  Future<ServiceRequest> rejectRequest(String requestId) async {
+    return await _datasource.rejectRequest(requestId);
+  }
+
+  @override
+  Future<bool> checkId(String idNumber) async {
+    return await _datasource.checkId(idNumber);
+  }
 }
