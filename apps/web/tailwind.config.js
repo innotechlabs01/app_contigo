@@ -8,35 +8,30 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: '#87CEEB',
-          50: '#F0F9FF',
-          100: '#E0F2FE',
-          200: '#BAE6FD',
-          300: '#7DD3FC',
-          400: '#38BDF8',
-          500: '#0AA5E2',
-          600: '#0284C7',
-          700: '#0369A1',
-          800: '#075985',
-          900: '#0C4A6E',
+        brand: {
+          blue: '#2269ED',
+          'blue-hover': '#1B5CD8',
+          'blue-active': '#104EC2',
+          'blue-dark': '#0B3789',
         },
-        secondary: '#00668A',
-        background: '#F8FAFC',
-        surface: '#FFFFFF',
+        surface: {
+          page: '#FAFCFE',
+          outer: '#E5E9F0',
+        },
+        text: {
+          primary: '#222222',
+          secondary: '#4A4A4A',
+          muted: '#777777',
+        },
+        border: {
+          card: '#E8E8E8',
+        },
       },
       fontFamily: {
-        sans: ['var(--font-lexend)', 'system-ui', 'sans-serif'],
-      },
-      fontSize: {
-        base: '18px',
+        sans: ['Poppins', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        DEFAULT: '9999px',
-        full: '9999px',
-      },
-      boxShadow: {
-        soft: '0 4px 20px rgba(0, 102, 138, 0.08)',
+        '2xl': '24px',
       },
     },
   },

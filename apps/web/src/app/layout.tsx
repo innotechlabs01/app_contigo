@@ -2,24 +2,23 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://contigo.app'),
-  title: 'Contigo - Acompañamiento y Cuidado',
-  description: 'Plataforma de salud y acompañamiento para adultos mayores y extranjeros. Servicios verificados y monitoreo en tiempo real.',
-  keywords: ['salud', 'acompañamiento', 'adultos mayores', 'cuidado', 'companeros'],
-  authors: [{ name: 'Contigo' }],
+  metadataBase: new URL('https://consentido.app'),
+  title: 'ConSentido - Palabras con intención',
+  description: 'Crea y envía mensajes personalizados para cada ocasión especial. Mensajes con significado, entregados por SMS.',
+  keywords: ['mensajes', 'sms', 'ocasiones', 'cumpleaños', 'felicitaciones'],
+  authors: [{ name: 'ConSentido' }],
   openGraph: {
-    title: 'Contigo - Acompañamiento y Cuidado',
-    description: 'Plataforma de salud y acompañamiento para adultos mayores',
+    title: 'ConSentido - Palabras con intención',
+    description: 'Crea y envía mensajes personalizados para cada ocasión especial.',
     type: 'website',
     locale: 'es_ES',
-    siteName: 'Contigo',
+    siteName: 'ConSentido',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Contigo - Acompañamiento y Cuidado',
-    description: 'Plataforma de salud y acompañamiento para adultos mayores',
+    title: 'ConSentido - Palabras con intención',
+    description: 'Crea y envía mensajes personalizados para cada ocasión especial.',
   },
-  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -30,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-        <meta name="theme-color" content="#00668A" />
+        <meta name="theme-color" content="#2269ED" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
-      <body className="min-h-screen bg-background antialiased">
-        {children}
+      <body className="min-h-screen bg-surface-outer antialiased flex items-start justify-center py-10">
+        <div className="w-full max-w-[1280px] bg-surface-page shadow-[0_12px_40px_rgba(0,0,0,0.25)] rounded-2xl overflow-hidden min-h-[600px]">
+          {children}
+        </div>
       </body>
     </html>
   );

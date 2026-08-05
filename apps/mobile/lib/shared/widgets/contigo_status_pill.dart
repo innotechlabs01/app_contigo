@@ -30,8 +30,7 @@ class ContigoStatusPill extends StatelessWidget {
 
   String get _label => switch (status) {
     RequestStatus.pending => 'Pending',
-    RequestStatus.approved => 'Approved',
-    RequestStatus.rejected => 'Rejected',
+    RequestStatus.accepted => 'Accepted',
     RequestStatus.inReview => 'In Review',
   };
 

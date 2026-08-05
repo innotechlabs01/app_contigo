@@ -1,16 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-lexend: 'Lexend', sans-serif;
-}
-
 body {
-  font-family: var(--font-lexend);
-  font-size: 18px;
+  font-family: 'Poppins', sans-serif;
+  background: #E5E9F0;
 }
 
 @layer base {
@@ -19,110 +15,14 @@ body {
   }
 }
 
-@layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
+@layer components {
+  .btn-primary {
+    @apply bg-brand-blue text-white font-semibold rounded-full transition-colors duration-150 hover:bg-brand-blue-hover active:bg-brand-blue-active;
   }
-
-  .animate-fade-up {
-    opacity: 0;
-    animation: fadeUp 0.8s ease-out forwards;
+  .btn-secondary {
+    @apply border-2 border-slate-300 text-text-secondary font-medium rounded-full transition-all duration-150 hover:bg-blue-50 hover:border-blue-400 active:bg-blue-100;
   }
-
-  .animate-scale-in {
-    animation: scaleIn 0.6s ease-out forwards;
+  .card-hover {
+    @apply transition-all duration-150 cursor-pointer border border-border-card rounded-2xl hover:border-blue-400 hover:shadow-[0_8px_24px_rgba(108,155,243,0.18)];
   }
-
-  .animate-blob {
-    animation: blob 7s ease-in-out infinite;
-  }
-
-  .animate-blob-delayed {
-    animation: blob 8s ease-in-out 2s infinite;
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-glow {
-    animation: glow 4s ease-in-out infinite alternate;
-  }
-
-  .reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  }
-
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .reveal-left {
-    opacity: 0;
-    transform: translateX(-40px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  }
-
-  .reveal-left.visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  .reveal-right {
-    opacity: 0;
-    transform: translateX(40px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  }
-
-  .reveal-right.visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  .reveal-scale {
-    opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  }
-
-  .reveal-scale.visible {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleIn {
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes blob {
-  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-  50% { border-radius: 50% 60% 30% 60% / 40% 50% 60% 50%; }
-  75% { border-radius: 60% 30% 60% 40% / 30% 60% 50% 70%; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-10px) rotate(1deg); }
-  66% { transform: translateY(5px) rotate(-1deg); }
-}
-
-@keyframes glow {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
 }
