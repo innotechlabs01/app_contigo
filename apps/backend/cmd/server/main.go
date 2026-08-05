@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/contigo/backend/configs"
 	"github.com/contigo/backend/infrastructure/auth/clerk"
@@ -16,15 +17,13 @@ import (
 	healthroute "github.com/contigo/backend/internal/health/interfaces/http/route"
 	fibermw "github.com/contigo/backend/interfaces/middleware"
 	"github.com/contigo/backend/internal/requests/application/usecase"
-	"github.com/contigo/backend/internal/requests/data/repository"
-	"github.com/contigo/backend/internal/requests/domain/entity"
+	requestrepo "github.com/contigo/backend/internal/requests/data/repository"
 	"github.com/contigo/backend/internal/requests/interfaces/http/handler"
-	"github.com/contigo/backend/internal/requests/interfaces/http/route"
+	requestroute "github.com/contigo/backend/internal/requests/interfaces/http/route"
 	"github.com/contigo/backend/pkg/logger"
 	"github.com/contigo/backend/pkg/response"
 	"github.com/contigo/backend/pkg/validator"
 
-	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
@@ -82,12 +81,10 @@ func main() {
 
 	// Initialize Fiber app
 	app := fiber.New(fiber.Config{
-		AppName:       "Contigo Backend",
-		ErrorHandler:  customErrorHandler,
-		ReadTimeout:   cfg.Server.ReadTimeout * 1000000000, // Convert seconds to nanoseconds
-		WriteTimeout:  cfg.Server.WriteTimeout * 1000000000,
-		StrictRouting: true,
-		CaseSensitive: true,
+		AppName:      "Contigo Backend",
+		ErrorHandler: customErrorHandler,
+		ReadTimeout:  time.Duration(cfg.Server.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(cfg.Server.WriteTimeout) * time.Second,
 	})
 
 	// Global middleware
@@ -119,7 +116,7 @@ func main() {
 	reqRepo := requestrepo.NewRequestRepository(pool)
 	reqUC := usecase.NewRequestUseCase(reqRepo, nil)
 	reqHandler := handler.NewRequestHandler(reqUC)
-	requestroute.Register(v1, reqHandler)
+	requestroute.Register(v1, reqHandler, reqUC.Hub)
 
 	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
@@ -144,11 +141,22 @@ func main() {
 func customErrorHandler(c fiber.Ctx, err error) error {
 	code := fiber.StatusInternalServerError
 	message := "Internal server error"
+	errCode := "INTERNAL_ERROR"
 
 	if e, ok := err.(*fiber.Error); ok {
 		code = e.Code
 		message = e.Message
+		switch code {
+		case fiber.StatusNotFound:
+			errCode = "NOT_FOUND"
+		case fiber.StatusUnauthorized:
+			errCode = "UNAUTHORIZED"
+		case fiber.StatusBadRequest:
+			errCode = "BAD_REQUEST"
+		case fiber.StatusMethodNotAllowed:
+			errCode = "METHOD_NOT_ALLOWED"
+		}
 	}
 
-	return response.ErrorWithStatus(c, code, "INTERNAL_ERROR", message)
+	return response.ErrorWithStatus(c, code, errCode, message)
 }

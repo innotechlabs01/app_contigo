@@ -6,16 +6,21 @@ import 'interceptors/offline_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
 
+AuthInterceptor? _sharedAuthInterceptor;
+
 Dio createDioClient() {
+  final authInterceptor = AuthInterceptor();
+  _sharedAuthInterceptor = authInterceptor;
+
   final dio = Dio(BaseOptions(
-    baseUrl: ApiEndpoints.baseUrl,
+    baseUrl: kApiBaseUrl,
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 15),
     headers: {'Content-Type': 'application/json'},
   ));
 
   dio.interceptors.addAll([
-    AuthInterceptor(),
+    authInterceptor,
     OfflineInterceptor(),
     LoggingInterceptor(),
     ErrorInterceptor(),
@@ -23,4 +28,8 @@ Dio createDioClient() {
   ]);
 
   return dio;
+}
+
+void setAuthToken(String? token) {
+  _sharedAuthInterceptor?.setToken(token);
 }

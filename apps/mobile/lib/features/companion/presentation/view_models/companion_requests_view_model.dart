@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../client/data/datasources/request_api_datasource.dart';
-import '../../../client/data/repositories/request_repository_impl.dart';
 import '../../../client/domain/entities/service_request.dart';
-import '../../../client/domain/repositories/request_repository.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/ws/ws_provider.dart';
 import '../../../../core/ws/ws_event.dart';
@@ -18,23 +15,17 @@ class CompanionRequestsList extends _$CompanionRequestsList {
   @override
   Future<List<ServiceRequest>> build() async {
     final repo = ref.read(requestRepositoryProvider);
-    final ws = ref.read(webSocketConnectionProvider);
-    
+    final ws = ref.read(webSocketConnectionProvider.notifier);
+
     _wsSub = ws.events.listen((event) {
-      if (event is RequestPending || event is RequestAccepted || event is RequestRejected) {
+      if (event is RequestCreated || event is RequestAccepted || event is RequestRejected) {
         ref.invalidateSelf();
       }
     });
 
     ref.onDispose(() => _wsSub?.cancel());
-    return repo.getCompanionRequests();
+    return repo.getPendingRequests();
   }
-}
-
-@riverpod
-RequestRepository requestRepository(Ref ref) {
-  final dio = ref.read(dioProvider);
-  return RequestRepositoryImpl(RequestApiDatasource(dio));
 }
 
 @riverpod

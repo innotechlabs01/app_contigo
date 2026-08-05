@@ -8,12 +8,14 @@ void main() {
       final now = DateTime.now();
       final request = ServiceRequest(
         id: 'REQ-001',
+        clientId: 'client-1',
         serviceType: 'medical',
         fullName: 'Test User',
-        idNumber: '12345678',
+        phone: '555-0100',
         createdAt: now,
       );
       expect(request.id, 'REQ-001');
+      expect(request.clientId, 'client-1');
       expect(request.status, RequestStatus.pending);
     });
   });

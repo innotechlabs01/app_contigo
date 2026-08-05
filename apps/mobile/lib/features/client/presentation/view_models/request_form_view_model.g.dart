@@ -9,53 +9,6 @@ part of 'request_form_view_model.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(requestRepository)
-const requestRepositoryProvider = RequestRepositoryProvider._();
-
-final class RequestRepositoryProvider
-    extends
-        $FunctionalProvider<
-          RequestRepository,
-          RequestRepository,
-          RequestRepository
-        >
-    with $Provider<RequestRepository> {
-  const RequestRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'requestRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$requestRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<RequestRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  RequestRepository create(Ref ref) {
-    return requestRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(RequestRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<RequestRepository>(value),
-    );
-  }
-}
-
-String _$requestRepositoryHash() => r'8452738e710c8edd38edbb913a20379defcd2f44';
-
 @ProviderFor(RequestFormStep)
 const requestFormStepProvider = RequestFormStepProvider._();
 
@@ -142,7 +95,7 @@ final class RequestFormDataStateProvider
 }
 
 String _$requestFormDataStateHash() =>
-    r'22a966af4f05739a31ac7f472fa0c5478a211259';
+    r'969adb4bd7bb4f2ca2b37a5a1ed9ad76b06b6fd9';
 
 abstract class _$RequestFormDataState extends $Notifier<RequestFormData> {
   RequestFormData build();
@@ -195,7 +148,7 @@ final class RequestSubmissionProvider
   }
 }
 
-String _$requestSubmissionHash() => r'9ca4544245548901f496e07e13ed8b61b0b74db5';
+String _$requestSubmissionHash() => r'507ccd099bfa211c47d334490e8250cf493b27eb';
 
 abstract class _$RequestSubmission
     extends $Notifier<AsyncValue<ServiceRequest?>> {

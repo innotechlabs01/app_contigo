@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../domain/entities/service_request.dart';
-import 'request_form_view_model.dart';
 
 part 'my_requests_view_model.g.dart';
 

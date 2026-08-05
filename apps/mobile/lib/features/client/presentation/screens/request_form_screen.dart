@@ -202,13 +202,7 @@ class _PersonalDataForm extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         ContigoInput(
-          label: 'Número de identificación',
-          initialValue: data.idNumber,
-          onChanged: form.updateIdNumber,
-        ),
-        const SizedBox(height: 16),
-        ContigoInput(
-          label: 'Teléfono (opcional)',
+          label: 'Teléfono',
           initialValue: data.phone,
           onChanged: form.updatePhone,
           keyboardType: TextInputType.phone,
@@ -286,13 +280,13 @@ class _ScheduleForm extends ConsumerWidget {
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
               );
-              if (date != null) form.updatePreferredDate(date);
+              if (date != null) {
+                form.updatePreferredDate(DateFormat('dd/MM/yyyy').format(date));
+              }
             },
             icon: const Icon(Icons.calendar_today),
             label: Text(
-              data.preferredDate != null
-                  ? DateFormat('dd/MM/yyyy').format(data.preferredDate!)
-                  : 'Seleccionar fecha preferida',
+              data.preferredDate ?? 'Seleccionar fecha preferida',
             ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -372,10 +366,6 @@ class _ReviewForm extends ConsumerWidget {
           value: data.fullName,
         ),
         _ReviewItem(
-          label: 'Identificación',
-          value: data.idNumber,
-        ),
-        _ReviewItem(
           label: 'Teléfono',
           value: data.phone.isEmpty ? 'No especificado' : data.phone,
         ),
@@ -385,9 +375,7 @@ class _ReviewForm extends ConsumerWidget {
         ),
         _ReviewItem(
           label: 'Fecha',
-          value: data.preferredDate != null
-              ? DateFormat('dd/MM/yyyy').format(data.preferredDate!)
-              : 'No especificada',
+          value: (data.preferredDate?.isNotEmpty ?? false) ? data.preferredDate! : 'No especificada',
         ),
         if (data.notes.isNotEmpty)
           _ReviewItem(label: 'Notas', value: data.notes),

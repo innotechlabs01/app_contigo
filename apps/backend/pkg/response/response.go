@@ -94,7 +94,7 @@ func Internal(c fiber.Ctx, message string) error {
 
 // ParseBody parses the request body into the given struct.
 func ParseBody(c fiber.Ctx, dest interface{}) error {
-	if err := c.BodyParser(dest); err != nil {
+	if err := c.Bind().Body(dest); err != nil {
 		return apperr.Wrap(err, apperr.ErrCodeBadRequest, "Invalid request body")
 	}
 	return nil
@@ -102,7 +102,7 @@ func ParseBody(c fiber.Ctx, dest interface{}) error {
 
 // ParseQuery parses query parameters into the given struct.
 func ParseQuery(c fiber.Ctx, dest interface{}) error {
-	if err := c.QueryParser(dest); err != nil {
+	if err := c.Bind().Query(dest); err != nil {
 		return apperr.Wrap(err, apperr.ErrCodeBadRequest, "Invalid query parameters")
 	}
 	return nil

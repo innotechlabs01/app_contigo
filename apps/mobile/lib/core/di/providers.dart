@@ -1,33 +1,29 @@
-@riverpod
-class RequestAction extends _$RequestAction {
-  @override
-  AsyncValue<void> build() => const AsyncValue.data(null);
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-  Future<ServiceRequest> accept(String requestId) async {
-    state = const AsyncLoading();
-    try {
-      final repo = ref.read(requestRepositoryProvider);
-      final result = await repo.acceptRequest(requestId);
-      state = const AsyncValue.data(null);
-      return result;
-    } catch (e, st) {
-      state = AsyncError(e, st);
-      rethrow;
-    }
-  }
+import '../network/dio_client.dart';
+import '../storage/preferences_service.dart';
+import '../storage/secure_storage_service.dart';
+import '../../features/client/data/datasources/request_api_datasource.dart';
+import '../../features/client/data/repositories/request_repository_impl.dart';
+import '../../features/client/domain/repositories/request_repository.dart';
 
-  Future<ServiceRequest> reject(String requestId) async {
-    state = const AsyncLoading();
-    try {
-      final repo = ref.read(requestRepositoryProvider);
-      final result = await repo.rejectRequest(requestId);
-      state = const AsyncValue.data(null);
-      return result;
-    } catch (e, st) {
-      state = AsyncError(e, st);
-      rethrow;
-    }
-  }
-}
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError('Must be overridden in main.dart');
+});
 
-// End of providers.dart
+final preferencesServiceProvider = Provider<PreferencesService>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return PreferencesService(prefs);
+});
+
+final secureStorageServiceProvider = Provider<SecureStorageService>((ref) {
+  return SecureStorageService();
+});
+
+final dioProvider = Provider((ref) => createDioClient());
+
+final requestRepositoryProvider = Provider<RequestRepository>((ref) {
+  final dio = ref.watch(dioProvider);
+  return RequestRepositoryImpl(RequestApiDatasource(dio));
+});

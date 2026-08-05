@@ -20,7 +20,7 @@ func TestAppError_Error(t *testing.T) {
 		{
 			name:     "error with wrapped error",
 			err:      Wrap(assert.AnError, ErrCodeInternal, "Database connection failed"),
-			expected: "INTERNAL_ERROR: Database connection failed: assert.AnError general test error",
+			expected: "INTERNAL_ERROR: Database connection failed: " + assert.AnError.Error(),
 		},
 	}
 

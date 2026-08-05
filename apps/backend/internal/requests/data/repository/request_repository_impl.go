@@ -105,13 +105,27 @@ func (r *requestRepositoryImpl) ListByCompanion(ctx context.Context, companionID
 	return scanRequests(rows)
 }
 
-func (r *requestRepositoryImpl) UpdateStatus(ctx context.Context, id, status string) error {
+func (r *requestRepositoryImpl) ListPending(ctx context.Context) ([]*entity.ServiceRequest, error) {
+	conn, err := r.pool.Conn(ctx)
+	if err != nil { return nil, err }
+	defer conn.Close()
+
+	rows, err := conn.QueryContext(ctx,
+		`SELECT id, client_id, companion_id, service_type, full_name, phone, address,
+		 meeting_point, preferred_date, notes, status, created_at, updated_at
+		 FROM service_requests WHERE status = 'pending' ORDER BY created_at DESC`)
+	if err != nil { return nil, err }
+	defer rows.Close()
+	return scanRequests(rows)
+}
+
+func (r *requestRepositoryImpl) UpdateStatus(ctx context.Context, id, status, companionID string) error {
 	conn, err := r.pool.Conn(ctx)
 	if err != nil { return err }
 	defer conn.Close()
 
 	_, err = conn.ExecContext(ctx,
-		`UPDATE service_requests SET status = ?, updated_at = datetime('now') WHERE id = ?`,
-		status, id)
+		`UPDATE service_requests SET status = ?, companion_id = ?, updated_at = datetime('now') WHERE id = ?`,
+		status, companionID, id)
 	return err
 }

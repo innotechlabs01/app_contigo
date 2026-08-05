@@ -81,7 +81,7 @@ final class AuthStateProvider
   }
 }
 
-String _$authStateHash() => r'48050d1c87f0cf760aacde624083a5a1d9165736';
+String _$authStateHash() => r'084249c10d81073f48a0a4a59332232f07588f7a';
 
 @ProviderFor(LoginViewModel)
 const loginViewModelProvider = LoginViewModelProvider._();
@@ -107,7 +107,7 @@ final class LoginViewModelProvider
   LoginViewModel create() => LoginViewModel();
 }
 
-String _$loginViewModelHash() => r'605571e03df78efa833aef487692d4cda0088981';
+String _$loginViewModelHash() => r'9c9587bbe3673808178e578d8399ce0563f058d6';
 
 abstract class _$LoginViewModel extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -152,7 +152,7 @@ final class SignOutViewModelProvider
   SignOutViewModel create() => SignOutViewModel();
 }
 
-String _$signOutViewModelHash() => r'054704c78f8fb1fb594b853e961278376243f8f8';
+String _$signOutViewModelHash() => r'10776b9ea28e9339c4903699b739f0f41d904622';
 
 abstract class _$SignOutViewModel extends $AsyncNotifier<void> {
   FutureOr<void> build();

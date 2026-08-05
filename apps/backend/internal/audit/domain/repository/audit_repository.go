@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/contigo/backend/internal/audit/domain/entity"
 )

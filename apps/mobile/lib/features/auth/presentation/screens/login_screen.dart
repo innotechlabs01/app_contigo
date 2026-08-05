@@ -17,7 +17,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'cliente@contigo.app');
+  final _emailController = TextEditingController(text: 'client@test.com');
   final _passwordController = TextEditingController(text: 'demo1234');
 
   @override
@@ -56,10 +56,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           padding: EdgeInsets.all(spacing.lg),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight:
-                  MediaQuery.sizeOf(context).height -
-                  MediaQuery.paddingOf(context).vertical -
-                  spacing.lg * 2,
+              minHeight: (MediaQuery.sizeOf(context).height -
+                      MediaQuery.paddingOf(context).vertical -
+                      spacing.lg * 2)
+                  .clamp(0, double.infinity),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,7 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: spacing.sm),
                 Text(
-                  'Usa tus datos para continuar con el flujo de cliente o escribe companion@contigo.app para probar acompañante.',
+                  'Usa tus datos para continuar con el flujo de cliente o escribe companion@test.com para probar acompañante.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),

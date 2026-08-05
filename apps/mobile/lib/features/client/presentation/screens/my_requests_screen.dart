@@ -12,7 +12,7 @@ import '../../../../shared/widgets/contigo_empty_state.dart';
 import '../../../../shared/widgets/contigo_status_pill.dart';
 import '../../domain/entities/request_status.dart';
 import '../../domain/entities/service_request.dart';
-import '../view_models/client_requests_view_model.dart';
+import '../view_models/my_requests_view_model.dart';
 
 class MyRequestsScreen extends ConsumerWidget {
   const MyRequestsScreen({super.key});
@@ -20,7 +20,7 @@ class MyRequestsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.contigoColors;
-    final requestsAsync = ref.watch(clientRequestsListProvider);
+    final requestsAsync = ref.watch(myRequestsListProvider);
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -46,7 +46,7 @@ class MyRequestsScreen extends ConsumerWidget {
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: requests.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (context, index) =>
                     _RequestCard(request: requests[index]),
               ),
@@ -75,9 +75,9 @@ class _RequestCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   request.serviceType,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: colors.onSurface,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: colors.onSurface),
                 ),
               ),
               ContigoStatusPill(status: request.status),
@@ -86,22 +86,26 @@ class _RequestCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             request.fullName,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
           Divider(color: colors.outlineVariant, height: 1, thickness: 0.5),
           const SizedBox(height: 12),
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 14, color: colors.onSurfaceVariant),
+              Icon(
+                Icons.calendar_today,
+                size: 14,
+                color: colors.onSurfaceVariant,
+              ),
               const SizedBox(width: 8),
               Text(
-                request.preferredDate ?? '',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                request.preferredDate,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
               ),
             ],
           ),

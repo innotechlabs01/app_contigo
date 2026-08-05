@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show WebSocket;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../../features/auth/presentation/view_models/auth_view_model.dart';
+import '../../core/di/providers.dart';
+import '../../core/network/api_endpoints.dart';
 import 'ws_event.dart';
 
 part 'ws_provider.g.dart';
@@ -27,25 +31,33 @@ class WebSocketConnection extends _$WebSocketConnection {
     });
 
     final authState = ref.watch(authStateProvider);
-    if (authState.valueOrNull != null) {
-      _connect(authState.requireValue.token);
+    final user = authState.asData?.value;
+    if (user != null) {
+      _connect();
     }
 
     return const AsyncValue.data(null);
   }
 
-  void _connect(String token) {
+  Future<void> _connect() async {
     _channel?.sink.close();
-    final uri = Uri.parse('ws://localhost:8080/api/v1/ws?token=' + token);
-    _channel = WebSocketChannel.connect(uri);
+    final storage = ref.read(secureStorageServiceProvider);
+    final token = await storage.read('clerk_session_token');
+    if (token == null) return;
+    final uri = Uri.parse('$kApiWsUrl/requests/ws');
+    final ws = await WebSocket.connect(
+      uri.toString(),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    _channel = IOWebSocketChannel(ws);
     _subscription = _channel!.stream.listen(
       (data) {
         final json = jsonDecode(data as String) as Map<String, dynamic>;
         final type = json['type'] as String;
         final request = json['data'] as Map<String, dynamic>;
         switch (type) {
-          case 'request_pending':
-            _eventController.add(RequestPending(request));
+          case 'request_created':
+            _eventController.add(RequestCreated(request));
           case 'request_accepted':
             _eventController.add(RequestAccepted(request));
           case 'request_rejected':
@@ -60,10 +72,7 @@ class WebSocketConnection extends _$WebSocketConnection {
   void _scheduleReconnect() {
     _reconnectTimer?.cancel();
     _reconnectTimer = Timer(const Duration(seconds: 5), () {
-      final authState = ref.read(authStateProvider);
-      if (authState.valueOrNull != null) {
-        _connect(authState.requireValue.token);
-      }
+      _connect();
     });
   }
 }

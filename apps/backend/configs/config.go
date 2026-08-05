@@ -1,12 +1,40 @@
-package config
+package configs
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/viper"
 )
+
+func loadDotEnv(files ...string) {
+	for _, file := range files {
+		f, err := os.Open(file)
+		if err != nil {
+			continue
+		}
+		defer f.Close()
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			if parts := strings.SplitN(line, "=", 2); len(parts) == 2 {
+				key := strings.TrimSpace(parts[0])
+				val := strings.TrimSpace(parts[1])
+				if key != "" && val != "" {
+					if _, exists := os.LookupEnv(key); !exists {
+						os.Setenv(key, val)
+					}
+				}
+			}
+		}
+	}
+}
 
 // Config holds all configuration for the application.
 type Config struct {
@@ -75,25 +103,18 @@ type LogConfig struct {
 
 // Load loads configuration from file and environment variables.
 func Load() (*Config, error) {
+	// Load .env files into OS environment variables
+	loadDotEnv(".env", "./configs/.env")
+
 	v := viper.New()
 
 	// Set defaults
 	setDefaults(v)
 
-	// Read config file
-	v.SetConfigName(".env")
-	v.SetConfigType("env")
-	v.AddConfigPath(".")
-	v.AddConfigPath("./configs")
-	v.AddConfigPath("/etc/contigo")
-
-	// Read environment variables
+	// Read environment variables (Viper automatic binding)
 	v.AutomaticEnv()
 
-	// Try to read config file (optional)
-	_ = v.ReadInConfig()
-
-	// Override with environment variables
+	// Override with explicit environment variable mapping
 	loadFromEnv(v)
 
 	var cfg Config

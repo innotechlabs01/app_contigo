@@ -9,7 +9,7 @@ void main() {
       final container = ProviderContainer();
       final dio = container.read(dioProvider);
       expect(dio, isNotNull);
-      expect(dio.options.baseUrl, 'https://contigo.app/api');
+      expect(dio.options.baseUrl, 'http://localhost:8080/api/v1');
       container.dispose();
     });
 
@@ -29,9 +29,9 @@ void main() {
       container.dispose();
     });
 
-    test('connectivityServiceProvider creates service', () {
+    test('requestRepositoryProvider creates repository', () {
       final container = ProviderContainer();
-      expect(container.read(connectivityServiceProvider), isNotNull);
+      expect(container.read(requestRepositoryProvider), isNotNull);
       container.dispose();
     });
   });

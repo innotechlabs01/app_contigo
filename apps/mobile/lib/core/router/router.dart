@@ -34,9 +34,9 @@ class RouterRefreshNotifier extends ChangeNotifier {
 @Riverpod(keepAlive: true)
 RouterRefreshNotifier routerRefreshNotifier(Ref ref) {
   final notifier = RouterRefreshNotifier();
-  ref.listen(authStateProvider, (_, __) => notifier.notify());
-  ref.listen(authGuardProvider, (_, __) => notifier.notify());
-  ref.listen(introStatusProvider, (_, __) => notifier.notify());
+  ref.listen(authStateProvider, (_, _) => notifier.notify());
+  ref.listen(authGuardProvider, (_, _) => notifier.notify());
+  ref.listen(introStatusProvider, (_, _) => notifier.notify());
   return notifier;
 }
 
@@ -69,12 +69,23 @@ GoRouter router(Ref ref) {
         return AppRoutes.login;
       }
 
+      final user = authState.hasValue ? authState.value : null;
+
       if (isAuth &&
           (location == AppRoutes.login || location == AppRoutes.intro)) {
-        final user = authState.hasValue ? authState.value : null;
         return user != null && user.isCompanion
             ? AppRoutes.companionHome
             : AppRoutes.home;
+      }
+
+      if (isAuth && user != null && !isOnPublicRoute) {
+        final isOnCompanionRoute = location.startsWith('/companion');
+        if (user.isCompanion && !isOnCompanionRoute) {
+          return AppRoutes.companionHome;
+        }
+        if (!user.isCompanion && isOnCompanionRoute) {
+          return AppRoutes.home;
+        }
       }
 
       return null;

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v3"
 
 	"github.com/contigo/backend/internal/requests/application/usecase"
@@ -34,9 +33,12 @@ func (h *RequestHandler) List(c fiber.Ctx) error {
 	role := c.Query("role", "client")
 	var reqs interface{}
 	var err error
-	if role == "companion" {
+	switch role {
+	case "companion":
 		reqs, err = h.uc.ListByCompanion(c.Context(), userID)
-	} else {
+	case "pending":
+		reqs, err = h.uc.ListPending(c.Context())
+	default:
 		reqs, err = h.uc.ListByClient(c.Context(), userID)
 	}
 	if err != nil {
@@ -72,17 +74,4 @@ func (h *RequestHandler) Reject(c fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, fiber.StatusOK, req)
-}
-
-func (h *RequestHandler) HandleWS(c *websocket.Conn) {
-	userID := c.Locals("user_id").(string)
-	h.uc.Hub.Register(userID, c)
-	defer h.uc.Hub.Unregister(userID, c)
-
-	for {
-		_, _, err := c.ReadMessage()
-		if err != nil {
-			break
-		}
-	}
 }

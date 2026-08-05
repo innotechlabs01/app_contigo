@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:contigo_mobile/features/companion/presentation/screens/companion_shell.dart';
-import 'package:contigo_mobile/core/theme/extensions.dart';
 import 'package:contigo_mobile/core/theme/light_theme.dart';
 
 void main() {

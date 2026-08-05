@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/extensions.dart';
 import '../../../../shared/widgets/contigo_button.dart';
+import '../../../../shared/widgets/contigo_input.dart';
 import '../widgets/meeting_point_search_widget.dart';
 import '../../domain/entities/meeting_point.dart';
+import '../view_models/request_form_view_model.dart';
 
 class _CategoryData {
   final IconData icon;
@@ -22,19 +25,23 @@ const _categories = [
   _CategoryData(Icons.directions_car, 'Movilidad', 'Acompanamiento Vehicular'),
 ];
 
-class ServicesScreen extends StatefulWidget {
+class ServicesScreen extends ConsumerStatefulWidget {
   const ServicesScreen({super.key});
 
   @override
-  State<ServicesScreen> createState() => _ServicesScreenState();
+  ConsumerState<ServicesScreen> createState() => _ServicesScreenState();
 }
 
-class _ServicesScreenState extends State<ServicesScreen> {
+class _ServicesScreenState extends ConsumerState<ServicesScreen> {
   int _selectedCategory = -1;
   String? _date;
   String? _time;
   String? _location;
   MeetingPoint? _selectedMeetingPoint;
+  final _fullNameCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _notesCtrl = TextEditingController();
 
   void _onCategorySelected(int index) {
     setState(() => _selectedCategory = index);
@@ -48,10 +55,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       firstDate: now,
       lastDate: DateTime(now.year + 1),
       builder: (context, child) {
-        return Theme(
-          data: Theme.of(context),
-          child: child!,
-        );
+        return Theme(data: Theme.of(context), child: child!);
       },
     );
     if (picked != null) {
@@ -68,10 +72,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       context: context,
       initialTime: TimeOfDay(hour: now.hour + 1, minute: 0),
       builder: (context, child) {
-        return Theme(
-          data: Theme.of(context),
-          child: child!,
-        );
+        return Theme(data: Theme.of(context), child: child!);
       },
     );
     if (picked != null) {
@@ -82,18 +83,38 @@ class _ServicesScreenState extends State<ServicesScreen> {
     }
   }
 
-  void _submitRequest() {
-    final location = _selectedMeetingPoint?.address ?? _location ?? '';
-    final category = _selectedCategory >= 0 ? _categories[_selectedCategory].title : '';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Solicitud enviada exitosamente'
-          '${category.isNotEmpty ? ' - $category' : ''}'
-          '${location.isNotEmpty ? ' en $location' : ''}',
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    _fullNameCtrl.dispose();
+    _phoneCtrl.dispose();
+    _addressCtrl.dispose();
+    _notesCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitRequest() async {
+    if (_selectedCategory < 0) return;
+    if (_fullNameCtrl.text.trim().isEmpty) return;
+    if (_phoneCtrl.text.trim().isEmpty) return;
+
+    final meetingPoint = _selectedMeetingPoint?.address ?? _location;
+    final dateStr = <String>[?_date, ?_time].join(' ');
+
+    await ref
+        .read(requestSubmissionProvider.notifier)
+        .submit(
+          RequestFormData(
+            serviceType: _categories[_selectedCategory].title,
+            fullName: _fullNameCtrl.text.trim(),
+            phone: _phoneCtrl.text.trim(),
+            address: _addressCtrl.text.trim(),
+            meetingPoint: meetingPoint,
+            preferredDate: dateStr.isNotEmpty ? dateStr : null,
+            notes: _notesCtrl.text.trim(),
+          ),
+        );
+
+    if (!mounted) return;
     context.push(AppRoutes.requests);
   }
 
@@ -127,11 +148,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
               SizedBox(height: spacing.lg),
               _buildSectionHeader(colors, typography),
               SizedBox(height: spacing.lg),
+              _buildContactFields(colors, radius, spacing),
+              SizedBox(height: spacing.xl),
               _buildDateTimeSection(colors, typography, radius, spacing),
               SizedBox(height: spacing.xl),
               _buildLocationSection(colors, typography, radius, spacing),
               SizedBox(height: spacing.xl),
               _buildCompanionSection(colors, typography, radius, spacing),
+              SizedBox(height: spacing.xl),
+              _buildNotesField(colors, radius, spacing),
               SizedBox(height: spacing.xl),
               _buildSubmitButton(colors, typography, radius),
               SizedBox(height: spacing.md),
@@ -141,6 +166,82 @@ class _ServicesScreenState extends State<ServicesScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildContactFields(
+    ContigoColors colors,
+    ContigoRadius radius,
+    ContigoSpacing spacing,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.person, size: 20, color: colors.primary),
+            SizedBox(width: spacing.sm),
+            Text(
+              'Tus datos',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(color: colors.onSurface),
+            ),
+          ],
+        ),
+        SizedBox(height: spacing.md),
+        ContigoInput(
+          label: 'Nombre completo',
+          controller: _fullNameCtrl,
+          prefixIcon: Icons.person_outline,
+          keyboardType: TextInputType.name,
+        ),
+        SizedBox(height: spacing.md),
+        ContigoInput(
+          label: 'Teléfono',
+          controller: _phoneCtrl,
+          prefixIcon: Icons.phone_outlined,
+          keyboardType: TextInputType.phone,
+        ),
+        SizedBox(height: spacing.md),
+        ContigoInput(
+          label: 'Dirección',
+          controller: _addressCtrl,
+          prefixIcon: Icons.home_outlined,
+          keyboardType: TextInputType.streetAddress,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotesField(
+    ContigoColors colors,
+    ContigoRadius radius,
+    ContigoSpacing spacing,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.notes, size: 20, color: colors.primary),
+            SizedBox(width: spacing.sm),
+            Text(
+              'Notas adicionales',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(color: colors.onSurface),
+            ),
+          ],
+        ),
+        SizedBox(height: spacing.md),
+        ContigoInput(
+          label: 'Notas (opcional)',
+          controller: _notesCtrl,
+          prefixIcon: Icons.edit_note,
+          maxLines: 3,
+        ),
+      ],
     );
   }
 
@@ -433,9 +534,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 ),
                 child: Text(
                   'Disponible',
-                  style: typography.labelSmall.copyWith(
-                    color: colors.primary,
-                  ),
+                  style: typography.labelSmall.copyWith(color: colors.primary),
                 ),
               ),
             ],
@@ -531,4 +630,3 @@ class _TapCard extends StatelessWidget {
     );
   }
 }
-

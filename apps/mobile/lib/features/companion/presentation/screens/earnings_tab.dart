@@ -14,19 +14,21 @@ class EarningsTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: AppBar(
-        title: const Text('Ganancias'),
-      ),
+      appBar: AppBar(title: const Text('Ganancias')),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _BalanceCard(colors: colors, typography: typography, radius: radius),
+            _BalanceCard(
+              colors: colors,
+              typography: typography,
+              radius: radius,
+            ),
             SizedBox(height: 24),
             Text(
               'Historial de ganancias',
-              style: typography.titleMedium?.copyWith(color: colors.onSurface),
+              style: typography.titleMedium.copyWith(color: colors.onSurface),
             ),
             SizedBox(height: 12),
             _EarningsItem(
@@ -78,12 +80,14 @@ class _BalanceCard extends StatelessWidget {
         children: [
           Text(
             'Ganancias de este mes',
-            style: typography.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            style: typography.bodySmall.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
           ),
           SizedBox(height: 8),
           Text(
             '\$1,250.00',
-            style: typography.headlineLarge?.copyWith(color: colors.primary),
+            style: typography.headlineLarge.copyWith(color: colors.primary),
           ),
         ],
       ),
@@ -125,19 +129,23 @@ class _EarningsItem extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: typography.bodyMedium?.copyWith(color: colors.onSurface),
+                  style: typography.bodyMedium.copyWith(
+                    color: colors.onSurface,
+                  ),
                 ),
                 SizedBox(height: 4),
                 Text(
                   date,
-                  style: typography.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                  style: typography.bodySmall.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
           ),
           Text(
             amount,
-            style: typography.titleMedium?.copyWith(color: colors.primary),
+            style: typography.titleMedium.copyWith(color: colors.primary),
           ),
         ],
       ),

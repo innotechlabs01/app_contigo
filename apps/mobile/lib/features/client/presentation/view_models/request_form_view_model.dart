@@ -1,17 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../domain/entities/service_request.dart';
-import '../../domain/entities/request_status.dart';
-import '../../domain/repositories/request_repository.dart';
-import '../../data/repositories/request_repository_impl.dart';
-import '../../data/datasources/request_api_datasource.dart';
 
 part 'request_form_view_model.g.dart';
-
-@riverpod
-RequestRepository requestRepository(Ref ref) {
-  return RequestRepositoryImpl(RequestApiDatasource());
-}
 
 @riverpod
 class RequestFormStep extends _$RequestFormStep {
@@ -34,18 +26,18 @@ class RequestFormStep extends _$RequestFormStep {
 class RequestFormData {
   final String serviceType;
   final String fullName;
-  final String idNumber;
   final String phone;
   final String address;
-  final DateTime? preferredDate;
+  final String? meetingPoint;
+  final String? preferredDate;
   final String notes;
 
   const RequestFormData({
     this.serviceType = '',
     this.fullName = '',
-    this.idNumber = '',
     this.phone = '',
     this.address = '',
+    this.meetingPoint,
     this.preferredDate,
     this.notes = '',
   });
@@ -53,18 +45,18 @@ class RequestFormData {
   RequestFormData copyWith({
     String? serviceType,
     String? fullName,
-    String? idNumber,
     String? phone,
     String? address,
-    DateTime? preferredDate,
+    String? meetingPoint,
+    String? preferredDate,
     String? notes,
   }) {
     return RequestFormData(
       serviceType: serviceType ?? this.serviceType,
       fullName: fullName ?? this.fullName,
-      idNumber: idNumber ?? this.idNumber,
       phone: phone ?? this.phone,
       address: address ?? this.address,
+      meetingPoint: meetingPoint ?? this.meetingPoint,
       preferredDate: preferredDate ?? this.preferredDate,
       notes: notes ?? this.notes,
     );
@@ -76,26 +68,20 @@ class RequestFormDataState extends _$RequestFormDataState {
   @override
   RequestFormData build() => const RequestFormData();
 
-  void updateServiceType(String v) =>
-      state = state.copyWith(serviceType: v);
+  void updateServiceType(String v) => state = state.copyWith(serviceType: v);
 
-  void updateFullName(String v) =>
-      state = state.copyWith(fullName: v);
+  void updateFullName(String v) => state = state.copyWith(fullName: v);
 
-  void updateIdNumber(String v) =>
-      state = state.copyWith(idNumber: v);
+  void updatePhone(String v) => state = state.copyWith(phone: v);
 
-  void updatePhone(String v) =>
-      state = state.copyWith(phone: v);
+  void updateAddress(String v) => state = state.copyWith(address: v);
 
-  void updateAddress(String v) =>
-      state = state.copyWith(address: v);
+  void updateMeetingPoint(String v) => state = state.copyWith(meetingPoint: v);
 
-  void updatePreferredDate(DateTime v) =>
+  void updatePreferredDate(String v) =>
       state = state.copyWith(preferredDate: v);
 
-  void updateNotes(String v) =>
-      state = state.copyWith(notes: v);
+  void updateNotes(String v) => state = state.copyWith(notes: v);
 }
 
 @riverpod
@@ -107,18 +93,15 @@ class RequestSubmission extends _$RequestSubmission {
     state = const AsyncValue.loading();
     try {
       final repo = ref.read(requestRepositoryProvider);
-      final request = await repo.createRequest(ServiceRequest(
-        id: '',
+      final request = await repo.createRequest(
         serviceType: data.serviceType,
         fullName: data.fullName,
-        idNumber: data.idNumber,
         phone: data.phone,
         address: data.address,
+        meetingPoint: data.meetingPoint,
         preferredDate: data.preferredDate,
-        notes: data.notes,
-        status: RequestStatus.pending,
-        createdAt: DateTime.now(),
-      ));
+        notes: data.notes.isEmpty ? null : data.notes,
+      );
       state = AsyncValue.data(request);
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);

@@ -10,10 +10,11 @@ import (
 // Logger returns a middleware that logs requests using Zap.
 func Logger() fiber.Handler {
 	return func(c fiber.Ctx) error {
-		// Get request ID
 		requestID := c.Get("X-Request-ID")
 		if requestID == "" {
-			requestID = c.Locals("requestid").(string)
+			if rid := c.Locals("requestid"); rid != nil {
+				requestID = rid.(string)
+			}
 		}
 
 		// Add correlation ID to logger

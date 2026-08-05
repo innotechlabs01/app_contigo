@@ -41,8 +41,8 @@ class IncomingRequestCard extends ConsumerWidget {
           _InfoRow(icon: Icons.category, label: request.serviceType),
           if (request.address != null)
             _InfoRow(icon: Icons.location_on, label: request.address!),
-          if (request.preferredDate != null)
-            _InfoRow(icon: Icons.calendar_today, label: request.preferredDate!),
+          if (request.preferredDate.isNotEmpty)
+            _InfoRow(icon: Icons.calendar_today, label: request.preferredDate),
           if (request.notes != null && request.notes!.isNotEmpty)
             _InfoRow(icon: Icons.notes, label: request.notes!),
           if (isPending) ...[

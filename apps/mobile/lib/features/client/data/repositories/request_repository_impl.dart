@@ -8,13 +8,34 @@ class RequestRepositoryImpl implements RequestRepository {
   RequestRepositoryImpl(this._datasource);
 
   @override
-  Future<ServiceRequest> createRequest(ServiceRequest request) async {
-    return await _datasource.createRequest(request);
+  Future<ServiceRequest> createRequest({
+    required String serviceType,
+    required String fullName,
+    required String phone,
+    String? address,
+    String? meetingPoint,
+    String? preferredDate,
+    String? notes,
+  }) async {
+    return await _datasource.createRequest(
+      serviceType: serviceType,
+      fullName: fullName,
+      phone: phone,
+      address: address,
+      meetingPoint: meetingPoint,
+      preferredDate: preferredDate,
+      notes: notes,
+    );
   }
 
   @override
   Future<List<ServiceRequest>> getMyRequests() async {
     return await _datasource.getMyRequests();
+  }
+
+  @override
+  Future<List<ServiceRequest>> getPendingRequests() async {
+    return await _datasource.getPendingRequests();
   }
 
   @override
@@ -30,10 +51,5 @@ class RequestRepositoryImpl implements RequestRepository {
   @override
   Future<ServiceRequest> rejectRequest(String requestId) async {
     return await _datasource.rejectRequest(requestId);
-  }
-
-  @override
-  Future<bool> checkId(String idNumber) async {
-    return await _datasource.checkId(idNumber);
   }
 }

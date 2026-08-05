@@ -11,5 +11,6 @@ type RequestRepository interface {
 	GetByID(ctx context.Context, id string) (*entity.ServiceRequest, error)
 	ListByClient(ctx context.Context, clientID string) ([]*entity.ServiceRequest, error)
 	ListByCompanion(ctx context.Context, companionID string) ([]*entity.ServiceRequest, error)
-	UpdateStatus(ctx context.Context, id, status string) error
+	ListPending(ctx context.Context) ([]*entity.ServiceRequest, error)
+	UpdateStatus(ctx context.Context, id, status, companionID string) error
 }

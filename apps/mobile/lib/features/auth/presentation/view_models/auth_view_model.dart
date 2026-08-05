@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/router/guards.dart';
 import '../../data/datasources/clerk_auth_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -26,6 +27,7 @@ Future<User?> authState(Ref ref) async {
   if (ref.mounted) {
     if (user != null) {
       ref.read(authGuardProvider.notifier).authenticate();
+      _syncAuthToken(ref);
     } else {
       ref.read(authGuardProvider.notifier).unauthenticate();
     }
@@ -53,6 +55,7 @@ class LoginViewModel extends _$LoginViewModel {
     if (user != null) {
       ref.read(authGuardProvider.notifier).authenticate();
       ref.invalidate(authStateProvider);
+      _syncAuthToken(ref);
     }
 
     return user;
@@ -71,7 +74,14 @@ class SignOutViewModel extends _$SignOutViewModel {
     state = await AsyncValue.guard(() => useCase());
     ref.read(authGuardProvider.notifier).unauthenticate();
     ref.invalidate(authStateProvider);
+    setAuthToken(null);
   }
+}
+
+Future<void> _syncAuthToken(Ref ref) async {
+  final storage = ref.read(secureStorageServiceProvider);
+  final token = await storage.read('clerk_session_token');
+  setAuthToken(token);
 }
 
 Future<void> mockSignIn(Ref ref, User user) async {
@@ -86,4 +96,5 @@ Future<void> mockSignIn(Ref ref, User user) async {
   );
   ref.read(authGuardProvider.notifier).authenticate();
   ref.invalidate(authStateProvider);
+  setAuthToken('mock_token');
 }

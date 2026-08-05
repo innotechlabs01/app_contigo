@@ -3,8 +3,8 @@ sealed class WsEvent {
   const WsEvent(this.request);
 }
 
-class RequestPending extends WsEvent {
-  const RequestPending(super.request);
+class RequestCreated extends WsEvent {
+  const RequestCreated(super.request);
 }
 
 class RequestAccepted extends WsEvent {

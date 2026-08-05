@@ -14,21 +14,23 @@ class HomeTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: AppBar(
-        title: const Text('Panel de Companero'),
-      ),
+      appBar: AppBar(title: const Text('Panel de Companero')),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _WelcomeCard(colors: colors, typography: typography, radius: radius),
+            _WelcomeCard(
+              colors: colors,
+              typography: typography,
+              radius: radius,
+            ),
             SizedBox(height: 16),
             _StatsRow(colors: colors, typography: typography, radius: radius),
             SizedBox(height: 32),
             Text(
               'Proximas Sesiones',
-              style: typography.titleLarge?.copyWith(color: colors.onSurface),
+              style: typography.titleLarge.copyWith(color: colors.onSurface),
             ),
             SizedBox(height: 12),
             _SessionCard(
@@ -73,11 +75,11 @@ class _WelcomeCard extends StatelessWidget {
       children: [
         Text(
           'Bienvenido,',
-          style: typography.bodyLarge?.copyWith(color: colors.onSurfaceVariant),
+          style: typography.bodyLarge.copyWith(color: colors.onSurfaceVariant),
         ),
         Text(
           'Companero',
-          style: typography.headlineMedium?.copyWith(color: colors.onSurface),
+          style: typography.headlineMedium.copyWith(color: colors.onSurface),
         ),
       ],
     );
@@ -117,12 +119,14 @@ class _StatCard extends StatelessWidget {
           SizedBox(height: 12),
           Text(
             value,
-            style: typography.headlineSmall?.copyWith(color: colors.onSurface),
+            style: typography.headlineSmall.copyWith(color: colors.onSurface),
           ),
           SizedBox(height: 4),
           Text(
             label,
-            style: typography.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            style: typography.bodySmall.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -202,17 +206,19 @@ class _SessionCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: typography.titleSmall?.copyWith(color: colors.onSurface),
+            style: typography.titleSmall.copyWith(color: colors.onSurface),
           ),
           SizedBox(height: 4),
           Text(
             client,
-            style: typography.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            style: typography.bodySmall.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
           ),
           SizedBox(height: 4),
           Text(
             date,
-            style: typography.bodySmall?.copyWith(color: colors.primary),
+            style: typography.bodySmall.copyWith(color: colors.primary),
           ),
         ],
       ),
