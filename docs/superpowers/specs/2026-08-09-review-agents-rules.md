@@ -2,7 +2,7 @@
 
 ## Overview
 
-Crear un sistema de revisión obligatoria antes de cualquier cambio en el monorepo Contigo. Se definen agentes especializados de opencode (arquitecto, dev-frontend, dev-backend, dev-flutter, qa, hacker) y una regla de workflow que obliga al agente principal a consultarlos antes de escribir código.
+Crear un sistema de revisión obligatoria antes de cualquier cambio en el monorepo Contigo. Se definen agentes especializados de opencode (arquitecto, dev-ux, dev-frontend, dev-backend, dev-flutter, qa, hacker) y una regla de workflow que obliga al agente principal a consultarlos antes de escribir código.
 
 **Objetivo:** Ningún cambio se implementa sin que el arquitecto y el dev del stack afectado lo hayan revisado. Después de implementar, QA valida y Hacker revisa seguridad.
 
@@ -17,6 +17,7 @@ contigo/
 ├── .opencode/
 │   └── agent/
 │       ├── arquitecto.md       # Revisa arquitectura y coherencia con specs
+│       ├── dev-ux.md           # Revisa UI/UX, diseño y estándares visuales
 │       ├── dev-frontend.md     # Revisa apps/web (Next.js)
 │       ├── dev-backend.md      # Revisa apps/backend (Go)
 │       ├── dev-flutter.md      # Revisa apps/mobile (Flutter)
@@ -35,6 +36,7 @@ contigo/
 | Agente | Description / cuándo invocar |
 |--------|------------------------------|
 | `arquitecto` | Antes de cualquier cambio: valida arquitectura, clean architecture, coherencia con `specs/`, decisiones técnicas, impacto entre apps |
+| `dev-ux` | Cuando el cambio toca UI/UX o diseño en cualquier app: valida estándares visuales, design system, accesibilidad y mejores prácticas de diseño, informando al frontend |
 | `dev-frontend` | Cuando el cambio toca `apps/web` (Next.js 14, React 18, Tailwind, Zustand, Zod, Radix UI) |
 | `dev-backend` | Cuando el cambio toca `apps/backend` (Go, Fiber, clean architecture, handlers, repos, WebSocket, Clerk JWT) |
 | `dev-flutter` | Cuando el cambio toca `apps/mobile` (Flutter 3.35+, Material 3, Feature-First, Riverpod 3.x, go_router, Dio, Freezed) |
@@ -48,9 +50,9 @@ contigo/
 El archivo `AGENTS.md` en la raíz del monorepo contiene la regla de workflow. Es auto-cargado por opencode en cada sesión. La regla:
 
 1. **Antes de escribir código**, el agente principal DEBE invocar al subagente `arquitecto` y al dev del stack afectado:
-   - Cambio en `apps/web` → `dev-frontend`
+   - Cambio en `apps/web` → `dev-frontend` (+ `dev-ux` si involucra UI/UX o diseño)
    - Cambio en `apps/backend` → `dev-backend`
-   - Cambio en `apps/mobile` → `dev-flutter`
+   - Cambio en `apps/mobile` → `dev-flutter` (+ `dev-ux` si involucra UI/UX o diseño)
    - Cambio que toca varios stacks → consultar todos los afectados
 2. Los revisores pueden aprobar, sugerir cambios o rechazar. El agente principal NO edita hasta que el arquitecto y el dev afectado aprueben (o el usuario lo autorice explícitamente).
 3. **Después de implementar**, invocar a `qa` para validar tests/lint/funcionamiento.
