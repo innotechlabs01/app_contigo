@@ -8,7 +8,7 @@ Monorepo de la plataforma Contigo (salud y acompañamiento para adultos mayores 
 apps/
 ├── backend/   # Go 1.26, Fiber v3, Clean Architecture (domain/application/interfaces/infrastructure/pkg)
 ├── mobile/    # Flutter 3.35+, Material 3, Feature-First + Clean + MVVM, Riverpod 3.x
-└── web/       # Next.js 14 App Router, React 18, TypeScript, Tailwind, Zustand, Zod, Radix UI
+└── web/       # Next.js 14 App Router, React 18, TypeScript, Tailwind, Supabase, Radix UI
 specs/         # Documentación de producto, flows, API, UI, arquitectura, navegación y reglas
 ```
 
