@@ -16,7 +16,7 @@
 |---------|-----------------|
 | `contigo/.opencode/agent/arquitecto.md` | Revisa arquitectura, clean architecture, coherencia con `specs/`, decisiones técnicas, impacto entre apps |
 | `contigo/.opencode/agent/dev-ux.md` | Revisa UI/UX y diseño en cualquier app: design system, estándares visuales, accesibilidad; informa al frontend |
-| `contigo/.opencode/agent/dev-frontend.md` | Revisa cambios en `apps/web` (Next.js 14, React 18, Tailwind, Zustand, Zod, Radix) |
+| `contigo/.opencode/agent/dev-frontend.md` | Revisa cambios en `apps/web` (Next.js 14, React 18, Tailwind, Supabase, Radix) |
 | `contigo/.opencode/agent/dev-backend.md` | Revisa cambios en `apps/backend` (Go, Fiber, clean architecture, handlers, repos, WebSocket, Clerk JWT) |
 | `contigo/.opencode/agent/dev-flutter.md` | Revisa cambios en `apps/mobile` (Flutter 3.35+, Material 3, Feature-First, Riverpod 3.x, go_router, Dio, Freezed) |
 | `contigo/.opencode/agent/qa.md` | Ejecuta tests, lint y verifica funcionamiento de lo implementado |
@@ -47,7 +47,7 @@ Tu rol es REVISAR, nunca editar. Antes de que cualquier cambio se implemente, de
 1. **Arquitectura y Clean Architecture**: el cambio respeta la regla de dependencia (las dependencias apuntan hacia adentro: interfaces → application → domain; domain nunca depende de infraestructura).
 2. **Coherencia con los specs**: lee los archivos en `specs/` (product, flows, api, ui, architecture, components, navigation, rules) y verifica que el cambio sea consistente con ellos. Si el spec no existe para el área, dilo explícitamente.
 3. **Impacto entre apps**: el monorepo tiene `apps/web` (Next.js), `apps/backend` (Go) y `apps/mobile` (Flutter). Evalúa si el cambio en una app rompe contratos con las otras.
-4. **Decisiones técnicas**: valida la elección de stack y patrones. Web: Next.js 14 App Router, Tailwind, Zustand, Zod, Radix UI. Backend: Go 1.26, Fiber v3, Viper, Zap, Clerk JWT, TursoDB, manual DI. Mobile: Flutter 3.35+, Material 3, Feature-First + Clean Architecture + MVVM, Riverpod 3.x, go_router, Dio, Freezed.
+4. **Decisiones técnicas**: valida la elección de stack y patrones. Web: Next.js 14 App Router, Tailwind, Radix UI, Supabase. Backend: Go 1.26, Fiber v3, Viper, Zap, Clerk JWT, TursoDB, manual DI. Mobile: Flutter 3.35+, Material 3, Feature-First + Clean Architecture + MVVM, Riverpod 3.x, go_router, Dio, Freezed.
 5. **Scope y tamaño**: el cambio es pequeño y enfocado, o está correctamente descompuesto.
 
 Formato de respuesta (en español):
@@ -93,7 +93,7 @@ Eres el Dev Frontend Senior del monorepo Contigo, especializado en `apps/web`.
 
 Tu rol es REVISAR, nunca editar. Cuando se proponga un cambio que toca `apps/web`, valida:
 
-1. **Stack y patrones**: Next.js 14 App Router, React 18, TypeScript, Tailwind CSS (primary #00668A, font Lexend), Zustand para estado, Zod + react-hook-form para validación, Radix UI para primitivas accesibles, Lucide React para iconos.
+1. **Stack y patrones**: Next.js 14 App Router, React 18, TypeScript, Tailwind CSS, Supabase (@supabase/supabase-js) para datos, Radix UI para primitivas accesibles, Lucide React para iconos.
 2. **Clean Architecture**: respeta la estructura de `src/` (app, components/ui, components/onboarding, domain, infrastructure, lib). La lógica de negocio va en `domain/`, el estado en `infrastructure/store/`, las páginas en `app/`.
 3. **Reglas de negocio** (de `specs/rules/validation_rules.md` y `specs/flows/onboarding.md`):
    - Documentos: PDF, DOC, DOCX; máx 10MB.
@@ -410,7 +410,7 @@ Monorepo de la plataforma Contigo (salud y acompañamiento para adultos mayores 
 apps/
 ├── backend/   # Go 1.26, Fiber v3, Clean Architecture (domain/application/interfaces/infrastructure/pkg)
 ├── mobile/    # Flutter 3.35+, Material 3, Feature-First + Clean + MVVM, Riverpod 3.x
-└── web/       # Next.js 14 App Router, React 18, TypeScript, Tailwind, Zustand, Zod, Radix UI
+└── web/       # Next.js 14 App Router, React 18, TypeScript, Tailwind, Supabase, Radix UI
 specs/         # Documentación de producto, flows, API, UI, arquitectura, navegación y reglas
 ```
 
@@ -437,7 +437,7 @@ Antes de escribir cualquier código, el agente principal DEBE invocar a los agen
 
 | App | Stack | Comandos de verificación |
 |-----|-------|--------------------------|
-| `apps/web` | Next.js 14, React 18, TS, Tailwind, Zustand, Zod, Radix | `npm run lint`, `npm run build` |
+| `apps/web` | Next.js 14, React 18, TS, Tailwind, Supabase, Radix | `npm run lint`, `npm run build` |
 | `apps/backend` | Go 1.26, Fiber v3, Clerk JWT, TursoDB | `go test ./...`, `make lint` |
 | `apps/mobile` | Flutter 3.35+, Riverpod 3.x, go_router, Dio, Freezed | `flutter analyze`, `flutter test` |
 
