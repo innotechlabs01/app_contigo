@@ -47,7 +47,7 @@ Tu rol es REVISAR, nunca editar. Antes de que cualquier cambio se implemente, de
 1. **Arquitectura y Clean Architecture**: el cambio respeta la regla de dependencia (las dependencias apuntan hacia adentro: interfaces → application → domain; domain nunca depende de infraestructura).
 2. **Coherencia con los specs**: lee los archivos en `specs/` (product, flows, api, ui, architecture, components, navigation, rules) y verifica que el cambio sea consistente con ellos. Si el spec no existe para el área, dilo explícitamente.
 3. **Impacto entre apps**: el monorepo tiene `apps/web` (Next.js), `apps/backend` (Go) y `apps/mobile` (Flutter). Evalúa si el cambio en una app rompe contratos con las otras.
-4. **Decisiones técnicas**: valida la elección de stack y patrones. Web: Next.js 14 App Router, Tailwind, Zustand, Zod, Radix UI. Backend: Go 1.24, Fiber v3, Viper, Zap, Clerk JWT, TursoDB, manual DI. Mobile: Flutter 3.35+, Material 3, Feature-First + Clean Architecture + MVVM, Riverpod 3.x, go_router, Dio, Freezed.
+4. **Decisiones técnicas**: valida la elección de stack y patrones. Web: Next.js 14 App Router, Tailwind, Zustand, Zod, Radix UI. Backend: Go 1.26, Fiber v3, Viper, Zap, Clerk JWT, TursoDB, manual DI. Mobile: Flutter 3.35+, Material 3, Feature-First + Clean Architecture + MVVM, Riverpod 3.x, go_router, Dio, Freezed.
 5. **Scope y tamaño**: el cambio es pequeño y enfocado, o está correctamente descompuesto.
 
 Formato de respuesta (en español):
@@ -202,13 +202,13 @@ Eres el Dev Backend Senior del monorepo Contigo, especializado en `apps/backend`
 
 Tu rol es REVISAR, nunca editar. Cuando se proponga un cambio que toca `apps/backend`, valida:
 
-1. **Stack y patrones**: Go 1.24, Fiber v3, Viper (config), Zap (logging), go-playground/validator, Clerk JWT via JWKS, TursoDB/libSQL, manual DI (sin codegen), testify + gomock, OpenAPI/Swagger.
+1. **Stack y patrones**: Go 1.26 (ver `go.mod`), Fiber v3, Viper (config), Zap (logging), go-playground/validator, Clerk JWT via JWKS, TursoDB/libSQL, manual DI (sin codegen), testify, OpenAPI/Swagger.
 2. **Clean Architecture**: respeta las capas — domain (entities, repository interfaces, domain services, typed errors), application (use cases, DTOs), interfaces (HTTP handlers, middleware), infrastructure (DB, Clerk, storage, events), pkg (logger, errors, response, validator). Dependencias apuntan hacia adentro.
 3. **Patrón repository**: los repositorios implementan interfaces de domain; handlers no acceden a DB directamente.
 4. **Manejo de errores**: usa `pkg/errors` (AppError con códigos tipados) y `pkg/response` (JSON estándar: success/data/error). Mapeo de errores a códigos HTTP correctos.
 5. **Validación**: toda entrada es validada con `pkg/validator`; respuestas no exponen datos sensibles.
 6. **WebSocket**: si toca el hub de eventos en tiempo real, verifica concurrencia y manejo de conexiones.
-7. **Tests**: los cambios vienen con tests (table-driven, mocks con gomock). Coverage mínimo 80%.
+7. **Tests**: los cambios vienen con tests (table-driven, mocks). Coverage mínimo 80%.
 
 Formato de respuesta (en español):
 - **Veredicto:** APROBADO / APROBADO CON CAMBIOS / RECHAZADO
@@ -408,7 +408,7 @@ Monorepo de la plataforma Contigo (salud y acompañamiento para adultos mayores 
 
 ```
 apps/
-├── backend/   # Go 1.24, Fiber v3, Clean Architecture (domain/application/interfaces/infrastructure/pkg)
+├── backend/   # Go 1.26, Fiber v3, Clean Architecture (domain/application/interfaces/infrastructure/pkg)
 ├── mobile/    # Flutter 3.35+, Material 3, Feature-First + Clean + MVVM, Riverpod 3.x
 └── web/       # Next.js 14 App Router, React 18, TypeScript, Tailwind, Zustand, Zod, Radix UI
 specs/         # Documentación de producto, flows, API, UI, arquitectura, navegación y reglas
@@ -438,7 +438,7 @@ Antes de escribir cualquier código, el agente principal DEBE invocar a los agen
 | App | Stack | Comandos de verificación |
 |-----|-------|--------------------------|
 | `apps/web` | Next.js 14, React 18, TS, Tailwind, Zustand, Zod, Radix | `npm run lint`, `npm run build` |
-| `apps/backend` | Go 1.24, Fiber v3, Clerk JWT, TursoDB | `go test ./...`, `make lint` |
+| `apps/backend` | Go 1.26, Fiber v3, Clerk JWT, TursoDB | `go test ./...`, `make lint` |
 | `apps/mobile` | Flutter 3.35+, Riverpod 3.x, go_router, Dio, Freezed | `flutter analyze`, `flutter test` |
 
 ## Skills disponibles
