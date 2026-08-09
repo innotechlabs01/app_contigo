@@ -35,7 +35,7 @@ Antes de escribir cualquier código, el agente principal DEBE invocar a los agen
 
 | App | Stack | Comandos de verificación |
 |-----|-------|--------------------------|
-| `apps/web` | Next.js 14, React 18, TS, Tailwind, Zustand, Zod, Radix | `npm run lint`, `npm run build` |
+| `apps/web` | Next.js 14, React 18, TS, Tailwind, Radix UI, Supabase | `npm run lint`, `npm run build` |
 | `apps/backend` | Go 1.26, Fiber v3, Clerk JWT, TursoDB | `go test ./...`, `make lint` |
 | `apps/mobile` | Flutter 3.35+, Riverpod 3.x, go_router, Dio, Freezed | `flutter analyze`, `flutter test` |
 
