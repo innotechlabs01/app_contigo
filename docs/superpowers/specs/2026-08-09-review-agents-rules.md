@@ -37,7 +37,7 @@ contigo/
 |--------|------------------------------|
 | `arquitecto` | Antes de cualquier cambio: valida arquitectura, clean architecture, coherencia con `specs/`, decisiones técnicas, impacto entre apps |
 | `dev-ux` | Cuando el cambio toca UI/UX o diseño en cualquier app: valida estándares visuales, design system, accesibilidad y mejores prácticas de diseño (verificadas con context7), informando al frontend |
-| `dev-frontend` | Cuando el cambio toca `apps/web` (Next.js 14, React 18, Tailwind, Zustand, Zod, Radix UI) |
+| `dev-frontend` | Cuando el cambio toca `apps/web` (Next.js 14, React 18, Tailwind, Supabase, Radix UI) |
 | `dev-backend` | Cuando el cambio toca `apps/backend` (Go 1.26, Fiber, clean architecture, handlers, repos, WebSocket, Clerk JWT) |
 | `dev-flutter` | Cuando el cambio toca `apps/mobile` (Flutter 3.35+, Material 3, Feature-First, Riverpod 3.x, go_router, Dio, Freezed) |
 | `qa` | Después de implementar: ejecuta tests, lint y verifica que todo funcione |
