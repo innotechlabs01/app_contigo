@@ -15,8 +15,20 @@ func NewRequestHandler(uc *usecase.RequestUseCase) *RequestHandler {
 	return &RequestHandler{uc: uc}
 }
 
+// currentUserID returns the authenticated user id set by the auth middleware.
+func currentUserID(c fiber.Ctx) (string, error) {
+	userID, ok := c.Locals("user_id").(string)
+	if !ok || userID == "" {
+		return "", response.Unauthorized(c, "Unauthorized")
+	}
+	return userID, nil
+}
+
 func (h *RequestHandler) Create(c fiber.Ctx) error {
-	clientID := c.Locals("user_id").(string)
+	clientID, err := currentUserID(c)
+	if err != nil {
+		return err
+	}
 	var input usecase.CreateRequestInput
 	if err := response.ParseBody(c, &input); err != nil {
 		return err
@@ -29,16 +41,18 @@ func (h *RequestHandler) Create(c fiber.Ctx) error {
 }
 
 func (h *RequestHandler) List(c fiber.Ctx) error {
-	userID := c.Locals("user_id").(string)
-	role := c.Query("role", "client")
+	userID, err := currentUserID(c)
+	if err != nil {
+		return err
+	}
+	isCompanion, err := h.uc.IsCompanionUser(c.Context(), userID)
+	if err != nil {
+		return err
+	}
 	var reqs interface{}
-	var err error
-	switch role {
-	case "companion":
+	if isCompanion {
 		reqs, err = h.uc.ListByCompanion(c.Context(), userID)
-	case "pending":
-		reqs, err = h.uc.ListPending(c.Context())
-	default:
+	} else {
 		reqs, err = h.uc.ListByClient(c.Context(), userID)
 	}
 	if err != nil {
@@ -49,7 +63,11 @@ func (h *RequestHandler) List(c fiber.Ctx) error {
 
 func (h *RequestHandler) GetByID(c fiber.Ctx) error {
 	id := c.Params("id")
-	req, err := h.uc.GetByID(c.Context(), id)
+	userID, err := currentUserID(c)
+	if err != nil {
+		return err
+	}
+	req, err := h.uc.GetByID(c.Context(), id, userID)
 	if err != nil {
 		return err
 	}
@@ -58,7 +76,10 @@ func (h *RequestHandler) GetByID(c fiber.Ctx) error {
 
 func (h *RequestHandler) Accept(c fiber.Ctx) error {
 	id := c.Params("id")
-	companionID := c.Locals("user_id").(string)
+	companionID, err := currentUserID(c)
+	if err != nil {
+		return err
+	}
 	req, err := h.uc.Accept(c.Context(), id, companionID)
 	if err != nil {
 		return err
@@ -68,8 +89,24 @@ func (h *RequestHandler) Accept(c fiber.Ctx) error {
 
 func (h *RequestHandler) Reject(c fiber.Ctx) error {
 	id := c.Params("id")
-	companionID := c.Locals("user_id").(string)
+	companionID, err := currentUserID(c)
+	if err != nil {
+		return err
+	}
 	req, err := h.uc.Reject(c.Context(), id, companionID)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, fiber.StatusOK, req)
+}
+
+func (h *RequestHandler) Cancel(c fiber.Ctx) error {
+	id := c.Params("id")
+	userID, err := currentUserID(c)
+	if err != nil {
+		return err
+	}
+	req, err := h.uc.Cancel(c.Context(), id, userID)
 	if err != nil {
 		return err
 	}

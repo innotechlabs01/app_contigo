@@ -17,8 +17,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'client@test.com');
-  final _passwordController = TextEditingController(text: 'demo1234');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -97,7 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: spacing.sm),
                 Text(
-                  'Usa tus datos para continuar con el flujo de cliente o escribe companion@test.com para probar acompañante.',
+                  'Usa tus datos para continuar. Si aún no tienes cuenta, regístrate para crear tu perfil.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
@@ -152,8 +152,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(height: spacing.md),
                 ContigoButton(
                   variant: ContigoButtonVariant.secondary,
-                  label: 'Crear cuenta después',
-                  onPressed: () => context.go(AppRoutes.landing),
+                  label: 'Crear cuenta',
+                  icon: Icons.person_add_alt_1_rounded,
+                  onPressed: () => context.go(AppRoutes.register),
                 ),
               ],
             ),

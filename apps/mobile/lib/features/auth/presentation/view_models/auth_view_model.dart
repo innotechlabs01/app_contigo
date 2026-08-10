@@ -3,22 +3,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/router/guards.dart';
-import '../../data/datasources/clerk_auth_datasource.dart';
-import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user.dart';
-import '../../domain/repositories/auth_repository.dart';
 import '../../domain/use_cases/get_session_use_case.dart';
 import '../../domain/use_cases/sign_in_with_email_use_case.dart';
 import '../../domain/use_cases/sign_out_use_case.dart';
 
 part 'auth_view_model.g.dart';
-
-@riverpod
-AuthRepository authRepository(Ref ref) {
-  final storage = ref.watch(secureStorageServiceProvider);
-  final datasource = ClerkAuthDatasource(storage);
-  return AuthRepositoryImpl(datasource);
-}
 
 @Riverpod(keepAlive: true)
 Future<User?> authState(Ref ref) async {
@@ -82,19 +72,4 @@ Future<void> _syncAuthToken(Ref ref) async {
   final storage = ref.read(secureStorageServiceProvider);
   final token = await storage.read('clerk_session_token');
   setAuthToken(token);
-}
-
-Future<void> mockSignIn(Ref ref, User user) async {
-  final storage = ref.read(secureStorageServiceProvider);
-  final datasource = ClerkAuthDatasource(storage);
-  await datasource.saveSession(
-    token: 'mock_token',
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-  );
-  ref.read(authGuardProvider.notifier).authenticate();
-  ref.invalidate(authStateProvider);
-  setAuthToken('mock_token');
 }

@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-jose/go-jose/v4"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -147,6 +148,14 @@ func (v *JWKSVerifier) fetchKey(kid string) (*rsa.PublicKey, error) {
 }
 
 func parseRSAPublicKey(n, e string) (*rsa.PublicKey, error) {
-	// This is a simplified version. In production, use go-jose or similar.
-	return nil, fmt.Errorf("not implemented - use go-jose library for RSA key parsing")
+	jwkJSON := fmt.Sprintf(`{"kty":"RSA","n":%q,"e":%q}`, n, e)
+	var jwk jose.JSONWebKey
+	if err := json.Unmarshal([]byte(jwkJSON), &jwk); err != nil {
+		return nil, fmt.Errorf("failed to parse JWK: %w", err)
+	}
+	pub, ok := jwk.Key.(*rsa.PublicKey)
+	if !ok || pub.E < 3 || pub.N == nil || pub.N.BitLen() < 2048 {
+		return nil, fmt.Errorf("invalid RSA public key")
+	}
+	return pub, nil
 }

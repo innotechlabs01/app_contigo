@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/presentation/view_models/auth_view_model.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/client/presentation/screens/my_requests_screen.dart';
 import '../../features/client/presentation/screens/services_screen.dart';
 import '../../features/companion/presentation/screens/calendar_tab.dart';
@@ -63,7 +64,8 @@ GoRouter router(Ref ref) {
       final isOnPublicRoute =
           location == AppRoutes.landing ||
           location == AppRoutes.intro ||
-          location == AppRoutes.login;
+          location == AppRoutes.login ||
+          location == AppRoutes.register;
 
       if (!isAuth && !isOnPublicRoute) {
         return AppRoutes.login;
@@ -72,7 +74,9 @@ GoRouter router(Ref ref) {
       final user = authState.hasValue ? authState.value : null;
 
       if (isAuth &&
-          (location == AppRoutes.login || location == AppRoutes.intro)) {
+          (location == AppRoutes.login ||
+              location == AppRoutes.intro ||
+              location == AppRoutes.register)) {
         return user != null && user.isCompanion
             ? AppRoutes.companionHome
             : AppRoutes.home;
@@ -105,6 +109,11 @@ GoRouter router(Ref ref) {
         path: AppRoutes.login,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
         path: AppRoutes.intro,

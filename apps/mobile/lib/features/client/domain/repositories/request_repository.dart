@@ -5,6 +5,7 @@ abstract class RequestRepository {
     required String serviceType,
     required String fullName,
     required String phone,
+    String? companionId,
     String? address,
     String? meetingPoint,
     String? preferredDate,

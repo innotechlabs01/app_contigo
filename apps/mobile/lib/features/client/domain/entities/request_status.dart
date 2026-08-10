@@ -4,6 +4,7 @@ enum RequestStatus {
   rejected,
   cancelled,
   completed,
+  expired,
   // Additional statuses used by UI
   approved,
   inReview,

@@ -5,6 +5,8 @@ const kApiWsUrl = 'ws://localhost:8080/api/v1';
 
 abstract class ApiEndpoints {
   static const String baseUrl = kApiBaseUrl;
+  static const String usersMe = '/users/me';
+  static const String companions = '/companions';
   static const String requests = '/requests';
   static const String companion = '/companion';
   static const String earnings = '/companion/earnings';

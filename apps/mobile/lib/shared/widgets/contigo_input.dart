@@ -8,11 +8,12 @@ class ContigoInput extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType? keyboardType;
   final IconData? prefixIcon;
-  final IconData? suffixIcon;
+  final Widget? suffixIcon;
   final String? Function(String?)? validator;
   final String? initialValue;
   final ValueChanged<String>? onChanged;
   final int maxLines;
+  final TextInputAction? textInputAction;
 
   const ContigoInput({
     super.key,
@@ -27,6 +28,7 @@ class ContigoInput extends StatelessWidget {
     this.initialValue,
     this.onChanged,
     this.maxLines = 1,
+    this.textInputAction,
   });
 
   @override
@@ -57,6 +59,7 @@ class ContigoInput extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          textInputAction: textInputAction,
           validator: validator,
           onChanged: onChanged,
           style: TextStyle(color: colors.onSurface, fontFamily: 'Lexend'),
@@ -64,28 +67,28 @@ class ContigoInput extends StatelessWidget {
             hintText: hintText,
             hintStyle: TextStyle(color: colors.onSurfaceVariant, fontFamily: 'Lexend'),
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: colors.onSurfaceVariant) : null,
-            suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: colors.onSurfaceVariant) : null,
+            suffixIcon: suffixIcon,
             filled: true,
-            fillColor: colors.surfaceContainer,
+            fillColor: colors.surfaceContainerHighest,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide(color: colors.outlineVariant, width: 1),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide(color: colors.outlineVariant, width: 1),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide(color: colors.primaryContainer, width: 2),
+              borderSide: BorderSide.none,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide(color: colors.error, width: 1),
+              borderSide: BorderSide.none,
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius.md),
-              borderSide: BorderSide(color: colors.error, width: 2),
+              borderSide: BorderSide.none,
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: spacing.lg,

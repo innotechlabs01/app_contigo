@@ -36,6 +36,7 @@ class ContigoStatusPill extends StatelessWidget {
     RequestStatus.inReview => 'In Review',
     RequestStatus.cancelled => 'Cancelled',
     RequestStatus.completed => 'Completed',
+    RequestStatus.expired => 'Expired',
   };
 
   Color get _backgroundColor => switch (status) {
@@ -46,6 +47,7 @@ class ContigoStatusPill extends StatelessWidget {
     RequestStatus.inReview => const Color(0xFF90CAF9),
     RequestStatus.cancelled => const Color(0xFFE0E0E0),
     RequestStatus.completed => const Color(0xFFA5D6A7),
+    RequestStatus.expired => const Color(0xFFE0E0E0),
   };
 
   Color get _textColor => switch (status) {
@@ -56,5 +58,6 @@ class ContigoStatusPill extends StatelessWidget {
     RequestStatus.inReview => Colors.white,
     RequestStatus.cancelled => const Color(0xFF616161),
     RequestStatus.completed => const Color(0xFF1B5E20),
+    RequestStatus.expired => const Color(0xFF616161),
   };
 }

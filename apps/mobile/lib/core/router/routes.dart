@@ -3,6 +3,7 @@ abstract class AppRoutes {
   static const landing = '/';
   static const intro = '/intro';
   static const login = '/login';
+  static const register = '/register';
   static const home = '/home';
   static const services = '/services';
   static const requests = '/requests';

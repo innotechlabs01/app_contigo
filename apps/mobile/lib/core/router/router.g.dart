@@ -55,7 +55,7 @@ final class RouterRefreshNotifierProvider
 }
 
 String _$routerRefreshNotifierHash() =>
-    r'a60f6e5ec50d8e2097ce5d3da8336ab2fa2d3068';
+    r'de5e3fd704ba41a903b18086a79afff912ddcb31';
 
 @ProviderFor(router)
 const routerProvider = RouterProvider._();
@@ -96,4 +96,4 @@ final class RouterProvider
   }
 }
 
-String _$routerHash() => r'9daf7b0a5637a11f5a99d3f53f7b6a91d69b63a6';
+String _$routerHash() => r'0a7d8f0800335d49e580a905b7c71875cd92a229';

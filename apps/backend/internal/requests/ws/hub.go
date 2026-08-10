@@ -37,12 +37,14 @@ func NewHub() *Hub {
 // It expects user_id to be set in fiber.Ctx.Locals (by auth middleware).
 func (h *Hub) HandleWebSocket() fiber.Handler {
 	return func(c fiber.Ctx) error {
-		userID := c.Locals("user_id").(string)
-		if userID == "" {
+		userID, ok := c.Locals("user_id").(string)
+		if !ok || userID == "" {
 			return fiber.ErrUnauthorized
 		}
 
 		return h.upgrade.Upgrade(c.RequestCtx(), func(conn *websocket.Conn) {
+			// Clients only send heartbeat/pong frames; cap the frame size.
+			conn.SetReadLimit(4096)
 			h.Register(userID, conn)
 			defer h.Unregister(userID, conn)
 
@@ -63,19 +65,17 @@ func (h *Hub) HandleWebSocket() fiber.Handler {
 }
 
 func (h *Hub) Broadcast(msg Message) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
 	data, err := json.Marshal(msg)
 	if err != nil {
 		logger.Error("WS marshal error", zap.Error(err))
 		return
 	}
-	for _, conns := range h.conns {
-		for conn := range conns {
-			if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
-				logger.Error("WS write error", zap.Error(err))
-				conn.Close()
-			}
+
+	conns := h.snapshotAll()
+	for _, conn := range conns {
+		if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
+			logger.Error("WS write error", zap.Error(err))
+			conn.Close()
 		}
 	}
 }
@@ -103,16 +103,16 @@ func (h *Hub) Unregister(userID string, conn *websocket.Conn) {
 }
 
 func (h *Hub) SendToUser(userID string, msg Message) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	conns := h.conns[userID]
-	if conns == nil { return }
+	conns := h.snapshotUser(userID)
+	if len(conns) == 0 {
+		return
+	}
 	data, err := json.Marshal(msg)
 	if err != nil {
 		logger.Error("WS marshal error", zap.Error(err))
 		return
 	}
-	for conn := range conns {
+	for _, conn := range conns {
 		if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
 			logger.Error("WS write error", zap.Error(err))
 			conn.Close()
@@ -125,4 +125,26 @@ func (h *Hub) SendToUsers(userIDs []string, msg Message) {
 	for _, uid := range userIDs {
 		h.SendToUser(uid, msg)
 	}
+}
+
+func (h *Hub) snapshotUser(userID string) []*websocket.Conn {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	var result []*websocket.Conn
+	for conn := range h.conns[userID] {
+		result = append(result, conn)
+	}
+	return result
+}
+
+func (h *Hub) snapshotAll() []*websocket.Conn {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	var result []*websocket.Conn
+	for _, conns := range h.conns {
+		for conn := range conns {
+			result = append(result, conn)
+		}
+	}
+	return result
 }

@@ -21,4 +21,20 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<User?> signInWithEmail(String email, String password) =>
       _datasource.signInWithEmail(email, password);
+
+  @override
+  Future<User?> signUp({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required UserRole role,
+  }) =>
+      _datasource.signUp(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        role: role,
+      );
 }

@@ -44,6 +44,7 @@ type Config struct {
 	Storage  StorageConfig  `mapstructure:"storage"`
 	Cache    CacheConfig    `mapstructure:"cache"`
 	Log      LogConfig      `mapstructure:"log"`
+	Requests RequestsConfig `mapstructure:"requests"`
 }
 
 // ServerConfig holds HTTP server configuration.
@@ -70,8 +71,8 @@ type AuthConfig struct {
 
 // StorageConfig holds file storage configuration.
 type StorageConfig struct {
-	Provider string     `mapstructure:"provider"`
-	R2       R2Config   `mapstructure:"r2"`
+	Provider string      `mapstructure:"provider"`
+	R2       R2Config    `mapstructure:"r2"`
 	Local    LocalConfig `mapstructure:"local"`
 }
 
@@ -99,6 +100,11 @@ type CacheConfig struct {
 type LogConfig struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"`
+}
+
+// RequestsConfig holds service request configuration.
+type RequestsConfig struct {
+	ExpiryMinutes int `mapstructure:"expiry_minutes"`
 }
 
 // Load loads configuration from file and environment variables.
@@ -159,30 +165,34 @@ func setDefaults(v *viper.Viper) {
 	// Log
 	v.SetDefault("log.level", "info")
 	v.SetDefault("log.format", "json")
+
+	// Requests
+	v.SetDefault("requests.expiry_minutes", 15)
 }
 
 // loadFromEnv overrides config values with environment variables.
 func loadFromEnv(v *viper.Viper) {
 	envMap := map[string]string{
-		"SERVER_HOST":              "server.host",
-		"SERVER_PORT":              "server.port",
-		"DATABASE_URL":             "database.url",
-		"DATABASE_MAX_OPEN_CONNS":  "database.max_open_conns",
-		"DATABASE_MAX_IDLE_CONNS":  "database.max_idle_conns",
+		"SERVER_HOST":                "server.host",
+		"SERVER_PORT":                "server.port",
+		"DATABASE_URL":               "database.url",
+		"DATABASE_MAX_OPEN_CONNS":    "database.max_open_conns",
+		"DATABASE_MAX_IDLE_CONNS":    "database.max_idle_conns",
 		"DATABASE_CONN_MAX_LIFETIME": "database.conn_max_lifetime",
-		"CLERK_JWKS_URL":           "auth.clerk_jwks_url",
-		"CLERK_ISSUER":             "auth.clerk_issuer",
-		"STORAGE_PROVIDER":         "storage.provider",
-		"R2_ACCOUNT_ID":            "storage.r2.account_id",
-		"R2_ACCESS_KEY":            "storage.r2.access_key",
-		"R2_SECRET_KEY":            "storage.r2.secret_key",
-		"R2_BUCKET_NAME":           "storage.r2.bucket_name",
-		"R2_PUBLIC_URL":            "storage.r2.public_url",
-		"LOCAL_STORAGE_PATH":       "storage.local.base_path",
-		"LOCAL_STORAGE_URL":        "storage.local.base_url",
-		"CACHE_PROVIDER":           "cache.provider",
-		"LOG_LEVEL":                "log.level",
-		"LOG_FORMAT":               "log.format",
+		"CLERK_JWKS_URL":             "auth.clerk_jwks_url",
+		"CLERK_ISSUER":               "auth.clerk_issuer",
+		"STORAGE_PROVIDER":           "storage.provider",
+		"R2_ACCOUNT_ID":              "storage.r2.account_id",
+		"R2_ACCESS_KEY":              "storage.r2.access_key",
+		"R2_SECRET_KEY":              "storage.r2.secret_key",
+		"R2_BUCKET_NAME":             "storage.r2.bucket_name",
+		"R2_PUBLIC_URL":              "storage.r2.public_url",
+		"LOCAL_STORAGE_PATH":         "storage.local.base_path",
+		"LOCAL_STORAGE_URL":          "storage.local.base_url",
+		"CACHE_PROVIDER":             "cache.provider",
+		"LOG_LEVEL":                  "log.level",
+		"LOG_FORMAT":                 "log.format",
+		"REQUESTS_EXPIRY_MINUTES":    "requests.expiry_minutes",
 	}
 
 	for envKey, viperKey := range envMap {

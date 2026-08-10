@@ -1,8 +1,27 @@
-class SecureStorageService {
-  final Map<String, String> _store = {};
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-  Future<void> write(String key, String value) async => _store[key] = value;
-  Future<String?> read(String key) async => _store[key];
-  Future<void> delete(String key) async => _store.remove(key);
-  Future<void> deleteAll() async => _store.clear();
+/// Persists sensitive values (auth tokens, sessions) in the platform
+/// secure store (Keychain on iOS, EncryptedSharedPreferences on Android).
+class SecureStorageService {
+  const SecureStorageService();
+
+  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
+  Future<void> write(String key, String value) async {
+    await _storage.write(key: key, value: value);
+  }
+
+  Future<String?> read(String key) async {
+    return _storage.read(key: key);
+  }
+
+  Future<void> delete(String key) async {
+    await _storage.delete(key: key);
+  }
+
+  Future<void> deleteAll() async {
+    await _storage.deleteAll();
+  }
 }

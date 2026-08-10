@@ -11,6 +11,7 @@ type User struct {
 	Phone     string    `json:"phone,omitempty"`
 	Avatar    string    `json:"avatar,omitempty"`
 	Status    string    `json:"status"`
+	Role      string    `json:"role,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

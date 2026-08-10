@@ -13,6 +13,7 @@ class RequestApiDatasource {
     required String serviceType,
     required String fullName,
     required String phone,
+    String? companionId,
     String? address,
     String? meetingPoint,
     String? preferredDate,
@@ -22,6 +23,7 @@ class RequestApiDatasource {
       'service_type': serviceType,
       'full_name': fullName,
       'phone': phone,
+      'companion_id': ?companionId,
       'address': ?address,
       'meeting_point': ?meetingPoint,
       'preferred_date': ?preferredDate,
@@ -110,6 +112,8 @@ class RequestApiDatasource {
         return RequestStatus.cancelled;
       case 'completed':
         return RequestStatus.completed;
+      case 'expired':
+        return RequestStatus.expired;
       default:
         return RequestStatus.pending;
     }

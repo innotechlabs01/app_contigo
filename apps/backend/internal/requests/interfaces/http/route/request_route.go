@@ -15,4 +15,5 @@ func Register(v1 fiber.Router, h *handler.RequestHandler, hub *ws.Hub) {
 	requests.Get("/:id", h.GetByID)
 	requests.Post("/:id/accept", h.Accept)
 	requests.Post("/:id/reject", h.Reject)
+	requests.Post("/:id/cancel", h.Cancel)
 }
