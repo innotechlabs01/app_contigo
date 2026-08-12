@@ -1,0 +1,9 @@
+.git
+.github
+bin/
+coverage.out
+.env
+.env.local
+*.md
+Makefile
+deploy/docker/docker-compose.yml
