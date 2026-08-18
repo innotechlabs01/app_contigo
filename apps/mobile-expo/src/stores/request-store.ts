@@ -7,6 +7,7 @@ interface RequestState {
   setRequests: (requests: ServiceRequest[]) => void;
   addRequest: (request: ServiceRequest) => void;
   updateRequest: (request: ServiceRequest) => void;
+  removeRequest: (id: string) => void;
   setLoading: (loading: boolean) => void;
   clear: () => void;
 }
@@ -23,6 +24,8 @@ export const useRequestStore = create<RequestState>((set) => ({
         r.id === updated.id ? updated : r,
       ),
     })),
+  removeRequest: (id) =>
+    set((state) => ({ requests: state.requests.filter((r) => r.id !== id) })),
   setLoading: (isLoading) => set({ isLoading }),
   clear: () => set({ requests: [], isLoading: false }),
 }));
