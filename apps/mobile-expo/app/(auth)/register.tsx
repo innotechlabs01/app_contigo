@@ -33,19 +33,32 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'client' | 'companion'>('client');
 
-  // Step 1: Service
+  // Step 1: Service (client only)
   const [serviceType, setServiceType] = useState('');
   const [preferredDate, setPreferredDate] = useState('');
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Step 2: Companion
+  // Step 2: Companion (client only)
   const [companionId] = useState('');
 
-  const stepLabels = ['Tus datos', 'Servicio', 'Compania', 'Revisar'];
+  const stepLabels = role === 'companion'
+    ? ['Tus datos', 'Revisar']
+    : ['Tus datos', 'Servicio', 'Compania', 'Revisar'];
 
   const canNext = (): boolean => {
+    if (role === 'companion') {
+      switch (step) {
+        case 0:
+          return !!firstName && !!lastName && !!email && !!password;
+        case 1:
+          return true;
+        default:
+          return false;
+      }
+    }
     switch (step) {
       case 0:
         return !!firstName && !!lastName && !!email && !!password;
@@ -80,11 +93,11 @@ export default function RegisterScreen() {
             first_name: firstName,
             last_name: lastName,
             phone,
-            role: 'client',
+            role,
           });
         }
 
-        router.replace('/(client)');
+        router.replace(role === 'companion' ? '/(companion)' : '/(client)');
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al registrar';
@@ -158,10 +171,48 @@ export default function RegisterScreen() {
                 onChange={setPassword}
                 secure
               />
+
+              <Text style={styles.label}>Tipo de cuenta</Text>
+              <View style={styles.serviceGrid}>
+                {[
+                  { value: 'client', label: 'Cliente' },
+                  { value: 'companion', label: 'Compania' },
+                ].map((r) => (
+                  <TouchableOpacity
+                    key={r.value}
+                    style={[
+                      styles.serviceOption,
+                      {
+                        borderColor:
+                          role === r.value
+                            ? colors.light.primary
+                            : colors.light.outlineVariant,
+                        backgroundColor:
+                          role === r.value
+                            ? colors.light.primary + '10'
+                            : colors.light.surface,
+                      },
+                    ]}
+                    onPress={() => setRole(r.value as 'client' | 'companion')}
+                  >
+                    <Text
+                      style={{
+                        color:
+                          role === r.value
+                            ? colors.light.primary
+                            : colors.light.onSurface,
+                        fontWeight: role === r.value ? '600' : '400',
+                      }}
+                    >
+                      {r.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </>
           )}
 
-          {step === 1 && (
+          {step === 1 && role === 'client' && (
             <>
               <Text style={styles.label}>Tipo de servicio</Text>
               <View style={styles.serviceGrid}>
@@ -217,7 +268,7 @@ export default function RegisterScreen() {
             </>
           )}
 
-          {step === 2 && (
+          {step === 2 && role === 'client' && (
             <View style={styles.emptyCompanion}>
               <Text style={styles.emptyText}>
                 Seleccion de compania (proximamente)
@@ -229,9 +280,14 @@ export default function RegisterScreen() {
             <View style={styles.review}>
               <ReviewRow label="Nombre" value={`${firstName} ${lastName}`} />
               <ReviewRow label="Email" value={email} />
-              <ReviewRow label="Servicio" value={serviceType} />
-              <ReviewRow label="Fecha" value={preferredDate} />
-              <ReviewRow label="Direccion" value={address} />
+              <ReviewRow label="Rol" value={role === 'companion' ? 'Compania' : 'Cliente'} />
+              {role === 'client' && (
+                <>
+                  <ReviewRow label="Servicio" value={serviceType} />
+                  <ReviewRow label="Fecha" value={preferredDate} />
+                  <ReviewRow label="Direccion" value={address} />
+                </>
+              )}
             </View>
           )}
         </View>
@@ -241,7 +297,13 @@ export default function RegisterScreen() {
           {step > 0 && (
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => setStep((step - 1) as Step)}
+              onPress={() => {
+                if (role === 'companion' && step === 3) {
+                  setStep(0);
+                } else {
+                  setStep((step - 1) as Step);
+                }
+              }}
             >
               <Text style={[styles.backText, { color: colors.light.primary }]}>
                 Atras
@@ -261,7 +323,11 @@ export default function RegisterScreen() {
             ]}
             onPress={() => {
               if (step < 3) {
-                setStep((step + 1) as Step);
+                if (role === 'companion' && step === 0) {
+                  setStep(3);
+                } else {
+                  setStep((step + 1) as Step);
+                }
               } else {
                 handleRegister();
               }
