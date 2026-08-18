@@ -68,9 +68,22 @@ func (uc *UserUseCase) UpsertMe(ctx context.Context, clerkID string, input *Upse
 	// The role is only assigned from the request during registration (first
 	// creation). On sign-in the existing role is preserved and a default is
 	// only applied when the user has no role yet.
-	if isNew && input.Role != "" {
-		if err := uc.repo.AssignRole(ctx, user.ID, input.Role); err != nil {
+	if isNew {
+		role := input.Role
+		if role == "" {
+			role = resolveRoleByEmail(input.Email)
+		}
+		if err := uc.repo.AssignRole(ctx, user.ID, role); err != nil {
 			return nil, apperr.Wrap(err, apperr.ErrCodeInternal, "failed to assign role")
+		}
+		if role == "companion" {
+			_ = uc.repo.UpsertCompanionProfile(ctx, &entity.CompanionProfile{
+				CompanionID:     user.ID,
+				Rating:          5.0,
+				ExperienceYears: 0,
+				Languages:       []string{"es"},
+				Services:        []string{},
+			})
 		}
 	}
 
@@ -106,4 +119,16 @@ func (uc *UserUseCase) HasRole(ctx context.Context, userID, role string) (bool, 
 // IsCompanion implements the requests CompanionDirectory port.
 func (uc *UserUseCase) IsCompanion(ctx context.Context, userID string) (bool, error) {
 	return uc.repo.HasRole(ctx, userID, "companion")
+}
+
+// resolveRoleByEmail returns the role for known QA/test companion emails.
+// In production this would be replaced by an invite/approval flow.
+func resolveRoleByEmail(email string) string {
+	companionEmails := map[string]bool{
+		"qa-companion@contigo.test.com": true,
+	}
+	if companionEmails[strings.ToLower(email)] {
+		return "companion"
+	}
+	return "client"
 }
