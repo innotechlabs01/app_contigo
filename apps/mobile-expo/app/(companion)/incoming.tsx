@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native';
 
-export default function InicioTab() {
+export default function IncomingTab() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Inicio</Text>
+      <Text>Solicitudes</Text>
     </View>
   );
 }
