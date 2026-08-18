@@ -62,7 +62,12 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (isSignedIn && inAuthGroup) {
-      router.replace('/(client)');
+      const role = useAuthStore.getState().user?.role;
+      if (role === 'companion') {
+        router.replace('/(companion)');
+      } else {
+        router.replace('/(client)');
+      }
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace('/(auth)/login');
     }
@@ -72,6 +77,7 @@ function RootLayoutNav() {
   return (
     <Stack>
       <Stack.Screen name="(client)" options={{ headerShown: false }} />
+      <Stack.Screen name="(companion)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
     </Stack>
   );
