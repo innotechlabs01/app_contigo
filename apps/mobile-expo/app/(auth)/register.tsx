@@ -84,7 +84,7 @@ export default function RegisterScreen() {
           });
         }
 
-        router.replace('/(tabs)');
+        router.replace('/(client)');
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al registrar';

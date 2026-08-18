@@ -13,7 +13,7 @@ import { userApi } from '@/src/api/endpoints';
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(tabs)',
+  initialRouteName: '(client)',
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -62,7 +62,7 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (isSignedIn && inAuthGroup) {
-      router.replace('/(tabs)');
+      router.replace('/(client)');
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace('/(auth)/login');
     }
@@ -71,7 +71,7 @@ function RootLayoutNav() {
 
   return (
     <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(client)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
     </Stack>
   );
