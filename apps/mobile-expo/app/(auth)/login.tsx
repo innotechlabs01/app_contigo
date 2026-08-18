@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 
 import { colors } from '@/src/theme/colors';
 import { spacing, radius } from '@/src/theme/spacing';
+import { useAuthStore } from '@/src/stores/auth-store';
 
 export default function LoginScreen() {
   const { signIn } = useSignIn();
@@ -32,7 +33,12 @@ export default function LoginScreen() {
     try {
       const result = await signIn?.create({ identifier: email, password });
       if (result && 'createdSessionId' in result && result.createdSessionId) {
-        router.replace('/(client)');
+        const role = useAuthStore.getState().user?.role;
+        if (role === 'companion') {
+          router.replace('/(companion)');
+        } else {
+          router.replace('/(client)');
+        }
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Credenciales invalidas';
