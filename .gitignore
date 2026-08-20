@@ -39,3 +39,6 @@ Thumbs.db
 
 # Worktrees
 .worktrees/
+
+# Auto-generated skill registry
+.atl/
