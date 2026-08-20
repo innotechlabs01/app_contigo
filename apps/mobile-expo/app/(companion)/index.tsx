@@ -12,13 +12,15 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/src/stores/auth-store';
 import { useRequestStore } from '@/src/stores/request-store';
 import { requestApi } from '@/src/api/endpoints';
-import { colors } from '@/src/theme/colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { StatCard } from '@/src/components/StatCard';
 import { spacing, radius } from '@/src/theme/spacing';
 
 export default function CompanionDashboard() {
   const { user } = useAuthStore();
   const { requests, setRequests, setLoading, isLoading } = useRequestStore();
   const router = useRouter();
+  const theme = useTheme();
 
   const loadRequests = async () => {
     setLoading(true);
@@ -26,7 +28,7 @@ export default function CompanionDashboard() {
       const data = await requestApi.list();
       setRequests(data);
     } catch {
-      // handle error
+      // TODO: show error toast
     } finally {
       setLoading(false);
     }
@@ -42,41 +44,38 @@ export default function CompanionDashboard() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.light.background }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={loadRequests} />
       }
     >
       <View style={styles.header}>
-        <Text style={styles.greeting}>
+        <Text style={[styles.greeting, { color: theme.onBackground }]}>
           Hola, {user?.first_name || 'Compania'}
         </Text>
-        <Text style={styles.subtitle}>Panel de compania</Text>
+        <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
+          Panel de compania
+        </Text>
       </View>
 
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: colors.light.warning }]}>
-          <Text style={styles.statNumber}>{pendingCount}</Text>
-          <Text style={styles.statLabel}>Pendientes</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: colors.light.success }]}>
-          <Text style={styles.statNumber}>{acceptedCount}</Text>
-          <Text style={styles.statLabel}>Aceptadas</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: colors.light.primary }]}>
-          <Text style={styles.statNumber}>{completedCount}</Text>
-          <Text style={styles.statLabel}>Completadas</Text>
-        </View>
+        <StatCard value={pendingCount} label="Pendientes" color={theme.warning} />
+        <StatCard value={acceptedCount} label="Aceptadas" color={theme.success} />
+        <StatCard value={completedCount} label="Completadas" color={theme.primary} />
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acciones rapidas</Text>
+        <Text style={[styles.sectionTitle, { color: theme.onBackground }]}>
+          Acciones rapidas
+        </Text>
         <TouchableOpacity
-          style={[styles.actionCard, { backgroundColor: colors.light.surface }]}
+          style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.outlineVariant }]}
           onPress={() => router.push('/(companion)/incoming')}
         >
-          <Text style={styles.actionTitle}>Ver solicitudes entrantes</Text>
-          <Text style={styles.actionSubtitle}>
+          <Text style={[styles.actionTitle, { color: theme.onSurface }]}>
+            Ver solicitudes entrantes
+          </Text>
+          <Text style={[styles.actionSubtitle, { color: theme.onSurfaceVariant }]}>
             Revisa y responde a las solicitudes de clientes
           </Text>
         </TouchableOpacity>
@@ -88,37 +87,20 @@ export default function CompanionDashboard() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { padding: spacing.lg, paddingTop: spacing.xxl },
-  greeting: { fontSize: 28, fontWeight: '700', color: colors.light.onBackground },
-  subtitle: {
-    fontSize: 16,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-  },
+  greeting: { fontSize: 28, fontWeight: '700' },
+  subtitle: { fontSize: 16, marginTop: spacing.xs },
   statsRow: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
   },
-  statCard: {
-    flex: 1,
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    alignItems: 'center',
-  },
-  statNumber: { fontSize: 28, fontWeight: '700', color: '#FFFFFF' },
-  statLabel: { fontSize: 12, color: '#FFFFFF', marginTop: spacing.xs },
   section: { padding: spacing.lg },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: spacing.md },
   actionCard: {
     padding: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.light.outlineVariant,
   },
   actionTitle: { fontSize: 16, fontWeight: '600' },
-  actionSubtitle: {
-    fontSize: 14,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-  },
+  actionSubtitle: { fontSize: 14, marginTop: spacing.xs },
 });

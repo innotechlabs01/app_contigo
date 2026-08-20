@@ -12,12 +12,13 @@ import {
 import { useSignIn } from '@clerk/expo';
 import { useRouter } from 'expo-router';
 
-import { colors } from '@/src/theme/colors';
+import { useTheme } from '@/src/hooks/useTheme';
 import { spacing, radius } from '@/src/theme/spacing';
 
 export default function LoginScreen() {
   const { signIn } = useSignIn();
   const router = useRouter();
+  const theme = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,9 +33,7 @@ export default function LoginScreen() {
     try {
       const result = await signIn?.create({ identifier: email, password });
       if (result && 'createdSessionId' in result && result.createdSessionId) {
-        // Role-based redirect is handled by _layout.tsx useEffect
-        // after Clerk auth state propagates — do NOT redirect here
-        // because user.role is not yet populated in the auth store.
+        // Role-based redirect is handled by _layout.tsx after Clerk auth state propagates
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Credenciales invalidas';
@@ -46,37 +45,43 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.inner}>
-        <Text style={styles.title}>Iniciar sesion</Text>
-        <Text style={styles.subtitle}>Bienvenido a Contigo</Text>
+        <Text style={[styles.title, { color: theme.onBackground }]}>
+          Iniciar sesion
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
+          Bienvenido a Contigo
+        </Text>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={[styles.label, { color: theme.onSurface }]}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.surfaceVariant, borderColor: theme.outlineVariant, color: theme.onSurface }]}
             value={email}
             onChangeText={setEmail}
             placeholder="tu@email.com"
+            placeholderTextColor={theme.onSurfaceVariant}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
           />
 
-          <Text style={styles.label}>Contrasena</Text>
+          <Text style={[styles.label, { color: theme.onSurface }]}>Contrasena</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.surfaceVariant, borderColor: theme.outlineVariant, color: theme.onSurface }]}
             value={password}
             onChangeText={setPassword}
             placeholder="Tu contrasena"
+            placeholderTextColor={theme.onSurfaceVariant}
             secureTextEntry
             autoComplete="password"
           />
 
           <TouchableOpacity
-            style={[styles.button, { opacity: loading ? 0.6 : 1 }]}
+            style={[styles.button, { backgroundColor: theme.primary, opacity: loading ? 0.6 : 1 }]}
             onPress={handleLogin}
             disabled={loading}
           >
@@ -89,7 +94,7 @@ export default function LoginScreen() {
             style={styles.linkButton}
             onPress={() => router.push('/(auth)/register')}
           >
-            <Text style={[styles.linkText, { color: colors.light.primary }]}>
+            <Text style={[styles.linkText, { color: theme.primary }]}>
               Crear cuenta
             </Text>
           </TouchableOpacity>
@@ -100,40 +105,19 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.light.background },
-  inner: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.light.onBackground,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.light.onSurfaceVariant,
-    marginBottom: spacing.xxl,
-  },
+  container: { flex: 1 },
+  inner: { flex: 1, justifyContent: 'center', padding: spacing.lg },
+  title: { fontSize: 32, fontWeight: '700', marginBottom: spacing.xs },
+  subtitle: { fontSize: 16, marginBottom: spacing.xxl },
   form: { gap: spacing.md },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.light.onSurface,
-    marginBottom: spacing.xs,
-  },
+  label: { fontSize: 14, fontWeight: '500', marginBottom: spacing.xs },
   input: {
-    backgroundColor: colors.light.surfaceVariant,
     borderRadius: radius.md,
     padding: spacing.md,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: colors.light.outlineVariant,
   },
   button: {
-    backgroundColor: colors.light.primary,
     borderRadius: radius.md,
     padding: spacing.md,
     alignItems: 'center',

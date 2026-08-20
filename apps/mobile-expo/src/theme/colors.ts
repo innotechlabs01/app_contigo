@@ -46,4 +46,3 @@ export const colors = {
 } as const;
 
 export type ColorScheme = 'light' | 'dark';
-export type ColorTokens = typeof colors.light;

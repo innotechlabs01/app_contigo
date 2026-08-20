@@ -12,13 +12,15 @@ import {
 import { useRequestStore } from '@/src/stores/request-store';
 import { requestApi } from '@/src/api/endpoints';
 import { wsService } from '@/src/api/websocket';
-import { colors } from '@/src/theme/colors';
-import { spacing, radius, shadow } from '@/src/theme/spacing';
+import { useTheme } from '@/src/hooks/useTheme';
+import { RequestCard } from '@/src/components/RequestCard';
+import { spacing, radius } from '@/src/theme/spacing';
 import type { ServiceRequest } from '@/src/types';
 
 export default function IncomingRequestsScreen() {
   const { requests, setRequests, updateRequest, removeRequest, setLoading, isLoading } =
     useRequestStore();
+  const theme = useTheme();
 
   const loadRequests = async () => {
     setLoading(true);
@@ -26,7 +28,7 @@ export default function IncomingRequestsScreen() {
       const data = await requestApi.list();
       setRequests(data);
     } catch {
-      // handle error
+      // TODO: show error toast
     } finally {
       setLoading(false);
     }
@@ -80,30 +82,22 @@ export default function IncomingRequestsScreen() {
   };
 
   const renderItem = ({ item }: { item: ServiceRequest }) => (
-    <View style={[styles.card, { backgroundColor: colors.light.surface }]}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.service_type}</Text>
-        <View style={[styles.pendingBadge]}>
-          <Text style={styles.pendingText}>Pendiente</Text>
-        </View>
-      </View>
-
-      <Text style={styles.cardSubtitle}>{item.full_name}</Text>
-      <Text style={styles.cardDetail}>Fecha: {item.preferred_date}</Text>
-      <Text style={styles.cardDetail}>Direccion: {item.address}</Text>
-      {item.notes ? (
-        <Text style={styles.cardNotes}>Notas: {item.notes}</Text>
-      ) : null}
-
+    <View>
+      <RequestCard
+        item={item}
+        surfaceColor={theme.surface}
+        subtitleColor={theme.onSurfaceVariant}
+        showDetails
+      />
       <View style={styles.actions}>
         <TouchableOpacity
-          style={[styles.acceptButton]}
+          style={[styles.acceptButton, { backgroundColor: theme.success }]}
           onPress={() => handleAccept(item.id)}
         >
           <Text style={styles.acceptText}>Aceptar</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.rejectButton]}
+          style={[styles.rejectButton, { backgroundColor: theme.error }]}
           onPress={() => handleReject(item.id)}
         >
           <Text style={styles.rejectText}>Rechazar</Text>
@@ -113,8 +107,10 @@ export default function IncomingRequestsScreen() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.light.background }]}>
-      <Text style={styles.title}>Solicitudes entrantes</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.onBackground }]}>
+        Solicitudes entrantes
+      </Text>
       <FlatList
         data={incomingRequests}
         keyExtractor={(item) => item.id}
@@ -125,7 +121,9 @@ export default function IncomingRequestsScreen() {
         }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>No hay solicitudes pendientes</Text>
+            <Text style={[styles.emptyText, { color: theme.onSurfaceVariant }]}>
+              No hay solicitudes pendientes
+            </Text>
           </View>
         }
       />
@@ -135,56 +133,17 @@ export default function IncomingRequestsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    padding: spacing.lg,
-    paddingTop: spacing.xxl,
-  },
+  title: { fontSize: 28, fontWeight: '700', padding: spacing.lg, paddingTop: spacing.xxl },
   list: { padding: spacing.lg },
-  card: {
-    padding: spacing.md,
-    borderRadius: radius.lg,
-    marginBottom: spacing.md,
-    ...shadow.md,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  cardTitle: { fontSize: 16, fontWeight: '600' },
-  pendingBadge: {
-    backgroundColor: colors.light.warning + '20',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.full,
-  },
-  pendingText: { fontSize: 12, fontWeight: '600', color: colors.light.warning },
-  cardSubtitle: {
-    fontSize: 14,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-  },
-  cardDetail: {
-    fontSize: 12,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-  },
-  cardNotes: {
-    fontSize: 12,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-    fontStyle: 'italic',
-  },
   actions: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginTop: spacing.md,
+    marginTop: -spacing.sm,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.md,
   },
   acceptButton: {
     flex: 1,
-    backgroundColor: colors.light.success,
     padding: spacing.sm,
     borderRadius: radius.md,
     alignItems: 'center',
@@ -192,12 +151,11 @@ const styles = StyleSheet.create({
   acceptText: { color: '#FFFFFF', fontWeight: '600' },
   rejectButton: {
     flex: 1,
-    backgroundColor: colors.light.error,
     padding: spacing.sm,
     borderRadius: radius.md,
     alignItems: 'center',
   },
   rejectText: { color: '#FFFFFF', fontWeight: '600' },
   empty: { alignItems: 'center', paddingTop: spacing.xxxl },
-  emptyText: { fontSize: 16, color: colors.light.onSurfaceVariant },
+  emptyText: { fontSize: 16 },
 });

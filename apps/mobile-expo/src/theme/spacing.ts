@@ -48,7 +48,9 @@ export const motion = {
     normal: 300,
     slow: 500,
   },
+  // For React Native Reanimated, use Easing.bezier(0.4, 0, 0.2, 1)
+  // These values are kept for reference only
   easing: {
-    easeInOutCubic: ' cubic-bezier(0.4, 0, 0.2, 1)',
+    easeInOutCubic: [0.4, 0, 0.2, 1] as const,
   },
 } as const;

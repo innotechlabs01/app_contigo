@@ -10,6 +10,8 @@ class WebSocketService {
   private listeners: Set<WsListener> = new Set();
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private isConnecting = false;
+  private reconnectAttempts = 0;
+  private maxReconnectDelay = 30_000;
 
   async connect() {
     if (this.ws?.readyState === WebSocket.OPEN || this.isConnecting) return;
@@ -22,10 +24,13 @@ class WebSocketService {
     }
 
     try {
-      this.ws = new WebSocket(`${WS_URL}/requests/ws`);
+      // Pass token as query param for HTTP upgrade auth
+      this.ws = new WebSocket(`${WS_URL}/requests/ws?token=${encodeURIComponent(token)}`);
 
       this.ws.onopen = () => {
         this.isConnecting = false;
+        this.reconnectAttempts = 0;
+        // Send auth as backup (some servers validate via message too)
         this.ws?.send(JSON.stringify({ type: 'auth', token }));
       };
 
@@ -58,6 +63,7 @@ class WebSocketService {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
+    this.reconnectAttempts = 0;
     this.ws?.close();
     this.ws = null;
   }
@@ -69,10 +75,13 @@ class WebSocketService {
 
   private scheduleReconnect() {
     if (this.reconnectTimeout) return;
+    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, capped at 30s
+    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, this.maxReconnectDelay);
+    this.reconnectAttempts++;
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;
       this.connect();
-    }, 5000);
+    }, delay);
   }
 }
 

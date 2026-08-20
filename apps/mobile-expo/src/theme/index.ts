@@ -16,3 +16,4 @@ export type Theme = typeof theme;
 export { colors } from './colors';
 export { typography } from './typography';
 export { spacing, radius, shadow, motion } from './spacing';
+export { statusColors, statusLabels } from './status';

@@ -28,6 +28,14 @@ function RootLayoutNav() {
   const { setUser, setLoaded } = useAuthStore();
   const initRan = useRef(false);
 
+  // Reset init guard and disconnect WS on sign-out
+  useEffect(() => {
+    if (!isSignedIn) {
+      initRan.current = false;
+      wsService.disconnect();
+    }
+  }, [isSignedIn]);
+
   // One unified effect: auth init + splash hide
   useEffect(() => {
     if (!isLoaded) return;

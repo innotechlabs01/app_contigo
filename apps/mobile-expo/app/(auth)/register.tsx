@@ -13,17 +13,15 @@ import {
 import { useSignUp } from '@clerk/expo';
 import { useRouter } from 'expo-router';
 
-import { colors } from '@/src/theme/colors';
+import { useTheme } from '@/src/hooks/useTheme';
 import { spacing, radius } from '@/src/theme/spacing';
-import { userApi } from '@/src/api/endpoints';
-import { setAuthToken } from '@/src/api/client';
-import * as SecureStore from 'expo-secure-store';
 
 type Step = 0 | 1 | 2 | 3;
 
 export default function RegisterScreen() {
   const { signUp } = useSignUp();
   const router = useRouter();
+  const theme = useTheme();
   const [step, setStep] = useState<Step>(0);
   const [loading, setLoading] = useState(false);
 
@@ -85,18 +83,8 @@ export default function RegisterScreen() {
       });
 
       if (result && 'createdSessionId' in result && result.createdSessionId) {
-        const token = await SecureStore.getItemAsync('clerk_jwt');
-        if (token) {
-          setAuthToken(token);
-          await userApi.upsertMe({
-            email,
-            first_name: firstName,
-            last_name: lastName,
-            phone,
-            role,
-          });
-        }
-
+        // upsertMe is handled by _layout.tsx after Clerk auth state propagates.
+        // Role is auto-assigned by backend based on email domain.
         router.replace(role === 'companion' ? '/(companion)' : '/(client)');
       }
     } catch (err: unknown) {
@@ -109,11 +97,13 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.inner}>
-        <Text style={styles.title}>Crear cuenta</Text>
+        <Text style={[styles.title, { color: theme.onBackground }]}>
+          Crear cuenta
+        </Text>
 
         {/* Stepper */}
         <View style={styles.stepper}>
@@ -124,14 +114,14 @@ export default function RegisterScreen() {
                   styles.stepCircle,
                   {
                     backgroundColor:
-                      i <= step ? colors.light.primary : colors.light.outlineVariant,
+                      i <= step ? theme.primary : theme.surfaceVariant,
                   },
                 ]}
               >
                 <Text
                   style={[
                     styles.stepNumber,
-                    { color: i <= step ? '#FFF' : colors.light.onSurfaceVariant },
+                    { color: i <= step ? '#FFF' : theme.onSurfaceVariant },
                   ]}
                 >
                   {i + 1}
@@ -142,7 +132,7 @@ export default function RegisterScreen() {
                   styles.stepLabel,
                   {
                     color:
-                      i <= step ? colors.light.primary : colors.light.onSurfaceVariant,
+                      i <= step ? theme.primary : theme.onSurfaceVariant,
                   },
                 ]}
               >
@@ -156,23 +146,27 @@ export default function RegisterScreen() {
         <View style={styles.form}>
           {step === 0 && (
             <>
-              <Field label="Nombre" value={firstName} onChange={setFirstName} />
-              <Field label="Apellido" value={lastName} onChange={setLastName} />
+              <Field label="Nombre" value={firstName} onChange={setFirstName} theme={theme} />
+              <Field label="Apellido" value={lastName} onChange={setLastName} theme={theme} />
               <Field
                 label="Email"
                 value={email}
                 onChange={setEmail}
                 keyboard="email-address"
+                theme={theme}
               />
-              <Field label="Telefono" value={phone} onChange={setPhone} phone />
+              <Field label="Telefono" value={phone} onChange={setPhone} phone theme={theme} />
               <Field
                 label="Contrasena"
                 value={password}
                 onChange={setPassword}
                 secure
+                theme={theme}
               />
 
-              <Text style={styles.label}>Tipo de cuenta</Text>
+              <Text style={[styles.label, { color: theme.onSurface }]}>
+                Tipo de cuenta
+              </Text>
               <View style={styles.serviceGrid}>
                 {[
                   { value: 'client', label: 'Cliente' },
@@ -184,13 +178,11 @@ export default function RegisterScreen() {
                       styles.serviceOption,
                       {
                         borderColor:
-                          role === r.value
-                            ? colors.light.primary
-                            : colors.light.outlineVariant,
+                          role === r.value ? theme.primary : theme.outlineVariant,
                         backgroundColor:
                           role === r.value
-                            ? colors.light.primary + '10'
-                            : colors.light.surface,
+                            ? theme.primary + '10'
+                            : theme.surface,
                       },
                     ]}
                     onPress={() => setRole(r.value as 'client' | 'companion')}
@@ -198,9 +190,7 @@ export default function RegisterScreen() {
                     <Text
                       style={{
                         color:
-                          role === r.value
-                            ? colors.light.primary
-                            : colors.light.onSurface,
+                          role === r.value ? theme.primary : theme.onSurface,
                         fontWeight: role === r.value ? '600' : '400',
                       }}
                     >
@@ -214,7 +204,9 @@ export default function RegisterScreen() {
 
           {step === 1 && role === 'client' && (
             <>
-              <Text style={styles.label}>Tipo de servicio</Text>
+              <Text style={[styles.label, { color: theme.onSurface }]}>
+                Tipo de servicio
+              </Text>
               <View style={styles.serviceGrid}>
                 {['Acomp. Medico', 'Compania Diaria', 'Tramites'].map((s) => (
                   <TouchableOpacity
@@ -223,13 +215,11 @@ export default function RegisterScreen() {
                       styles.serviceOption,
                       {
                         borderColor:
-                          serviceType === s
-                            ? colors.light.primary
-                            : colors.light.outlineVariant,
+                          serviceType === s ? theme.primary : theme.outlineVariant,
                         backgroundColor:
                           serviceType === s
-                            ? colors.light.primary + '10'
-                            : colors.light.surface,
+                            ? theme.primary + '10'
+                            : theme.surface,
                       },
                     ]}
                     onPress={() => setServiceType(s)}
@@ -237,9 +227,7 @@ export default function RegisterScreen() {
                     <Text
                       style={{
                         color:
-                          serviceType === s
-                            ? colors.light.primary
-                            : colors.light.onSurface,
+                          serviceType === s ? theme.primary : theme.onSurface,
                         fontWeight: serviceType === s ? '600' : '400',
                       }}
                     >
@@ -253,24 +241,16 @@ export default function RegisterScreen() {
                 value={preferredDate}
                 onChange={setPreferredDate}
                 placeholder="DD/MM/AAAA"
+                theme={theme}
               />
-              <Field
-                label="Direccion"
-                value={address}
-                onChange={setAddress}
-              />
-              <Field
-                label="Notas"
-                value={notes}
-                onChange={setNotes}
-                multiline
-              />
+              <Field label="Direccion" value={address} onChange={setAddress} theme={theme} />
+              <Field label="Notas" value={notes} onChange={setNotes} multiline theme={theme} />
             </>
           )}
 
           {step === 2 && role === 'client' && (
             <View style={styles.emptyCompanion}>
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyText, { color: theme.onSurfaceVariant }]}>
                 Seleccion de compania (proximamente)
               </Text>
             </View>
@@ -278,14 +258,14 @@ export default function RegisterScreen() {
 
           {step === 3 && (
             <View style={styles.review}>
-              <ReviewRow label="Nombre" value={`${firstName} ${lastName}`} />
-              <ReviewRow label="Email" value={email} />
-              <ReviewRow label="Rol" value={role === 'companion' ? 'Compania' : 'Cliente'} />
+              <ReviewRow label="Nombre" value={`${firstName} ${lastName}`} theme={theme} />
+              <ReviewRow label="Email" value={email} theme={theme} />
+              <ReviewRow label="Rol" value={role === 'companion' ? 'Compania' : 'Cliente'} theme={theme} />
               {role === 'client' && (
                 <>
-                  <ReviewRow label="Servicio" value={serviceType} />
-                  <ReviewRow label="Fecha" value={preferredDate} />
-                  <ReviewRow label="Direccion" value={address} />
+                  <ReviewRow label="Servicio" value={serviceType} theme={theme} />
+                  <ReviewRow label="Fecha" value={preferredDate} theme={theme} />
+                  <ReviewRow label="Direccion" value={address} theme={theme} />
                 </>
               )}
             </View>
@@ -296,7 +276,7 @@ export default function RegisterScreen() {
         <View style={styles.nav}>
           {step > 0 && (
             <TouchableOpacity
-              style={styles.backButton}
+              style={[styles.backButton, { borderColor: theme.outline }]}
               onPress={() => {
                 if (role === 'companion' && step === 3) {
                   setStep(0);
@@ -305,9 +285,7 @@ export default function RegisterScreen() {
                 }
               }}
             >
-              <Text style={[styles.backText, { color: colors.light.primary }]}>
-                Atras
-              </Text>
+              <Text style={[styles.backText, { color: theme.primary }]}>Atras</Text>
             </TouchableOpacity>
           )}
 
@@ -315,9 +293,7 @@ export default function RegisterScreen() {
             style={[
               styles.nextButton,
               {
-                backgroundColor: canNext()
-                  ? colors.light.primary
-                  : colors.light.outline,
+                backgroundColor: canNext() ? theme.primary : theme.outline,
                 opacity: loading ? 0.6 : 1,
               },
             ]}
@@ -344,7 +320,7 @@ export default function RegisterScreen() {
           style={styles.linkButton}
           onPress={() => router.push('/(auth)/login')}
         >
-          <Text style={[styles.linkText, { color: colors.light.primary }]}>
+          <Text style={[styles.linkText, { color: theme.primary }]}>
             Ya tengo cuenta
           </Text>
         </TouchableOpacity>
@@ -362,6 +338,7 @@ function Field({
   secure,
   phone,
   multiline,
+  theme,
 }: {
   label: string;
   value: string;
@@ -371,15 +348,25 @@ function Field({
   secure?: boolean;
   phone?: boolean;
   multiline?: boolean;
+  theme: ReturnType<typeof useTheme>;
 }) {
   return (
     <View style={{ marginBottom: spacing.md }}>
-      <Text style={fieldStyles.label}>{label}</Text>
+      <Text style={[fieldStyles.label, { color: theme.onSurface }]}>{label}</Text>
       <TextInput
-        style={[fieldStyles.input, multiline && { height: 80 }]}
+        style={[
+          fieldStyles.input,
+          {
+            backgroundColor: theme.surfaceVariant,
+            borderColor: theme.outlineVariant,
+            color: theme.onSurface,
+          },
+          multiline && { height: 80 },
+        ]}
         value={value}
         onChangeText={onChange}
         placeholder={placeholder || label}
+        placeholderTextColor={theme.onSurfaceVariant}
         keyboardType={keyboard || 'default'}
         secureTextEntry={secure}
         multiline={multiline}
@@ -389,24 +376,29 @@ function Field({
   );
 }
 
-function ReviewRow({ label, value }: { label: string; value: string }) {
+function ReviewRow({
+  label,
+  value,
+  theme,
+}: {
+  label: string;
+  value: string;
+  theme: ReturnType<typeof useTheme>;
+}) {
   return (
-    <View style={reviewStyles.row}>
-      <Text style={reviewStyles.label}>{label}</Text>
-      <Text style={reviewStyles.value}>{value}</Text>
+    <View style={[reviewStyles.row, { borderBottomColor: theme.outlineVariant }]}>
+      <Text style={[reviewStyles.label, { color: theme.onSurfaceVariant }]}>
+        {label}
+      </Text>
+      <Text style={[reviewStyles.value, { color: theme.onSurface }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.light.background },
+  container: { flex: 1 },
   inner: { padding: spacing.lg, paddingTop: spacing.xxl },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.light.onBackground,
-    marginBottom: spacing.lg,
-  },
+  title: { fontSize: 28, fontWeight: '700', marginBottom: spacing.lg },
   stepper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -423,12 +415,7 @@ const styles = StyleSheet.create({
   stepNumber: { fontSize: 14, fontWeight: '600' },
   stepLabel: { fontSize: 10, marginTop: spacing.xs, textAlign: 'center' },
   form: { marginBottom: spacing.lg },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.light.onSurface,
-    marginBottom: spacing.xs,
-  },
+  label: { fontSize: 14, fontWeight: '500', marginBottom: spacing.xs },
   serviceGrid: { gap: spacing.sm, marginBottom: spacing.md },
   serviceOption: {
     padding: spacing.md,
@@ -436,7 +423,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   emptyCompanion: { alignItems: 'center', padding: spacing.xxl },
-  emptyText: { fontSize: 16, color: colors.light.onSurfaceVariant },
+  emptyText: { fontSize: 16 },
   review: { gap: spacing.sm },
   nav: { flexDirection: 'row', gap: spacing.md },
   backButton: {
@@ -444,7 +431,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.light.outline,
     alignItems: 'center',
   },
   backText: { fontSize: 16, fontWeight: '600' },
@@ -460,19 +446,12 @@ const styles = StyleSheet.create({
 });
 
 const fieldStyles = StyleSheet.create({
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.light.onSurface,
-    marginBottom: spacing.xs,
-  },
+  label: { fontSize: 14, fontWeight: '500', marginBottom: spacing.xs },
   input: {
-    backgroundColor: colors.light.surfaceVariant,
     borderRadius: radius.md,
     padding: spacing.md,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: colors.light.outlineVariant,
   },
 });
 
@@ -482,8 +461,7 @@ const reviewStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.light.outlineVariant,
   },
-  label: { fontSize: 14, color: colors.light.onSurfaceVariant },
+  label: { fontSize: 14 },
   value: { fontSize: 14, fontWeight: '500' },
 });

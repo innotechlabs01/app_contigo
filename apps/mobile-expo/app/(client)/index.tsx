@@ -12,13 +12,15 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/src/stores/auth-store';
 import { useRequestStore } from '@/src/stores/request-store';
 import { requestApi } from '@/src/api/endpoints';
-import { colors } from '@/src/theme/colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { StatCard } from '@/src/components/StatCard';
 import { spacing, radius } from '@/src/theme/spacing';
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
   const { requests, setRequests, setLoading, isLoading } = useRequestStore();
   const router = useRouter();
+  const theme = useTheme();
 
   const loadRequests = async () => {
     setLoading(true);
@@ -26,7 +28,7 @@ export default function HomeScreen() {
       const data = await requestApi.list();
       setRequests(data);
     } catch {
-      // handle error
+      // TODO: show error toast
     } finally {
       setLoading(false);
     }
@@ -42,37 +44,37 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.light.background }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={loadRequests} />
       }
     >
       <View style={styles.header}>
-        <Text style={styles.greeting}>
+        <Text style={[styles.greeting, { color: theme.onBackground }]}>
           Hola, {user?.first_name || 'Usuario'}
         </Text>
-        <Text style={styles.subtitle}>Bienvenido a Contigo</Text>
+        <Text style={[styles.subtitle, { color: theme.onSurfaceVariant }]}>
+          Bienvenido a Contigo
+        </Text>
       </View>
 
       <View style={styles.statsRow}>
-        <View style={[styles.statCard, { backgroundColor: colors.light.primary }]}>
-          <Text style={styles.statNumber}>{pendingCount}</Text>
-          <Text style={styles.statLabel}>Pendientes</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: colors.light.success }]}>
-          <Text style={styles.statNumber}>{acceptedCount}</Text>
-          <Text style={styles.statLabel}>Aceptadas</Text>
-        </View>
+        <StatCard value={pendingCount} label="Pendientes" color={theme.primary} />
+        <StatCard value={acceptedCount} label="Aceptadas" color={theme.success} />
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Acciones rapidas</Text>
+        <Text style={[styles.sectionTitle, { color: theme.onBackground }]}>
+          Acciones rapidas
+        </Text>
         <TouchableOpacity
-          style={[styles.actionCard, { backgroundColor: colors.light.surface }]}
+          style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.outlineVariant }]}
           onPress={() => router.push('/(client)/requests')}
         >
-          <Text style={styles.actionTitle}>Ver solicitudes</Text>
-          <Text style={styles.actionSubtitle}>
+          <Text style={[styles.actionTitle, { color: theme.onSurface }]}>
+            Ver solicitudes
+          </Text>
+          <Text style={[styles.actionSubtitle, { color: theme.onSurfaceVariant }]}>
             Revisa el estado de tus solicitudes
           </Text>
         </TouchableOpacity>
@@ -84,37 +86,20 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { padding: spacing.lg, paddingTop: spacing.xxl },
-  greeting: { fontSize: 28, fontWeight: '700', color: colors.light.onBackground },
-  subtitle: {
-    fontSize: 16,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-  },
+  greeting: { fontSize: 28, fontWeight: '700' },
+  subtitle: { fontSize: 16, marginTop: spacing.xs },
   statsRow: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
     gap: spacing.md,
   },
-  statCard: {
-    flex: 1,
-    padding: spacing.lg,
-    borderRadius: radius.lg,
-    alignItems: 'center',
-  },
-  statNumber: { fontSize: 32, fontWeight: '700', color: '#FFFFFF' },
-  statLabel: { fontSize: 14, color: '#FFFFFF', marginTop: spacing.xs },
   section: { padding: spacing.lg },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginBottom: spacing.md },
   actionCard: {
     padding: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.light.outlineVariant,
   },
   actionTitle: { fontSize: 16, fontWeight: '600' },
-  actionSubtitle: {
-    fontSize: 14,
-    color: colors.light.onSurfaceVariant,
-    marginTop: spacing.xs,
-  },
+  actionSubtitle: { fontSize: 14, marginTop: spacing.xs },
 });
