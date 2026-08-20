@@ -14,7 +14,6 @@ import { useRouter } from 'expo-router';
 
 import { colors } from '@/src/theme/colors';
 import { spacing, radius } from '@/src/theme/spacing';
-import { useAuthStore } from '@/src/stores/auth-store';
 
 export default function LoginScreen() {
   const { signIn } = useSignIn();
@@ -33,12 +32,9 @@ export default function LoginScreen() {
     try {
       const result = await signIn?.create({ identifier: email, password });
       if (result && 'createdSessionId' in result && result.createdSessionId) {
-        const role = useAuthStore.getState().user?.role;
-        if (role === 'companion') {
-          router.replace('/(companion)');
-        } else {
-          router.replace('/(client)');
-        }
+        // Role-based redirect is handled by _layout.tsx useEffect
+        // after Clerk auth state propagates — do NOT redirect here
+        // because user.role is not yet populated in the auth store.
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Credenciales invalidas';

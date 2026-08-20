@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 8099
 
-CMD ["npx", "expo", "start", "--port", "8099", "--host", "lan"]
+CMD ["npx", "expo", "start", "--port", "8099", "--host", "0.0.0.0"]

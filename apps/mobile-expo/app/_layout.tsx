@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFonts, Lexend_400Regular, Lexend_500Medium, Lexend_600SemiBold, Lexend_700Bold } from '@expo-google-fonts/lexend';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { ClerkProvider, useAuth } from '@clerk/expo';
+import { ClerkProvider, useAuth, useUser } from '@clerk/expo';
 import * as SecureStore from 'expo-secure-store';
 
 import { useAuthStore } from '@/src/stores/auth-store';
@@ -22,29 +22,34 @@ const clerkPubKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
 
 function RootLayoutNav() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user: clerkUser } = useUser();
   const segments = useSegments();
   const router = useRouter();
   const { setUser, setLoaded } = useAuthStore();
+  const initRan = useRef(false);
 
+  // One unified effect: auth init + splash hide
   useEffect(() => {
     if (!isLoaded) return;
 
     const init = async () => {
-      if (isSignedIn) {
+      if (isSignedIn && clerkUser && !initRan.current) {
+        initRan.current = true;
         try {
           const token = await SecureStore.getItemAsync('clerk_jwt');
           if (token) {
             setAuthToken(token);
             const user = await userApi.upsertMe({
-              email: '',
-              first_name: '',
-              last_name: '',
+              email: clerkUser.primaryEmailAddress?.emailAddress || '',
+              first_name: clerkUser.firstName || '',
+              last_name: clerkUser.lastName || '',
+              phone: clerkUser.primaryPhoneNumber?.phoneNumber || undefined,
             });
             setUser(user);
             wsService.connect();
           }
         } catch {
-          // token may be stale
+          // token may be stale or upsert failed — continue to app
         }
       }
 
@@ -54,8 +59,9 @@ function RootLayoutNav() {
 
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, clerkUser]);
 
+  // Role-based redirect
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -95,6 +101,8 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
+  // Splash is hidden inside RootLayoutNav after auth init
+  // Only hide here for the font-loading edge case (app opened while already signed in from last session)
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();

@@ -2,18 +2,20 @@ services:
   expo:
     build: .
     ports:
-      - "8098:8099"
+      - "8099:8099"
+    volumes:
+      - .:/app
+      - /app/node_modules
     environment:
       - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-    volumes:
-      - /app/node_modules
-      - .:/app
 
   tunnel:
     image: cloudflare/cloudflared:latest
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-    network_mode: host
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       - expo
